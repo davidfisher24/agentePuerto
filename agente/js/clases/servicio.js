@@ -18,12 +18,14 @@ var Servicio= function(atributos){
 }
 
 
-// Servicio-parada.do: paneles informacion
+// Servicio-parada.do: works on the number of minutes to wait
+// FINISHED - returns an object with the service with the minutes left to wait
 Servicio.prototype.getLineaFromStop = function (){
     var text = '';
     var hour = this.checkBusesArrivingNow(this.hora); 
+    var name = this.nombre.split(" - ").pop().trim();
+    var flagRetraso = 0;
     if (parseInt(this.retraso) == 0) {
-        return (this.codigo.replace("-","") + ' ' + this.nombre.split(" - ").pop().trim() + ' ' + hour);
     } else {
         //CALCULO DEL RETRASO
         var aux=this.hora.split(":");
@@ -32,7 +34,15 @@ Servicio.prototype.getLineaFromStop = function (){
         var h= ((time - m)/60) % 24;
         var nuevaHora = ("00" + h).slice(-2) + ':' + ("00" + m).slice(-2);
         nuveaHora = this.checkBusesArrivingNow(nuevaHora); 
-        return (this.codigo.replace("-","") + ' ' + this.nombre.split(" - ").pop().trim() + ' RETRASADO ' + "*" + nuevaHora);
+        hour = nuevaHora;
+        flagRetraso = 1;
+    }
+
+    return {
+        service: this.codigo.replace("-",""),
+        name: name,
+        time: hour,
+        flagRetraso: flagRetraso,
     }
 };
 

@@ -363,20 +363,17 @@ Panel.prototype.calculaEstadoServicios = function (){
 /* Servicios-parada panel - 5 lines */
 Panel.prototype.calculaEstadoParada = function (){
     var _this = this;
-    var lines = [];
+    console.log(this.listaServicios);
+    /*var lines = [];
 
     if (this.listaServicios.length == 0) {           
-        //this.servicios = global.param.textos.finalizadosL.line1 + ' # ' + global.param.textos.finalizadosL.line2 + ' # ' + global.param.textos.finalizadosL.line3;
-        lines = [null,null,null,null,global.param.textos.finalizado];
+        lines = [null,null,null];
     } else if (this.listaServicios.length == 1) {     
-        //this.servicios = '# ' + this.listaServicios[0] + ' # ' +  global.param.textos.finalizadosL.line1 + ' # ' +  global.param.textos.finalizadosL.line2 ;
-        lines = [this.listaServicios[0],null,null,null,global.param.textos.ultima1];
+        lines = [this.listaServicios[0],null,null];
     } else if (this.listaServicios.length == 2) {      
-        //this.servicios = '# ' + this.listaServicios[0] + ' # ' +  this.listaServicios[1] + ' # ' +  global.param.textos.finalizadosL.line2 ;
-        lines = [this.listaServicios[0],this.listaServicios[1],null,null,global.param.textos.ultima2];
+        lines = [this.listaServicios[0],this.listaServicios[1],null];
     } else  {
-        lines = [this.listaServicios[0],this.listaServicios[1],this.listaServicios[2],null,null];
-        //this.servicios = '# ' + this.listaServicios[0] + ' # ' +  this.listaServicios[1] + ' # ' +  this.listaServicios[2];
+        lines = [this.listaServicios[0],this.listaServicios[1],this.listaServicios[2]];
     }
 
     this.servicios = '';
@@ -385,7 +382,7 @@ Panel.prototype.calculaEstadoParada = function (){
         if (l) _this.servicios += l;
         else _this.servicios += 'Vacio';
     });
-    this.servicios = this.servicios.substr(1);
+    this.servicios = this.servicios.substr(1);*/
 }
 
 module.exports = Panel;

@@ -241,14 +241,8 @@ var agentePaneles = function (params) {
 
                         panelesServiciosDia.forEach(function (p) {
                            p.calculaEstadoServicios();
-                           console.log(p.servicios);  // THIS IS THE SIMPLE VERION FOR MARQUESINA
-                           // THIS IS A TEST BEFORE SENDING
-                           var servicesTest = p.servicios.split('#');
-                           servicesTest.forEach(function (s) {
-                              var consulta = new Fabricante(p.ip);
-                              consulta.tramaPeticionEnvio(s.trim());
-                           });
-
+                           //console.log(p.servicios);  // THIS IS THE SIMPLE VERION FOR MARQUESINA
+                           
                             /*p.enviaServicios(function(err,res){
                                 if (err) {
                                     debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
@@ -265,6 +259,8 @@ var agentePaneles = function (params) {
 //----------------------------------------------------------------------------
 // Function - send services to the panels (from the servicios-parada resource)
 //----------------------------------------------------------------------------
+//Paneles marquesina:
+// Mostrarán los próximos x servicios tomados de "servicios-parada.do", con el campo "nombre" como destino de la línea.
 
     function enviaServiciosParada(p) {
         var listaServiciosJSON;
@@ -289,16 +285,22 @@ var agentePaneles = function (params) {
                         p.servicios='';
                         p.flag =0;
                         listaServiciosJSON.informacion.forEach (function(serv,i){
-                            if (i < p.lineas) { 
-                              var servicio = new agente.Servicio(serv);
-                                if (serv.estado === "Normal") {
-                                    p.listaServicios.push(servicio.getLineaFromStop());
-                                }  
-                            }
+                            var servicio = new agente.Servicio(serv);
+                            if (serv.estado === "Normal") {
+                                p.listaServicios.push(servicio.getLineaFromStop());
+                            }  
                             
                         });
                         p.calculaEstadoParada();
-                        console.log(p.servicios); // THIS IS THE COMPLICATED VERSION FOR INFORMACION
+                        //console.log(p.servicios); // THIS IS THE COMPLICATED VERSION FOR INFORMACION
+                        // THIS IS A TEST BEFORE SENDING
+                        /*var servicesTest = p.servicios.split('#');
+                            servicesTest.forEach(function (s) {
+                            var consulta = new Fabricante(p.ip);
+                            consulta.sendFixedTextMessage(s);
+                        });*/
+
+
                         /*p.enviaServicios(function(err,res){
                             if (err) {
                                 debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);

@@ -9,6 +9,7 @@
 
 var debug = require('../utils');
 var legacy = require('legacy-encoding');
+var xor = require('bitwise-xor');
 
 
 
@@ -56,8 +57,51 @@ Envia una trama al panel para solicitarle el estado en que se encuentra
 */
 };
 
+Fabricante.prototype.sendDeleteMessage=function(){
+	var that = this;
 
-Fabricante.prototype.tramaPeticionEnvio=function(/*item,*/texto){
+	var encodedString = [];
+
+	// Start of transmission elements
+	encodedString.push("AD"); // Mesage order. Needs defining
+	encodedString.push(this.agenteKey); // Agente origin
+	encodedString.push(this.panelKey); // Panel destination
+	encodedString.push(this.applicationCode); // Application code
+
+	// Make the longitude de datos here. Extra elements is encoded as 8 for fijo
+	var dataLength = 10; 
+	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
+		encodedString.push(byte);
+	});
+
+	// Extra data
+	encodedString.push("01"); // Delete command
+	encodedString.push("00"); // Almacena command
+	var xStart = 0; 
+	var yStart = 10; 
+	var xFinish = 127 
+	var yFinish = 25;
+	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(xFinish).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	
+	var string = encodedString.join(" ");
+	// Add checksum;
+	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
+	console.log(finalTransmissionString);
+};
+
+
+Fabricante.prototype.sendFixedTextMessage=function(/*item,*/texto){
 	var that = this;
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -66,8 +110,7 @@ Fabricante.prototype.tramaPeticionEnvio=function(/*item,*/texto){
 
 	var encodedString = [];
 
-	// This is the start of the transmission - five elements
-	encodedString.push(this.startTransmissionKey); // Start transmission key
+	// Start of transmission elements
 	encodedString.push("AD"); // Mesage order. Needs defining
 	encodedString.push(this.agenteKey); // Agente origin
 	encodedString.push(this.panelKey); // Panel destination
@@ -98,13 +141,20 @@ Fabricante.prototype.tramaPeticionEnvio=function(/*item,*/texto){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
 
-	// End of data
-	encodedString.push(this.endTransmissionKey); // Start transmission key
 
-	// Final string
+	// checksum added last
+	this.makeChecksum(encodedString).forEach(function(hex){
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	})
+	
 	var string = encodedString.join(" ");
+	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
+	console.log(finalTransmissionString);
+	
 };
 
+
+// Returns a hex code of one byte (typically for a ascii letter)
 Fabricante.prototype.makeHexNumberOneByte = function(number) {
 	hexString = number.toString(16);
     var str = '' + hexString;
@@ -112,6 +162,7 @@ Fabricante.prototype.makeHexNumberOneByte = function(number) {
     return str;
 };
 
+// Returns a hex code of two byres typically for a number
 Fabricante.prototype.makeHexNumberTwoBytes = function(number) {
 	hexString = number.toString(16);
     var str = '' + hexString;
@@ -125,6 +176,16 @@ Fabricante.prototype.makeHexNumberTwoBytes = function(number) {
     	while (byte1.length < 2) byte1 = '0' + byte1;
     	return [byte1,byte2];
     }
+}
+
+Fabricante.prototype.makeChecksum = function(array) {
+	var that = this;
+	var current = array.shift();
+	for (var x =0; x < array.length; x++) {
+		current = xor(new Buffer(current, 'hex'),new Buffer(array[x], 'hex'));
+	}
+
+	return current;
 }
 
 

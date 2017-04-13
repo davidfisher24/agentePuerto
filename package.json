@@ -10,6 +10,8 @@
     "needle": "^0.7.10"
   },
   "devDependencies": {
+    "bitwise": "^0.2.0",
+    "bitwise-xor": "0.0.0",
     "morgan": "^1.5.1",
     "windows-1252": "^1.0.0"
   },

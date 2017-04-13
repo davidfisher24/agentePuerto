@@ -7,6 +7,17 @@
         "tiempoEspera": 60,
          "debugmode" : 1
     },
+    "panelTypes" : {
+        "marquesina" : {
+            "lineas" : 3,
+            "lineasServicios" : 3
+        },
+        "informacion" : {
+            "lineas" : 5,
+            "lineasServicios" : 3
+        }
+    },
+
     "servicios"     : {"name": "servicios", "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/servicios-dia.do", "metodo": "GET"},
     "serviciosParada" : {"name": "serviciosParada", "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/servicios-parada.do?id={id}&numeroElementos{numero}", "metodo": "GET"},
     "incidencias"   :  {"name": "incidencias",  "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/incidencias.do", "metodo": "GET"},
