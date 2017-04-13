@@ -347,42 +347,35 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
 
 };
 
-/* Servicios-dia panel - 3 lines */
+/* Servicios-dia panel - currently sending hours. Adds up to 3 services */
 Panel.prototype.calculaEstadoServicios = function (){
-    if (this.listaServicios.length == 0) {         
-        this.servicios = ' # ' + "Vacio" + '#' + "Vacio" + '#' + global.param.textos.finalizado;
-    } else if (this.listaServicios.length == 1) {     
-        this.servicios = '# ' + this.listaServicios[0] + ' # ' + "Vacio" + ' # ' +global.param.textos.ultima1;
-    } else if (this.listaServicios.length == 2) {      
-        this.servicios = '# ' + this.listaServicios[0] + ' # ' + this.listaServicios[1] + ' # ' + global.param.textos.ultima2;
-    } else  {
-        this.servicios = '# ' + this.listaServicios[0] + ' # ' + this.listaServicios[1] + ' # ' +this.listaServicios[2];
-    }
-}
+    var services = [];
+    // lista servicios needs ordering
 
-/* Servicios-parada panel - 5 lines */
-Panel.prototype.calculaEstadoParada = function (){
-    var _this = this;
-    console.log(this.listaServicios);
-    /*var lines = [];
-
-    if (this.listaServicios.length == 0) {           
-        lines = [null,null,null];
-    } else if (this.listaServicios.length == 1) {     
-        lines = [this.listaServicios[0],null,null];
-    } else if (this.listaServicios.length == 2) {      
-        lines = [this.listaServicios[0],this.listaServicios[1],null];
-    } else  {
-        lines = [this.listaServicios[0],this.listaServicios[1],this.listaServicios[2]];
-    }
-
-    this.servicios = '';
-    lines.forEach(function(l){
-        _this.servicios += ' # ';
-        if (l) _this.servicios += l;
-        else _this.servicios += 'Vacio';
+    this.listaServicios.forEach(function(s){
+        if (services.length < 3) {
+            services.push(s);
+        }
     });
-    this.servicios = this.servicios.substr(1);*/
+    this.servicios = services;
 }
+
+/* Servicios-parada panel - currently sending services with minutes to wait  Adds up to 3 services*/
+Panel.prototype.calculaEstadoParada = function (){
+    var services = [];
+    // listaservicios needs ordering
+
+    this.listaServicios.forEach(function(s){
+        if (services.length < 3) {
+            if (s.time >= 0) {
+                services.push(s);
+            }
+        }
+    });
+    this.servicios = services;
+}
+
+
+
 
 module.exports = Panel;

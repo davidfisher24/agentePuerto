@@ -21,7 +21,6 @@ var Servicio= function(atributos){
 // Servicio-parada.do: works on the number of minutes to wait
 // FINISHED - returns an object with the service with the minutes left to wait
 Servicio.prototype.getLineaFromStop = function (){
-    var text = '';
     var hour = this.checkBusesArrivingNow(this.hora); 
     var name = this.nombre.split(" - ").pop().trim();
     var flagRetraso = 0;
@@ -38,6 +37,7 @@ Servicio.prototype.getLineaFromStop = function (){
         flagRetraso = 1;
     }
 
+    hour = this.calculateWait(hour); // We turn this one into a minutes to wait
     return {
         service: this.codigo.replace("-",""),
         name: name,
@@ -46,19 +46,31 @@ Servicio.prototype.getLineaFromStop = function (){
     }
 };
 
-// Servicio-dia.do: paneles marquesina
+// Servicio-dia.do: works on the time of leaving
+// Works - works on the time of leaving
+//Paneles información:
 Servicio.prototype.getLineaFromServices = function (){
-    var wait = this.calculateWait(this.llegada);
-    wait = parseInt(wait) === 0 ? ">>" : parseInt(wait);
-    var text = '';
+    var hour = this.checkBusesArrivingNow(this.salida); 
+    var name = this.destino;
+    var flagRetraso = 0;
     if (parseInt(this.retraso) == 0) {
-        return (this.codigo.replace("-","") + ' ' + this.destino + ' ' + wait);
     } else {
         //CALCULO DEL RETRASO
-        var aux=this.llegada.split(":");
-        var time = parseInt(wait) + parseInt(this.retraso);
-        time = parseInt(time) === 0 ? ">>" : parseInt(time);
-        return (this.codigo.replace("-","") + ' ' + this.destino + ' RETRASADO ' + time);  
+        var aux=this.hora.split(":");
+        var time = parseInt(aux[0])*60 + parseInt(aux[1]) + parseInt(this.retraso);
+        var m =  time % 60;
+        var h= ((time - m)/60) % 24;
+        var nuevaHora = ("00" + h).slice(-2) + ':' + ("00" + m).slice(-2);
+        nuveaHora = this.checkBusesArrivingNow(nuevaHora); 
+        hour = nuevaHora;
+        flagRetraso = 1;
+    }
+
+    return {
+        service: this.codigo.replace("-",""),
+        name: this.destino,
+        time: hour,
+        flagRetraso: flagRetraso,
     }
 };
 
