@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Visor de estado </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <% _.each(items, function(panel,i) { %>
+        <div class="col-md-4">
+            <% if (panel.idestado==0) { %>
+                 <div id = "estado<%= panel.id %>" class="panel panel-success">
+             <% } else if (panel.idestado==1) { %>
+                 <div id = "estado<%= panel.id %>" class="panel panel-danger">
+             <% } else { %>
+                 <div id = "estado<%= panel.id %>" class="panel panel-warning ">
+             <% } %>
+
+                <div class="panel-heading">
+                    <h3 class="panel-title altopanelhead"><%- panel.panel %></h3>
+                </div>
+                <div id="panel<%= panel.id %>" class="panel-body altopanelbody"><%- panel.estado %></div>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</div>
