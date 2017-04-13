@@ -18,12 +18,14 @@ var Servicio= function(atributos){
 }
 
 
+
 // Servicio-parada.do: works on the number of minutes to wait
 // FINISHED - returns an object with the service with the minutes left to wait
 Servicio.prototype.getLineaFromStop = function (){
-    var hour = this.checkBusesArrivingNow(this.hora); 
+    var hour = this.hora;
     var name = this.nombre.split(" - ").pop().trim();
     var flagRetraso = 0;
+
     if (parseInt(this.retraso) == 0) {
     } else {
         //CALCULO DEL RETRASO
@@ -32,17 +34,19 @@ Servicio.prototype.getLineaFromStop = function (){
         var m =  time % 60;
         var h= ((time - m)/60) % 24;
         var nuevaHora = ("00" + h).slice(-2) + ':' + ("00" + m).slice(-2);
-        nuveaHora = this.checkBusesArrivingNow(nuevaHora); 
         hour = nuevaHora;
         flagRetraso = 1;
     }
 
-    hour = this.calculateWait(hour); // We turn this one into a minutes to wait
+    wait = this.calculateWait(hour); 
+    flagArrivingNow = this.checkBusesArrivingNow(hour);
     return {
         service: this.codigo.replace("-",""),
         name: name,
         time: hour,
+        wait: wait,
         flagRetraso: flagRetraso,
+        flagArrivingNow: flagArrivingNow,
     }
 };
 
@@ -50,7 +54,7 @@ Servicio.prototype.getLineaFromStop = function (){
 // Works - works on the time of leaving
 //Paneles información:
 Servicio.prototype.getLineaFromServices = function (){
-    var hour = this.checkBusesArrivingNow(this.salida); 
+    var hour = this.salida; 
     var name = this.destino;
     var flagRetraso = 0;
     if (parseInt(this.retraso) == 0) {
@@ -61,16 +65,19 @@ Servicio.prototype.getLineaFromServices = function (){
         var m =  time % 60;
         var h= ((time - m)/60) % 24;
         var nuevaHora = ("00" + h).slice(-2) + ':' + ("00" + m).slice(-2);
-        nuveaHora = this.checkBusesArrivingNow(nuevaHora); 
         hour = nuevaHora;
         flagRetraso = 1;
     }
 
+    wait = this.calculateWait(hour); 
+    flagArrivingNow = this.checkBusesArrivingNow(hour);
     return {
         service: this.codigo.replace("-",""),
         name: this.destino,
         time: hour,
+        wait: wait,
         flagRetraso: flagRetraso,
+        flagArrivingNow: flagArrivingNow,
     }
 };
 
@@ -91,7 +98,7 @@ Servicio.prototype.calculateWait = function(llegada){
 Servicio.prototype.checkBusesArrivingNow = function(llegada) {
     var currentDate = new Date();
     var nowTime = currentDate.getHours() + ":" + currentDate.getMinutes();
-    return (llegada === nowTime) ? ">>" : llegada;
+    return (llegada === nowTime) ? 1 : 0;
 }
 
 

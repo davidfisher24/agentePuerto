@@ -47,6 +47,7 @@ var Panel = function(campos){;
     // Information panels calling to srvicios parada
     this.refrescoP = 65 * 1000;
     this.serieP = -1;
+    this.messageOrder = 0; // For secnding the hexes 0-16 for message order
 };
 
 /**
@@ -350,11 +351,15 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
 /* Servicios-dia panel - currently sending hours. Adds up to 3 services */
 Panel.prototype.calculaEstadoServicios = function (){
     var services = [];
-    // lista servicios needs ordering
+    this.listaServicios.sort(function(a, b){
+        return a.wait-b.wait;
+    })
 
     this.listaServicios.forEach(function(s){
         if (services.length < 3) {
-            services.push(s);
+            if (s.wait >= 0) {
+                services.push(s);
+            }
         }
     });
     this.servicios = services;
@@ -363,17 +368,21 @@ Panel.prototype.calculaEstadoServicios = function (){
 /* Servicios-parada panel - currently sending services with minutes to wait  Adds up to 3 services*/
 Panel.prototype.calculaEstadoParada = function (){
     var services = [];
-    // listaservicios needs ordering
+    this.listaServicios.sort(function(a, b){
+        return a.wait-b.wait;
+    })
 
     this.listaServicios.forEach(function(s){
         if (services.length < 3) {
-            if (s.time >= 0) {
+            if (s.wait >= 0) {
                 services.push(s);
             }
         }
     });
     this.servicios = services;
 }
+
+
 
 
 

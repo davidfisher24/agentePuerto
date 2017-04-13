@@ -21,6 +21,13 @@ var Fabricante= function (ipPanel){
 	this.agenteKey = "B0";
 	this.panelKey = "B1";
 	this.applicationCode = "20";
+	this.textHeight = "07";
+	// commands
+	this.deleteCommand = "01";
+	this.fixedTestCommand = "11";
+	this.textWithEffectsCommand = "13";
+	this.syncCommand = "22";
+	this.keepAliveCommand = "23";
 };
 
 
@@ -57,51 +64,91 @@ Envia una trama al panel para solicitarle el estado en que se encuentra
 */
 };
 
+// DAVID
+
+Fabricante.prototype.sendKeepAlive = function(){
+	var encodedString = [];
+
+	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(this.agenteKey,this.panelKey); // Fixed element
+	encodedString.push(this.keepAliveCommand); // Texto Fijo command
+
+	var dataLength = 0;
+	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	});
+
+	var string = encodedString.join(" ");
+	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
+	console.log(finalTransmissionString);
+};
+
+Fabricante.prototype.sendSyncCommand = function(){
+	var encodedString = [];
+
+	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(this.agenteKey,this.panelKey); // Fixed element
+	encodedString.push(this.syncCommand); // Texto Fijo command
+
+	var dataLength = 0; // 10 for the delete message
+	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	});
+
+	var string = encodedString.join(" ");
+	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
+	console.log(finalTransmissionString);
+	
+};
+
+
 Fabricante.prototype.sendDeleteMessage=function(){
 	var that = this;
 
 	var encodedString = [];
 
-	// Start of transmission elements
-	encodedString.push("AD"); // Mesage order. Needs defining
-	encodedString.push(this.agenteKey); // Agente origin
-	encodedString.push(this.panelKey); // Panel destination
-	encodedString.push(this.applicationCode); // Application code
+	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed element
 
-	// Make the longitude de datos here. Extra elements is encoded as 8 for fijo
-	var dataLength = 10; 
+	var dataLength = 10; // 10 for the delete message
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
 
 	// Extra data
-	encodedString.push("01"); // Delete command
+	encodedString.push(this.deleteCommand); // Texto Fijo command
 	encodedString.push("00"); // Almacena command
-	var xStart = 0; 
-	var yStart = 10; 
-	var xFinish = 127 
-	var yFinish = 25;
+	
 	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // xstart
 	});
 	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // ystart
 	});
 	this.makeHexNumberTwoBytes(xFinish).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // xfinish
 	});
 	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // yfinish
 	});
+
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	})
 	
 	var string = encodedString.join(" ");
-	// Add checksum;
 	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
 	console.log(finalTransmissionString);
 };
 
 
-Fabricante.prototype.sendFixedTextMessage=function(/*item,*/texto){
+Fabricante.prototype.sendFixedTextMessage=function(texto){
 	var that = this;
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -110,49 +157,92 @@ Fabricante.prototype.sendFixedTextMessage=function(/*item,*/texto){
 
 	var encodedString = [];
 
-	// Start of transmission elements
-	encodedString.push("AD"); // Mesage order. Needs defining
-	encodedString.push(this.agenteKey); // Agente origin
-	encodedString.push(this.panelKey); // Panel destination
-	encodedString.push(this.applicationCode); // Application code
+	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed elements
 
-	// Make the longitude de datos here. Extra elements is encoded as 8 for fijo
+	// Make the data length here. For fixed text this is the string bytes + 8
 	var dataLength = encodedString.length + 8; 
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
 
-	// Extra data
-	encodedString.push("11"); // Texto Fijo
+	encodedString.push(this.fixedTestCommand); // Texto Fijo command
 	encodedString.push("00"); // Almacena command
-	var xStart = 109; // x position
-	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
+	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){ //x start needs defining
 		encodedString.push(byte);
 	});
-	var yStart = 10; // y position
-	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){
+	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){ //y start needs defining
 		encodedString.push(byte);
 	});
 	encodedString.push("11"); //Color - Amber
-	encodedString.push("07"); //Altura del texto
+	encodedString.push(this.textHeight); //Altura del texto
 	
-	// Push each byte of the string here
-	encodedText.forEach(function(hex){
+	encodedText.forEach(function(hex){ // The hexes of the string
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
-
-
-	// checksum added last
-	this.makeChecksum(encodedString).forEach(function(hex){
+	
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
 	
-	var string = encodedString.join(" ");
+	var string = encodedString.join(" "); 
 	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
 	console.log(finalTransmissionString);
 	
 };
 
+Fabricante.prototype.sendTextMessageWithEffect=function(texto){
+	var that = this;
+
+	var encodedText = legacy.encode(texto, this.encodingType, {
+	  'mode': 'html'
+	});
+
+	var encodedString = [];
+
+	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed elements
+
+	// Make the data length here. For effects text this is the string bytes + 14
+	var dataLength = encodedString.length + 14; 
+	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
+		encodedString.push(byte);
+	});
+
+	encodedString.push(this.textWithEffectsCommand); // Texto with effects command
+	encodedString.push("00"); // Almacena command
+	encodedString.push("01") // velocidad
+	encodedString.push("05") // effecto parpadeo
+	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){ 
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(xFinish).forEach(function(byte){
+		encodedString.push(byte);
+	});
+	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){ 
+		encodedString.push(byte);
+	});
+	encodedString.push("11"); //Color - Amber
+	encodedString.push(this.textHeight); //Altura del texto
+	
+	encodedText.forEach(function(hex){ // The hexes of the string
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	});
+	
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+		encodedString.push(that.makeHexNumberOneByte(hex));
+	})
+	
+	var string = encodedString.join(" "); 
+	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
+	console.log(finalTransmissionString);
+	
+};
+
+// HELPERS
 
 // Returns a hex code of one byte (typically for a ascii letter)
 Fabricante.prototype.makeHexNumberOneByte = function(number) {

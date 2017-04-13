@@ -241,7 +241,7 @@ var agentePaneles = function (params) {
 
                         panelesServiciosDia.forEach(function (p) {
                            p.calculaEstadoServicios();
-                           console.log(p.servicios);  // THIS IS THE SIMPLE VERION FOR MARQUESINA
+                           //console.log(p.servicios); 
                            
                             /*p.enviaServicios(function(err,res){
                                 if (err) {
@@ -292,6 +292,7 @@ var agentePaneles = function (params) {
                             
                         });
                         p.calculaEstadoParada();
+                        //console.log(p.servicios); 
                         // At this point p.servicios is an array of objects of services for sending
                         // THIS IS A TEST BEFORE SENDING
                         /*var servicesTest = p.servicios.split('#');
