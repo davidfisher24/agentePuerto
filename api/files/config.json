@@ -5,7 +5,8 @@
         "tiempoEntreReintento": 10,
         "tiempoRefresco"      : 85,
         "tiempoEspera": 60,
-         "debugmode" : 1
+         "debugmode" : 1,
+         "llegadaProntoTime" : 1
     },
     "panelTypes" : {
         "marquesina" : {
@@ -69,15 +70,15 @@
         "id"               : 14,
         "idpanel"          : 78,
         "panel"            : "APEADERO BERJA",
-        "ip"               : "0.0.0.0",
-        "puerto"           : 6000,
+        "ip"               : "10.250.16.147",
+        "puerto"           : 23,
         "luminosidad"      : 1,
         "forzarluminosidad": false,
         "inactivo"         : false,
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : ""
+        "type"             : "INFORMACION"
       },
       {
         "id"               : 8,
@@ -209,15 +210,15 @@
         "id"               : 1,
         "idpanel"          : 385,
         "panel"            : "VILLA INÉS (VUELTA)",
-        "ip"               : "10.250.16.147",
-        "puerto"           : 80,
+        "ip"               : "",
+        "puerto"           : 23,
         "luminosidad"      : 1,
         "forzarluminosidad": false,
         "inactivo"         : false,
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : "INFORMACION"
+        "type"             : ""
       }
     ],
     "textos" : {
@@ -233,7 +234,7 @@
         "finalizadosL": {"line1": "SERVICIOS","line2": "FINALIZADOS","line3": "POR HOY","line4": ""},
         "finalizadosS": {"line1": "SERVICIOS","line2": "FINALIZADOS","line3": "POR HOY","line4": ""},
         "ultima1" : "ULTIMO SERVICIO",
-        "utlima2" : "ULTIMOS SERVICIOS",
+        "ultima2" : "ULTIMOS SERVICIOS",
         "finalizado" : "SERVICIOS FINALIZADOS POR HOY"
     }
 }

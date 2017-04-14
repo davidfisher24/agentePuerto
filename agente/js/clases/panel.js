@@ -37,8 +37,46 @@ var Panel = function(campos){;
     this.refrescoP = 65 * 1000;
     this.serieP = -1;
     this.messageOrder = 0; // For secnding the hexes 0-16 for message order
+    this.segments = []; // Segments of strings to send
 };
 
+Panel.prototype.test = function(){
+    console.log("Testing connection");
+
+    var panelConsulta = new Fabricante(this.ip);
+    var panelSocket = net.connect({host: this.ip, port: this.puerto});
+    panelSocket.setEncoding('hex');
+    panelSocket.setTimeout(global.param.tiempoEspera);
+    var _that = this;
+    
+    panelSocket.on('connect', function () {
+        debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
+        _that.conectado=true;
+        
+
+        //var trama = "02ACB0B120000A0100000100010078001BE503";
+        var trama = - "02A6B0B12200008503";
+        var buff = new Buffer(trama, 'hex');
+        panelSocket.write(buff);
+
+    });
+
+    panelSocket.on('data', function (data) {
+        console.log(data);
+        if (data.length!==0) {
+            var dR=new Buffer(data.toString(),'hex');
+            var datos=panelConsulta.trataConsulta(dR);
+            console.log(datos);
+            if (typeof datos != 'undefined') {
+                var obj={id: (_that.id).toString(),
+                    estado: "0",
+                    texto: datos.toString()};
+                _that.estado = obj;
+                panelSocket.end();
+            }
+        }
+    });
+};
 
 /**
  * Consult the state of a panel
@@ -80,25 +118,23 @@ Panel.prototype._conexionParaConsulta = function (callback){
     panelSocket.on('connect', function () {
         debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
         _that.conectado=true;
-        
 
-        /*var trama=panelConsulta.tramaSeleccion(_that.id);
+        var trama=panelConsulta.tramaSeleccion(_that.id);
         var buff = new Buffer(trama, 'hex');
-        panelSocket.write(buff);*/
+        panelSocket.write(buff);
 
-        //Enviamos peticion de estado al panel
-        //var t2 = panelConsulta.tramaPeticionEstado();
-        var t2 = panelConsulta.sendKeepAlive();
-
-        console.log(t2);
+        var t2 = panelConsulta.tramaPeticionEstado();
         var buff2 = new Buffer(t2, 'hex');
         panelSocket.write(buff2);
+
     });
 
     panelSocket.on('data', function (data) {
+        console.log(data);
         if (data.length!==0) {
             var dR=new Buffer(data.toString(),'hex');
             var datos=panelConsulta.trataConsulta(dR);
+            console.log(datos);
             if (typeof datos != 'undefined') {
                 var obj={id: (_that.id).toString(),
                     estado: "0",
@@ -227,7 +263,6 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
     var _that = this;
 
     envioSocket.on('connect',function(){
-        console.log("connected");
         debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         _that.conectadoEnv=true;
         //1: Calculamos la trama de seleccion del panel y la enviamos
@@ -356,6 +391,8 @@ Panel.prototype.calculaEstadoServicios = function (){
         }
     });
     this.servicios = services;
+
+    this.segments = [];
 }
 
 /* Servicios-parada panel - currently sending services with minutes to wait  Adds up to 3 services*/
@@ -373,6 +410,27 @@ Panel.prototype.calculaEstadoParada = function (){
         }
     });
     this.servicios = services;
+    
+    
+    var segments = [];
+
+    var yPosition = 1;
+    var ySpacing = 9;
+    services.forEach(function(obj){
+        segments.push([obj.service,1,yPosition,null]);  // Line number with no effect
+        segments.push([obj.name,30,yPosition,obj.name.length > 12 ? 'scroll' : null]); // Desintation with possible scroll
+
+        var waitText = obj.wait;
+        if (obj.wait <= global.param.llegadaProntoTime) waitText =">>";
+        segments.push([waitText,96,yPosition,waitText == ">>" ? 'blink' : null]);
+
+        yPosition = yPosition + ySpacing;
+    });
+    if (services.length === 2) segments.push([global.param.textos.ultima2, 1, 19, null]); 
+    if (services.length === 1) segments.push([global.param.textos.ultima1, 1, 19, null]);
+    if (services.length === 0) segments.push([global.param.textos.finalizado, 1, 19, null])
+
+    this.segments = segments;
 }
 
 

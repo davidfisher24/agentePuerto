@@ -23,7 +23,8 @@ global.param={
     numReintentos : 1,     // Number of reconnection attempts to the panels
     tiempoReintentos : 1,  // Time between reconnection attempts to the panels (seconds)
     tiempoEspera : 30,     // Timeout for connection to the panels (seconds)
-    textos :""
+    textos :"",
+    llegadaProntoTime: 1
 };
 
 //----------------------------------------------------
@@ -62,6 +63,7 @@ var agentePaneles = function (params) {
         global.param.tiempoReintentos = parametros.tiempoEntreReintento * 1000;
         global.param.tiempoEspera = parametros.tiempoEspera * 1000;
         global.param.textos=settingJSON.textos;
+        global.param.llegadaProntoTime = parametros.llegadaProntoTime;
         recursoIncidencias= {
             hostname: settingJSON.incidencias.host,
             port: settingJSON.incidencias.puerto,
@@ -107,7 +109,7 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.iniciaAgente = function (){
-        consultaInformacion();
+        //test();
         enviaIncidencias ();
         setTimeout(enviaServicios(),7000);
         setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
@@ -121,6 +123,12 @@ var agentePaneles = function (params) {
 
         debug.log(1,"Agente inciado");
     };
+
+    function test(){
+        panelesSistema.forEach (function (item,i){
+            item.test();
+        });
+    }
 
 //----------------------------------------------------
 // Function - Consult  the status of the panels and post to the API - Not yet working
@@ -293,14 +301,11 @@ var agentePaneles = function (params) {
                             
                         });
                         p.calculaEstadoParada();
-                        //console.log(p.servicios); 
-                        // At this point p.servicios is an array of objects of services for sending
-                        // THIS IS A TEST BEFORE SENDING
-                        /*var servicesTest = p.servicios.split('#');
-                            servicesTest.forEach(function (s) {
-                            var consulta = new Fabricante(p.ip);
-                            consulta.sendFixedTextMessage(s);
-                        });*/
+                        var consulta = new Fabricante(p.ip);
+                        p.segments.forEach(function(s){
+                            var tramo = consulta.sendFixedTextMessage(s[0],s[1],s[2]);
+                            p._conexionParaConsulta(tramo);
+                        });
 
 
                         /*p.enviaServicios(function(err,res){

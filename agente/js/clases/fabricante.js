@@ -51,6 +51,10 @@ Fabricante.prototype.trataConsulta= function (datos) {
      * Esta funcion decodifica la trama que recibido del panel
      * Los datos vienen en un buffer
      */
+     var decodedText = legacy.decode(datos, 'ascii', {
+	  'mode': 'html'
+	});
+    return decodedText;
 };
 
 
@@ -70,7 +74,7 @@ Fabricante.prototype.sendKeepAlive = function(){
 	var that = this;
 	var encodedString = [];
 
-	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push("A7"); // Message order. Needs defining
 	encodedString.push(this.agenteKey,this.panelKey); // Fixed element
 	encodedString.push(this.keepAliveCommand); // Texto Fijo command
 
@@ -78,13 +82,14 @@ Fabricante.prototype.sendKeepAlive = function(){
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
+
 	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
 
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
-	return encodedString;
+	return encodedString.join("");
 };
 
 Fabricante.prototype.sendSyncCommand = function(){
@@ -105,7 +110,7 @@ Fabricante.prototype.sendSyncCommand = function(){
 
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
-	return encodedString;
+	return encodedString.join("");
 	
 };
 
@@ -146,11 +151,11 @@ Fabricante.prototype.sendDeleteMessage=function(){
 	
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
-	return encodedString;
+	return encodedString.join("");
 };
 
 
-Fabricante.prototype.sendFixedTextMessage=function(texto){
+Fabricante.prototype.sendFixedTextMessage=function(texto,xStart,yStart){
 	var that = this;
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -189,7 +194,7 @@ Fabricante.prototype.sendFixedTextMessage=function(texto){
 	
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
-	return encodedString;
+	return encodedString.join("");
 	
 };
 
@@ -240,7 +245,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(texto){
 	
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
-	return encodedString;
+	return encodedString.join("");
 	
 };
 
@@ -272,8 +277,8 @@ Fabricante.prototype.makeHexNumberTwoBytes = function(number) {
 
 Fabricante.prototype.makeChecksum = function(array) {
 	var that = this;
-	var current = array.shift();
-	for (var x =0; x < array.length; x++) {
+	var current = array[0];
+	for (var x =1; x < array.length; x++) {
 		current = xor(new Buffer(current, 'hex'),new Buffer(array[x], 'hex'));
 	}
 
