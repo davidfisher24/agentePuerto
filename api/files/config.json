@@ -63,7 +63,7 @@
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : "INFORMACION"
+        "type"             : ""
       },
       {
         "id"               : 14,
@@ -77,7 +77,7 @@
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : "INFORMACION"
+        "type"             : ""
       },
       {
         "id"               : 8,
@@ -209,8 +209,8 @@
         "id"               : 1,
         "idpanel"          : 385,
         "panel"            : "VILLA INÉS (VUELTA)",
-        "ip"               : "0.0.0.0",
-        "puerto"           : 6000,
+        "ip"               : "10.250.16.147",
+        "puerto"           : 80,
         "luminosidad"      : 1,
         "forzarluminosidad": false,
         "inactivo"         : false,

@@ -67,6 +67,7 @@ Envia una trama al panel para solicitarle el estado en que se encuentra
 // DAVID
 
 Fabricante.prototype.sendKeepAlive = function(){
+	var that = this;
 	var encodedString = [];
 
 	encodedString.push("AD"); // Message order. Needs defining
@@ -81,12 +82,13 @@ Fabricante.prototype.sendKeepAlive = function(){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
 
-	var string = encodedString.join(" ");
-	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
-	console.log(finalTransmissionString);
+	encodedString.unshift(this.startTransmissionKey);
+	encodedString.push(this.endTransmissionKey);
+	return encodedString;
 };
 
 Fabricante.prototype.sendSyncCommand = function(){
+	var that = this;
 	var encodedString = [];
 
 	encodedString.push("AD"); // Message order. Needs defining
@@ -101,9 +103,9 @@ Fabricante.prototype.sendSyncCommand = function(){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
 
-	var string = encodedString.join(" ");
-	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
-	console.log(finalTransmissionString);
+	encodedString.unshift(this.startTransmissionKey);
+	encodedString.push(this.endTransmissionKey);
+	return encodedString;
 	
 };
 
@@ -142,9 +144,9 @@ Fabricante.prototype.sendDeleteMessage=function(){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
 	
-	var string = encodedString.join(" ");
-	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
-	console.log(finalTransmissionString);
+	encodedString.unshift(this.startTransmissionKey);
+	encodedString.push(this.endTransmissionKey);
+	return encodedString;
 };
 
 
@@ -185,9 +187,9 @@ Fabricante.prototype.sendFixedTextMessage=function(texto){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
 	
-	var string = encodedString.join(" "); 
-	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
-	console.log(finalTransmissionString);
+	encodedString.unshift(this.startTransmissionKey);
+	encodedString.push(this.endTransmissionKey);
+	return encodedString;
 	
 };
 
@@ -236,9 +238,9 @@ Fabricante.prototype.sendTextMessageWithEffect=function(texto){
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
 	
-	var string = encodedString.join(" "); 
-	var finalTransmissionString = this.startTransmissionKey + " " + string.trim() + " " + this.endTransmissionKey;
-	console.log(finalTransmissionString);
+	encodedString.unshift(this.startTransmissionKey);
+	encodedString.push(this.endTransmissionKey);
+	return encodedString;
 	
 };
 

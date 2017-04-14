@@ -91,7 +91,7 @@ Servicio.prototype.calculateWait = function(testTime){
     if (parseInt(nowTime[0]) === parseInt(testTime[0])) {
         return parseInt(testTime[1]) - parseInt(nowTime[1]);
     } else {
-        var difference = calculateDifference(nowTime,testTime);
+        var difference = that.calculateDifference(nowTime,testTime);
         difference = difference.split(":");
         return (parseInt(difference[0]) * 60) + parseInt(difference[1]);
     }

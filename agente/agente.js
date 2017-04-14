@@ -94,7 +94,7 @@ var agentePaneles = function (params) {
         // panelesServiciosParada - Information panels that call to servicios-parada.do
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);
-            panelesSistema.push (p);
+            if (p.type === "INFORMACION") panelesSistema.push (p);
             if (p.type === "INFORMACION") panelesServiciosDia.push(p);
             if (p.type === "INFORMACION") panelesServiciosParada.push(p);
         });
@@ -107,6 +107,7 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.iniciaAgente = function (){
+        consultaInformacion();
         enviaIncidencias ();
         setTimeout(enviaServicios(),7000);
         setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
@@ -125,7 +126,7 @@ var agentePaneles = function (params) {
 // Function - Consult  the status of the panels and post to the API - Not yet working
 //----------------------------------------------------
 
-    /*function consultaInformacion(){
+    function consultaInformacion(){
         panelesSistema.forEach (function (item,i){
             item.consultaEstado(function (err,result){
                 if (typeof  err != 'undefined' && err!= null){
@@ -133,11 +134,11 @@ var agentePaneles = function (params) {
                 } else {
                     panelesSistema[i].estado=result;
                     _that.io.emit('consultaestado',item.estado);
-                    postEstadoAPI(result,item);
+                    //postEstadoAPI(result,item);  // We can't do this yet
                 }
             });
         });
-    }*/
+    }
 
 //----------------------------------------------------
 // Function - send incidents to the panel

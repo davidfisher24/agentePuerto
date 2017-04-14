@@ -1,18 +1,7 @@
 'use strict';
 
-/**
- *
- * 1/3/2016 JMMayo.
- *   1.-  Añadida comprobación que no permita conectar con un panel si tiene una conexión en curso. 
- *        Al tratarse de hilos independientes gestionados por temporizadores se puede dar la circunstancia de que estado y envío concurran.
- * 
- *   2.- Las variables de intentos IntentosEstados e IntentosEnvio no pueden ser globales, sino campos de cada panel, de lo contrario se los reintentos de un panel se suman a los de otro
- * 
- *   3.- Los prototipos son el mismo objeto por lo que se puede hacer uso de "this" y no es necesario pasar el "this" como parámetro
- */
 
-
-var net= require('net');
+var net= require('net');  // Web sockets
 var debug = require('../utils');
 var Fabricante=require('./fabricante.js');
 
@@ -50,8 +39,9 @@ var Panel = function(campos){;
     this.messageOrder = 0; // For secnding the hexes 0-16 for message order
 };
 
+
 /**
- * Consulta del estado de un panel devolviendo el mensaje
+ * Consult the state of a panel
  */
 Panel.prototype.consultaEstado = function(callback){
     //Si el panel esta INACTIVO - ESTADO 2
@@ -76,7 +66,6 @@ Panel.prototype.EstaConectado = function () {
 
 
 Panel.prototype._conexionParaConsulta = function (callback){
-     
     if (this.EstaConectado()) return;
 
     var ran = Math.floor((Math.random() * 9999) + 1);
@@ -86,20 +75,22 @@ Panel.prototype._conexionParaConsulta = function (callback){
     var panelSocket = net.connect({host: this.ip, port: this.puerto});
     panelSocket.setEncoding('hex');
     panelSocket.setTimeout(global.param.tiempoEspera);
-
     var _that = this;
     
     panelSocket.on('connect', function () {
         debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
         _that.conectado=true;
-        //Selección de panel
+        
 
-        var trama=panelConsulta.tramaSeleccion(_that.id);
+        /*var trama=panelConsulta.tramaSeleccion(_that.id);
         var buff = new Buffer(trama, 'hex');
-        panelSocket.write(buff);
+        panelSocket.write(buff);*/
 
         //Enviamos peticion de estado al panel
-        var t2 = panelConsulta.tramaPeticionEstado();
+        //var t2 = panelConsulta.tramaPeticionEstado();
+        var t2 = panelConsulta.sendKeepAlive();
+
+        console.log(t2);
         var buff2 = new Buffer(t2, 'hex');
         panelSocket.write(buff2);
     });
@@ -134,22 +125,23 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('error', function (e){
+        console.log(e);
         if (_that.conectado) {
             panelSocket.destroy();  // cerramos manualmente la conexion
         };
 
-            if (_that.intentosEstados == global.param.numReintentos) {
-                var obj={"id": (_that.id).toString(),
-                    "estado": "1",
-                    "texto": "DESCONOCIDO"};
-                _that.intentosEstados=0;
-                _that.estado  = obj;
-                callback(null,obj);
-            } else{
-                _that.intentosEstados++;
-                var error=new Error(_that.ip + " - " + e.message + " - Intento " + _that.intentosEstados);
-                callback(error,null);
-            }
+        if (_that.intentosEstados == global.param.numReintentos) {
+            var obj={"id": (_that.id).toString(),
+                "estado": "1",
+                "texto": "DESCONOCIDO"};
+            _that.intentosEstados=0;
+            _that.estado  = obj;
+            callback(null,obj);
+        } else{
+            _that.intentosEstados++;
+            var error=new Error(_that.ip + " - " + e.message + " - Intento " + _that.intentosEstados);
+            callback(error,null);
+        }
     });
 
     panelSocket.on('end',function(){
@@ -235,6 +227,7 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
     var _that = this;
 
     envioSocket.on('connect',function(){
+        console.log("connected");
         debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         _that.conectadoEnv=true;
         //1: Calculamos la trama de seleccion del panel y la enviamos
