@@ -44,9 +44,9 @@ var agentePaneles = function (params) {
     var recursoEstados={};
     var recursoServicios ={};
     var recursoServiciosParada = {}; 
-    var panelesSistema =[];  // Array of the panels in the system (used for sending incidents)
-    var panelesServiciosParada = []; // Array of objects that holds the panels that call to servicios parada
-    var panelesServiciosDia = []; // Array of objects that call to servicios de dia 
+    var panelesSistema =[]; 
+    var panelesMarquesina = [];
+    var panelesInformacion = [];
 
 //----------------------------------------------------
 // Function - initial load of the configuration
@@ -91,15 +91,12 @@ var agentePaneles = function (params) {
             method: settingJSON.serviciosParada.metodo
         };
 
-        // Panels array
-        // paneleSistema - all the panels. Makes calls to incidents and status
-        // panelesServiciosDia - Marquesina panels that call to servicios-dia.do
-        // panelesServiciosParada - Information panels that call to servicios-parada.do
+        // Panels array formation 
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);
-            if (p.type === "INFORMACION") panelesSistema.push (p);
-            if (p.type === "INFORMACION") panelesServiciosDia.push(p);
-            if (p.type === "INFORMACION") panelesServiciosParada.push(p);
+            if (p.type === "MARQUESINA") panelesSistema.push (p);
+            if (p.type === "MARQUESINA") panelesMarquesina.push(p);
+            if (p.type === "INFORMACION") panelesInformacion.push(p);
         });
         debug.log(1,"Cargando configuracion del agente. MODO DEBUG : " + global.param.debugmode );
         callback (null);
@@ -110,13 +107,14 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.iniciaAgente = function (){
+        consultaInformacion();
         enviaIncidencias ();
-        setTimeout(enviaServicios(),7000);
+        setTimeout(enviaServiciosDia(),7000);  
         setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
-        setInterval(function(){enviaServicios();}, global.param.refrescoS);
-        //setInterval(function(){consultaInformacion();},global.param.refrescoE);
+        setInterval(function(){enviaServiciosDia();}, global.param.refrescoS);
+        setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
-        panelesServiciosParada.forEach(function (p) {
+        panelesMarquesina.forEach(function (p) {
             setTimeout(enviaServiciosParada(p),7000);
             setInterval(function(){enviaServiciosParada(p);}, p.refrescoP);
         });
@@ -132,7 +130,7 @@ var agentePaneles = function (params) {
     }
 
 //----------------------------------------------------
-// Function - Consult  the status of the panels and post to the API - Not yet working
+// Function - Consult  the status of the panels and post to the API - Not yet the post
 //----------------------------------------------------
 
     function consultaInformacion(){
@@ -206,10 +204,14 @@ var agentePaneles = function (params) {
     }
 
 //-----------------------------------------------------------------------------------
-// Function - send services to the panels (from the servicios-do complete resources)
+// Function - SERVICIOS-DIA.DO resource // sent to PANELES INFORMACION
+// Gets the whole resouces in one chunk and pushes it to the list of services for that panel
+// This needs some more work to filter the types of services and the estados
+// Presently it is only filtering for the salidas at that stop
+// Sends them to each panel
 //-----------------------------------------------------------------------------------
 
-    function enviaServicios() {
+    function enviaServiciosDia() {
         var listaServiciosJSON;
         var cambioEstado = 0;
         getRecurso(recursoServicios,function(err,res){
@@ -219,14 +221,14 @@ var agentePaneles = function (params) {
                 listaServiciosJSON=res;
                 global.param.refrescoS=listaServiciosJSON.refresco * 1000;
 
-                panelesServiciosDia.forEach(function (el) {
+                panelesInformacion.forEach(function (el) {
                     if (el.flag ==1) cambioEstado =1;
                 });
 
                 if ((listaServiciosJSON.serie !== global.param.serieS) || (cambioEstado == 1)) {
                     global.param.serieS = listaServiciosJSON.serie;
                     if (listaServiciosJSON.total !==0){
-                        panelesServiciosDia.forEach(function (p) {
+                        panelesInformacion.forEach(function (p) {
                             p.listaServicios= [];
                             p.servicios='';
                             p.flag =0;
@@ -234,29 +236,25 @@ var agentePaneles = function (params) {
 
                         listaServiciosJSON.informacion.forEach (function(serv){
                             serv.paneles.forEach (function (elem){
-                                panelesServiciosDia.filter(function(panel,ind){
+                                panelesInformacion.filter(function(panel,ind){
                                     var servicio = new agente.Servicio(serv);
                                     if (panel.id == elem.id) {
-                                        if (serv.estado === "En curso") {
-                                            panel.listaServicios.push(servicio.getLineaFromServices());
-                                        }
                                         if (serv.estado === "Normal") {
-                                            panel.listaServicios.push(servicio.getLineaFromServices());
+                                            panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                         }
                                     }
                                 });
                             });
                         });
 
-                        panelesServiciosDia.forEach(function (p) {
+                        panelesInformacion.forEach(function (p) {
                            p.calculaEstadoServicios();
-                           console.log(p.segments);
                            
-                            p.enviaServicios(function(err,res){
+                            /*p.enviaServicios(function(err,res){
                                 if (err) {
                                     debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
                                 }
-                            });
+                            });*/
                         });
                     }
                 } 
@@ -265,11 +263,11 @@ var agentePaneles = function (params) {
     }
 
 
-//----------------------------------------------------------------------------
-// Function - send services to the panels (from the servicios-parada resource)
-//----------------------------------------------------------------------------
-//Paneles marquesina:
-// Mostrarán los próximos x servicios tomados de "servicios-parada.do", con el campo "nombre" como destino de la línea.
+//-----------------------------------------------------------------------------------
+// Function - SERVICIOS-PARADA.DO resource // sent to PANELES MARQUESINA
+// Gets the resource for each panel in the panelsMarquesina array
+// Sends them to each panel
+//-----------------------------------------------------------------------------------
 
     function enviaServiciosParada(p) {
         var listaServiciosJSON;
@@ -296,11 +294,12 @@ var agentePaneles = function (params) {
                         listaServiciosJSON.informacion.forEach (function(serv,i){
                             var servicio = new agente.Servicio(serv);
                             if (serv.estado === "Normal") {
-                                p.listaServicios.push(servicio.getLineaFromStop());
+                                p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
                             }  
                             
                         });
                         p.calculaEstadoParada();
+                        console.log(p.segments);
 
                         p.enviaServicios(function(err,res){
                             if (err) {

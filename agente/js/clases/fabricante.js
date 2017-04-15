@@ -43,6 +43,12 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
  * @param datos
  * @return {*|String}
  */
+ 	var dR = new Buffer(datos.toString(),'hex');
+	var decodedText = legacy.decode(dR, 'hex', {
+		'mode': 'html'
+	});
+	console.log("trata envio: " + decodedText);
+	return decodedText;
 };
 
 
@@ -51,9 +57,24 @@ Fabricante.prototype.trataConsulta= function (datos) {
      * Esta funcion decodifica la trama que recibido del panel
      * Los datos vienen en un buffer
      */
-     var decodedText = legacy.decode(datos, 'ascii', {
+
+	 /*02 stx
+	 ab orden 
+	 b1 b0 panel to API
+	 21 mensaje de estado
+	 00 0e longitde
+	 1100 software
+	 00 00 00 00 00 00 warnings
+	 ff test mode
+	 00 00 3c 00 00 others
+	 57
+	 03*/
+	 // need to parse this somehow - need more info
+
+     var decodedText = legacy.decode(datos, 'hex', {
 	  'mode': 'html'
 	});
+     console.log(decodedText);
     return decodedText;
 };
 

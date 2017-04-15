@@ -17,10 +17,10 @@ var Servicio= function(atributos){
 
 
 
-// Parses services from the servicios-parada resources.
-// Returns an object with service code, destination, time and wait, and flags for retraso and arriving now
+// One function for each resource
+// Returns an object for each service of service, name, time, wait, flagRetraso, flagArrivingNow
 
-Servicio.prototype.getLineaFromStop = function (){
+Servicio.prototype.getLineaFromServiciosParadaResource = function (){
     var hour = this.hora;
     var name = this.nombre.split(" - ").pop().trim();
     var flagRetraso = 0;
@@ -48,9 +48,8 @@ Servicio.prototype.getLineaFromStop = function (){
     }
 };
 
-// Parses services from the servicios-parada resources.
-// Returns an object with service code, destination, time and wait, and flags for retraso and arriving now
-Servicio.prototype.getLineaFromServices = function (){
+
+Servicio.prototype.getLineaFromServiciosDiaResource = function (){
     var hour = this.salida; 
     var name = this.destino;
     var flagRetraso = 0;

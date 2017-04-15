@@ -40,43 +40,6 @@ var Panel = function(campos){;
     this.segments = []; // Segments of strings to send
 };
 
-Panel.prototype.test = function(){
-    console.log("Testing connection");
-
-    var panelConsulta = new Fabricante(this.ip);
-    var panelSocket = net.connect({host: this.ip, port: this.puerto});
-    panelSocket.setEncoding('hex');
-    panelSocket.setTimeout(global.param.tiempoEspera);
-    var _that = this;
-    
-    panelSocket.on('connect', function () {
-        debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
-        _that.conectado=true;
-        
-
-        //var trama = "02ACB0B120000A0100000100010078001BE503";
-        var trama = - "02A6B0B12200008503";
-        var buff = new Buffer(trama, 'hex');
-        panelSocket.write(buff);
-
-    });
-
-    panelSocket.on('data', function (data) {
-        console.log(data);
-        if (data.length!==0) {
-            var dR=new Buffer(data.toString(),'hex');
-            var datos=panelConsulta.trataConsulta(dR);
-            console.log(datos);
-            if (typeof datos != 'undefined') {
-                var obj={id: (_that.id).toString(),
-                    estado: "0",
-                    texto: datos.toString()};
-                _that.estado = obj;
-                panelSocket.end();
-            }
-        }
-    });
-};
 
 /**
  * Consult the state of a panel
@@ -119,22 +82,16 @@ Panel.prototype._conexionParaConsulta = function (callback){
         debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
         _that.conectado=true;
 
-        var trama=panelConsulta.tramaSeleccion(_that.id);
+        var trama=panelConsulta.sendKeepAlive(_that.id);
         var buff = new Buffer(trama, 'hex');
         panelSocket.write(buff);
-
-        var t2 = panelConsulta.tramaPeticionEstado();
-        var buff2 = new Buffer(t2, 'hex');
-        panelSocket.write(buff2);
 
     });
 
     panelSocket.on('data', function (data) {
-        console.log(data);
         if (data.length!==0) {
             var dR=new Buffer(data.toString(),'hex');
             var datos=panelConsulta.trataConsulta(dR);
-            console.log(datos);
             if (typeof datos != 'undefined') {
                 var obj={id: (_that.id).toString(),
                     estado: "0",
@@ -227,7 +184,8 @@ Panel.prototype.enviaServicios= function(callback){
         callback (null,null);
     } else {
         if (this.incidencia == ''){
-            this._conexionParaEnvio(this.servicios, function (err,res) {
+            console.log(this.segments);
+            this._conexionParaEnvio(this.segments, function (err,res) {
                 callback(err,res);
             });
         }
@@ -248,7 +206,7 @@ Panel.prototype.enviaInformacion  = function(mensaje,done){
     };
 
 
-Panel.prototype._conexionParaEnvio=function (mensaje,callback){
+Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     if (this.EstaConectado()) return;
 
@@ -267,7 +225,7 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
         _that.conectadoEnv=true;
         //1: Calculamos la trama de seleccion del panel y la enviamos
 
-         var t1=panelEnvio.tramaSeleccion(_that.id);
+         /*var t1=panelEnvio.tramaSeleccion(_that.id);
          var buff = new Buffer(t1, 'hex');
          envioSocket .write(buff);
         debug.log(global.param.debugmode,_that.proceso + "- Envio trama seleccion -" + _that.ip + " - " + t1.toString());
@@ -276,24 +234,34 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
         var t2 = panelEnvio.tramaPeticionEnvio(_that,mensaje);
         var buff2 = new Buffer(t2, 'hex');
         envioSocket.write(buff2);
-        debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + t2.toString());
+        debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + t2.toString());*/
+
+        // Send messages
+        mensajes.forEach(function(m){
+            var trama = panelEnvio.sendFixedTextMessage(m[0],m[1],m[2]);
+            var buff = new Buffer(trama, 'hex');
+            envioSocket.write(buff);
+            debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + trama);
+        });
+        // Send sync
+        var tramaSync = panelEnvio.sendSyncCommand();
+        var buffSync = new Buffer(tramaSync, 'hex');
+        envioSocket.write(buffSync);
+        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
     });
 
     envioSocket.on('data', function (data) {
+
         if (data.length !== 0) {
-            //Si el panel da permiso para el envio  devuelve la trama con el mensaje a enviar y la enviamos
-            debug.log (global.param.debugmode,_that.proceso + "- Panel " + _that.ip +". Datos recibidos " + data.toString('hex') + " --> " + data.toString());
             panelEnvio.trataEnvio(data,function(err,mens){
 
                 if (mens!=null) {
-                    //Devuelve el mensaje o la finalizacion del envio
                     if (mens=='S') {  // Finalizacion del envio
                         callback(null, "Mensaje enviado correctamente al panel");
                         envioSocket.end();
                     } else if (mens=='N') {
                         callback(new Error(1,'El panel no da permiso para el envio'),null);
                     } else {
-                        //2: Enviamos el mensaje al panel que ha dado el permiso de envio
                         var buff3 = new Buffer(mens, 'hex');
                         envioSocket.write(buff3);
                     }
@@ -327,7 +295,7 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
             setTimeout(function(){
                 if (_that.intentosEnvio < global.param.numReintentos){
                     _that.intentosEnvio=+1;
-                    _that._conexionParaEnvio(mensaje,callback);
+                    _that._conexionParaEnvio(mensajes,callback);
                 }
             }, global.param.tiempoReintentos);
         }
