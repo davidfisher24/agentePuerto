@@ -376,6 +376,8 @@ Panel.prototype._conexionParaEnvio=function (mensaje,callback){
 
 };
 
+/* FUNCTIONS FOR CALCULATING SERVICES AND THE FINAL PANEL OUTPUT*/
+
 /* Servicios-dia panel - currently sending hours. Adds up to 3 services */
 Panel.prototype.calculaEstadoServicios = function (){
     var services = [];
@@ -383,6 +385,7 @@ Panel.prototype.calculaEstadoServicios = function (){
         return a.wait-b.wait;
     })
 
+    // There is a bug here. We are pushing pas services to the end as they  have a too large number of minutes
     this.listaServicios.forEach(function(s){
         if (services.length < 3) {
             if (s.wait >= 0) {
@@ -392,7 +395,29 @@ Panel.prototype.calculaEstadoServicios = function (){
     });
     this.servicios = services;
 
-    this.segments = [];
+
+    var segments = [];
+    var yPosition = 1;
+    var ySpacing = 9; // Spacing between lines on information. Are these hardcoded? // X positions are 1,30,96
+
+    services.forEach(function(obj){
+        segments.push([obj.service,1,yPosition,null]);  
+        var nameText = (obj.flagRetraso > 0) ? obj.name + "-RETRESADO" : obj.name;
+        segments.push([nameText,30,yPosition,nameText.length > 24 ? 'scroll' : null]); // Desintation with possible scroll
+
+        var timeText = obj.time;
+        if (obj.flagRetraso > 0) timeText = "*"+timeText;
+        if (obj.wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz;  // Possible change for arrows
+        
+        segments.push([timeText,96,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null]);
+
+        yPosition = yPosition + ySpacing;
+    });
+    if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 37, null]); 
+    if (services.length === 1) segments.push([global.param.textos.ultimo_servicio, 1, 37, null]);
+    if (services.length === 0) segments.push([global.param.textos.servicios_finalizados, 1, 37, null]);
+
+    this.segments = segments;
 }
 
 /* Servicios-parada panel - currently sending services with minutes to wait  Adds up to 3 services*/
@@ -415,20 +440,20 @@ Panel.prototype.calculaEstadoParada = function (){
     var segments = [];
 
     var yPosition = 1;
-    var ySpacing = 9;
+    var ySpacing = 9; // Spacing between lines on a marquesina. Are these hardcoded? // X positions are 1,30,96
     services.forEach(function(obj){
-        segments.push([obj.service,1,yPosition,null]);  // Line number with no effect
+        segments.push([obj.service,1,yPosition,null]);  // Line code
         segments.push([obj.name,30,yPosition,obj.name.length > 12 ? 'scroll' : null]); // Desintation with possible scroll
 
         var waitText = obj.wait;
-        if (obj.wait <= global.param.llegadaProntoTime) waitText =">>";
-        segments.push([waitText,96,yPosition,waitText == ">>" ? 'blink' : null]);
+        if (obj.wait <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz;  // Possible change for arrows
+        segments.push([waitText,96,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);
 
         yPosition = yPosition + ySpacing;
     });
-    if (services.length === 2) segments.push([global.param.textos.ultima2, 1, 19, null]); 
-    if (services.length === 1) segments.push([global.param.textos.ultima1, 1, 19, null]);
-    if (services.length === 0) segments.push([global.param.textos.finalizado, 1, 19, null])
+    if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 19, null]); 
+    if (services.length === 1) segments.push([global.param.textos.ultimo_servicio, 1, 19, null]);
+    if (services.length === 0) segments.push([global.param.textos.servicios_finalizados, 1, 19, null]);
 
     this.segments = segments;
 }

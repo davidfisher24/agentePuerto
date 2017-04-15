@@ -7,24 +7,24 @@
 var agente = require('./js/clases');
 var debug = require('../agente/js/utils');
 var http = require('http');
-var Fabricante=require('../agente/js/clases/fabricante.js'); // Testing
+var Fabricante=require('../agente/js/clases/fabricante.js'); 
 
 //----------------------------------------------------
 // Global variables 
 //----------------------------------------------------
 
 global.param={
-    debugmode: 0,               // Mode debug on or off
-    serieS : -1,            // Series value in change of services
-    serieI : -1,            // Series value in change of incidents
-    refrescoS : 65*1000,         // Refresh time of services (seconds)
-    refrescoI : 65*1000,         // Refresh time of incidents (seconds)
-    refrescoE : 60*1000,        // Refresh time of status of panels
-    numReintentos : 1,     // Number of reconnection attempts to the panels
-    tiempoReintentos : 1,  // Time between reconnection attempts to the panels (seconds)
-    tiempoEspera : 30,     // Timeout for connection to the panels (seconds)
+    debugmode: 0,      
+    serieS : -1,           
+    serieI : -1,          
+    refrescoS : 65*1000,  
+    refrescoI : 65*1000,       
+    refrescoE : 60*1000,     
+    numReintentos : 1,     
+    tiempoReintentos : 1, 
+    tiempoEspera : 30,     
     textos :"",
-    llegadaProntoTime: 1
+    tiempoDeInmediataz: 1
 };
 
 //----------------------------------------------------
@@ -63,7 +63,8 @@ var agentePaneles = function (params) {
         global.param.tiempoReintentos = parametros.tiempoEntreReintento * 1000;
         global.param.tiempoEspera = parametros.tiempoEspera * 1000;
         global.param.textos=settingJSON.textos;
-        global.param.llegadaProntoTime = parametros.llegadaProntoTime;
+        global.param.tiempoDeInmediataz = parametros.tiempoDeInmediataz;
+        global.param.simboloDeInmediataz = parametros.simboloDeInmediataz;
         recursoIncidencias= {
             hostname: settingJSON.incidencias.host,
             port: settingJSON.incidencias.puerto,
@@ -109,7 +110,6 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.iniciaAgente = function (){
-        //test();
         enviaIncidencias ();
         setTimeout(enviaServicios(),7000);
         setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
@@ -122,6 +122,7 @@ var agentePaneles = function (params) {
         });
 
         debug.log(1,"Agente inciado");
+        //test();
     };
 
     function test(){
@@ -179,7 +180,6 @@ var agentePaneles = function (params) {
                                 incidencia.paneles.forEach(function (elem) {
                                     panelesSistema.filter(function (value, ind) {
                                         if(value.id == this.id) {
-                                            console.log("incidencia: " + texto + " tipo: " + elem.tipo + " panel: " + value.id);
                                             panelesSistema[ind].flag=0;
                                             panelesSistema[ind].incidencia =texto;
                                             panelesSistema[ind].tipo = elem.tipo.toUpperCase();
@@ -188,13 +188,13 @@ var agentePaneles = function (params) {
                                 });
                             });
 
-                            /*panelesSistema.forEach(function (item) {
+                            panelesSistema.forEach(function (item) {
                                 item.enviaIncidencia(function (err, result) {
                                     if (err) {
                                         debug.log(global.param.debugmode, "Error sending incidents to panel " + item.ip + " - " + err.message);
                                     }
                                 });
-                            });*/
+                            });
                         }
                     }
                 }
@@ -236,7 +236,7 @@ var agentePaneles = function (params) {
                             serv.paneles.forEach (function (elem){
                                 panelesServiciosDia.filter(function(panel,ind){
                                     var servicio = new agente.Servicio(serv);
-                                    if (panel.id == elem.id && panel.listaServicios.length < panel.lineas) {
+                                    if (panel.id == elem.id) {
                                         if (serv.estado === "En curso") {
                                             panel.listaServicios.push(servicio.getLineaFromServices());
                                         }
@@ -250,13 +250,13 @@ var agentePaneles = function (params) {
 
                         panelesServiciosDia.forEach(function (p) {
                            p.calculaEstadoServicios();
-                           //console.log(p.servicios); 
+                           console.log(p.segments);
                            
-                            /*p.enviaServicios(function(err,res){
+                            p.enviaServicios(function(err,res){
                                 if (err) {
                                     debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
                                 }
-                            });*/ 
+                            });
                         });
                     }
                 } 
@@ -301,18 +301,12 @@ var agentePaneles = function (params) {
                             
                         });
                         p.calculaEstadoParada();
-                        var consulta = new Fabricante(p.ip);
-                        p.segments.forEach(function(s){
-                            var tramo = consulta.sendFixedTextMessage(s[0],s[1],s[2]);
-                            p._conexionParaConsulta(tramo);
-                        });
 
-
-                        /*p.enviaServicios(function(err,res){
+                        p.enviaServicios(function(err,res){
                             if (err) {
                                 debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
                             }
-                        });*/
+                        });
 
                     }
                 } 

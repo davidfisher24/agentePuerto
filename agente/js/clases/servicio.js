@@ -1,6 +1,4 @@
-/**
- * Created by Lola on 03/12/2014.
- */
+/* Creates the objects that we will use for our services */
 
 
 var Servicio= function(atributos){
@@ -19,8 +17,9 @@ var Servicio= function(atributos){
 
 
 
-// Servicio-parada.do: works on the number of minutes to wait
-// FINISHED - returns an object with the service with the minutes left to wait
+// Parses services from the servicios-parada resources.
+// Returns an object with service code, destination, time and wait, and flags for retraso and arriving now
+
 Servicio.prototype.getLineaFromStop = function (){
     var hour = this.hora;
     var name = this.nombre.split(" - ").pop().trim();
@@ -28,7 +27,6 @@ Servicio.prototype.getLineaFromStop = function (){
 
     if (parseInt(this.retraso) == 0) {
     } else {
-        //CALCULO DEL RETRASO
         var aux=this.hora.split(":");
         var time = parseInt(aux[0])*60 + parseInt(aux[1]) + parseInt(this.retraso);
         var m =  time % 60;
@@ -38,8 +36,8 @@ Servicio.prototype.getLineaFromStop = function (){
         flagRetraso = 1;
     }
 
-    wait = this.calculateWait(hour); 
-    flagArrivingNow = this.checkBusesArrivingNow(hour);
+    var wait = this.calculateWait(hour); 
+    var flagArrivingNow = this.checkBusesArrivingNow(hour);
     return {
         service: this.codigo.replace("-",""),
         name: name,
@@ -50,9 +48,8 @@ Servicio.prototype.getLineaFromStop = function (){
     }
 };
 
-// Servicio-dia.do: works on the time of leaving
-// Works - works on the time of leaving
-//Paneles información:
+// Parses services from the servicios-parada resources.
+// Returns an object with service code, destination, time and wait, and flags for retraso and arriving now
 Servicio.prototype.getLineaFromServices = function (){
     var hour = this.salida; 
     var name = this.destino;
@@ -81,7 +78,8 @@ Servicio.prototype.getLineaFromServices = function (){
     }
 };
 
-// Helps with servicios-dia by calculating the minutes between an arrival and the current time
+// Calculates the minutes wait from the present time
+
 Servicio.prototype.calculateWait = function(testTime){
     var that = this;
     testTime = testTime.split(":");
@@ -96,6 +94,8 @@ Servicio.prototype.calculateWait = function(testTime){
         return (parseInt(difference[0]) * 60) + parseInt(difference[1]);
     }
 };
+
+// Calculates the difference between two times - still a bug here somewhere
 
 Servicio.prototype.calculateDifference = function(now,then){
     var startDate = new Date(0, 0, 0, now[0], now[1], 0);
