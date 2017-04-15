@@ -36,7 +36,7 @@ var Panel = function(campos){;
     // Information panels calling to srvicios parada
     this.refrescoP = 65 * 1000;
     this.serieP = -1;
-    this.messageOrder = 0; // For secnding the hexes 0-16 for message order
+    this.messageOrder = 160; // For secnding the hexes 0-16 for message order
     this.segments = []; // Segments of strings to send
 };
 
@@ -184,7 +184,6 @@ Panel.prototype.enviaServicios= function(callback){
         callback (null,null);
     } else {
         if (this.incidencia == ''){
-            console.log(this.segments);
             this._conexionParaEnvio(this.segments, function (err,res) {
                 callback(err,res);
             });
@@ -223,35 +222,30 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     envioSocket.on('connect',function(){
         debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         _that.conectadoEnv=true;
-        //1: Calculamos la trama de seleccion del panel y la enviamos
 
-         /*var t1=panelEnvio.tramaSeleccion(_that.id);
-         var buff = new Buffer(t1, 'hex');
-         envioSocket .write(buff);
-        debug.log(global.param.debugmode,_that.proceso + "- Envio trama seleccion -" + _that.ip + " - " + t1.toString());
-
-        //1: Calculamos la trama de peticion de permiso de envio de mensajes y la enviamos al panel
-        var t2 = panelEnvio.tramaPeticionEnvio(_that,mensaje);
-        var buff2 = new Buffer(t2, 'hex');
-        envioSocket.write(buff2);
-        debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + t2.toString());*/
-
-        // Send messages
-        mensajes.forEach(function(m){
-            var trama = panelEnvio.sendFixedTextMessage(m[0],m[1],m[2]);
-            var buff = new Buffer(trama, 'hex');
-            envioSocket.write(buff);
-            debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + trama);
+        // Send messages. Can send them all as one long string
+        var trama = "";
+        trama += panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,120,27);
+        //_that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+        mensajes.forEach(function(m,i){
+            //panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
+            var t = panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
+            console.log(t);
+            trama += t;
+             _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+            //var buff = new Buffer(trama, 'hex');
+            //envioSocket.write(buff);
+            //debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + trama);
         });
-        // Send sync
-        var tramaSync = panelEnvio.sendSyncCommand();
+        //var tramaSync = panelEnvio.sendSyncCommand();
+        var tramaSync = trama + panelEnvio.sendSyncCommand();
         var buffSync = new Buffer(tramaSync, 'hex');
         envioSocket.write(buffSync);
         debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
     });
 
     envioSocket.on('data', function (data) {
-
+        console.log("data recieved : " + data.length);
         if (data.length !== 0) {
             panelEnvio.trataEnvio(data,function(err,mens){
 
@@ -372,7 +366,7 @@ Panel.prototype.calculaEstadoServicios = function (){
         segments.push([obj.service,1,yPosition,null]);  
         var nameText = (obj.flagRetraso > 0) ? obj.name + "-RETRESADO" : obj.name;
         segments.push([nameText,30,yPosition,nameText.length > 24 ? 'scroll' : null]); // Desintation with possible scroll
-
+        
         var timeText = obj.time;
         if (obj.flagRetraso > 0) timeText = "*"+timeText;
         if (obj.wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz;  // Possible change for arrows
@@ -410,12 +404,15 @@ Panel.prototype.calculaEstadoParada = function (){
     var yPosition = 1;
     var ySpacing = 9; // Spacing between lines on a marquesina. Are these hardcoded? // X positions are 1,30,96
     services.forEach(function(obj){
-        segments.push([obj.service,1,yPosition,null]);  // Line code
-        segments.push([obj.name,30,yPosition,obj.name.length > 12 ? 'scroll' : null]); // Desintation with possible scroll
+        /*segments.push([obj.service,1,yPosition,null]);  // Line code
+        segments.push([obj.name,31,yPosition,obj.name.length > 12 ? 'scroll' : null]); // Desintation with possible scroll
 
         var waitText = obj.wait;
         if (obj.wait <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz;  // Possible change for arrows
-        segments.push([waitText,96,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);
+        segments.push([waitText,109,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);*/
+        segments.push(['MMMM',1,yPosition,null])
+        segments.push(['MMMM',30,yPosition,null]);
+        segments.push(['MMMM',96,yPosition,null]);
 
         yPosition = yPosition + ySpacing;
     });

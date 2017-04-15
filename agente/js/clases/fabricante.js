@@ -10,6 +10,7 @@
 var debug = require('../utils');
 var legacy = require('legacy-encoding');
 var xor = require('bitwise-xor');
+var fs = require('fs');
 
 
 
@@ -43,13 +44,33 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
  * @param datos
  * @return {*|String}
  */
- 	var dR = new Buffer(datos.toString(),'hex');
-	var decodedText = legacy.decode(dR, 'hex', {
+	var decodedText = legacy.decode(datos, 'hex', {
 		'mode': 'html'
 	});
 	console.log("trata envio: " + decodedText);
 	return decodedText;
+
+	//06 is good, 15 is bad
+	// ACK=RX 06
+	/*02aeb1b0 06 00 01 ad 05 03
+	02a3b1b0 06 00 01 ad 08 03
+	02a6b1b0 06 00 01 ad 0d 03
+
+	02afb1b0 /15/ 00 02 ad /01/ 15 03
+	02a0b1b0 /15/ 00 02 ad /01/ 1a 03
+	02a1b1b0 /15/ 00 02 ad /01/ 1b 03
+	02a2b1b0 /15/ 00 02 ad /01/ 18 03
+
+	02a4b1b0 /15/ 00 02 ad /01/ 1e 03
+	02a5b1b0 /15/ 00 02 ad /01/ 1f 03
+
+	0x00 .- Causa desconocida.
+	0x01 .- Error de chk
+	0x02 .- Error código nivel de enlace
+	0x03 .- Error código nivel de aplicación.
+	0x04 .- Error formato aplicación*/
 };
+                                           
 
 
 Fabricante.prototype.trataConsulta= function (datos) {
@@ -136,12 +157,12 @@ Fabricante.prototype.sendSyncCommand = function(){
 };
 
 
-Fabricante.prototype.sendDeleteMessage=function(){
+Fabricante.prototype.sendDeleteMessage=function(order,xStart,yStart,xFinish,yFinish){
 	var that = this;
 
 	var encodedString = [];
 
-	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(order); // Message order. Needs defining
 	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed element
 
 	var dataLength = 10; // 10 for the delete message
@@ -165,7 +186,6 @@ Fabricante.prototype.sendDeleteMessage=function(){
 	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){
 		encodedString.push(byte); // yfinish
 	});
-
 	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
@@ -176,7 +196,7 @@ Fabricante.prototype.sendDeleteMessage=function(){
 };
 
 
-Fabricante.prototype.sendFixedTextMessage=function(texto,xStart,yStart){
+Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 	var that = this;
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -185,7 +205,7 @@ Fabricante.prototype.sendFixedTextMessage=function(texto,xStart,yStart){
 
 	var encodedString = [];
 
-	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(order); // Message order. Needs defining
 	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed elements
 
 	// Make the data length here. For fixed text this is the string bytes + 8
@@ -238,7 +258,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(texto){
 	});
 
 	encodedString.push(this.textWithEffectsCommand); // Texto with effects command
-	encodedString.push("00"); // Almacena command
+	encodedString.push("01"); // Almacena command
 	encodedString.push("01") // velocidad
 	encodedString.push("05") // effecto parpadeo
 	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
@@ -299,7 +319,7 @@ Fabricante.prototype.makeHexNumberTwoBytes = function(number) {
 Fabricante.prototype.makeChecksum = function(array) {
 	var that = this;
 	var current = array[0];
-	for (var x =1; x < array.length; x++) {
+	for (var x = 1; x < array.length; x++) {
 		current = xor(new Buffer(current, 'hex'),new Buffer(array[x], 'hex'));
 	}
 
