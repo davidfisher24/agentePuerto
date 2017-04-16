@@ -29,6 +29,11 @@ var Fabricante= function (ipPanel){
 	this.textWithEffectsCommand = "13";
 	this.syncCommand = "22";
 	this.keepAliveCommand = "23";
+	// Effects
+	this.effects = {
+		"scroll" : 00,
+		"blink" : 05,
+	};
 };
 
 
@@ -37,26 +42,42 @@ var Fabricante= function (ipPanel){
 
 
 Fabricante.prototype.trataEnvio= function (datos,callback) {
- /*Funcion que construye las tramas de envio de mensajes al panel*/
 
- /**
- * @description Trata los datos que devuelve el panel tras una consulta de estado
- * @param datos
- * @return {*|String}
- */
+
 	var decodedText = legacy.decode(datos, 'hex', {
 		'mode': 'html'
 	});
-	console.log("trata envio: " + decodedText);
+	console.log(decodedText);
+	var bits = decodedText.match(/.{2}/g);
+	console.log(bits[1]);
+
+	//var order = parseInt(bits[1],16); // order is 160 for example
+	//order.toString(16); // turns this back to a0
+
+	var answers = [];
+	var indexIncrement = 0;
+	while (bits.length > indexIncrement) {
+		var nextEndMessage = bits.indexOf('03',0);
+		if (nextEndMessage === 9 || nextEndMessage === 10 && bits[nextEndMessage + 1] === '02') {
+			answers.push(bits.slice(0,nextEndMessage));
+			indexIncrement = 0;
+		} else {
+			indexIncrement = nextEndMessage + 1;
+		}
+	}
+
+	
+
+
+
 	return decodedText;
 
 	//06 is good, 15 is bad
-	// ACK=RX 06
-	/*02aeb1b0 06 00 01 ad 05 03
-	02a3b1b0 06 00 01 ad 08 03
-	02a6b1b0 06 00 01 ad 0d 03
+	// ACK=RX 06  10 digits
+	/*02aeb1b0 4 digits 06 = good 00 01 ad 05 03
 
-	02afb1b0 /15/ 00 02 ad /01/ 15 03
+	// NACK-RX 15 11 digits
+	02afb1b0 4 digits /15/ 00 02 ad 3 digits/01/ 15 03
 	02a0b1b0 /15/ 00 02 ad /01/ 1a 03
 	02a1b1b0 /15/ 00 02 ad /01/ 1b 03
 	02a2b1b0 /15/ 00 02 ad /01/ 18 03
@@ -74,29 +95,24 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
 
 
 Fabricante.prototype.trataConsulta= function (datos) {
-    /**
-     * Esta funcion decodifica la trama que recibido del panel
-     * Los datos vienen en un buffer
-     */
+	// Always the same length??
+	// If I get one back, is that fine.
+	// 02 ab b1 b0 21 - stx,orden,panel,API,mensaje estado
+	// 00 0e longitude
+	// 11 00 software
+	// 00 00 00 00 00 errors 
+	// ff test mode
+	// 00 00 3c 00 00 others. Dont know about these
+	// 57 03 checksum
 
-	 /*02 stx
-	 ab orden 
-	 b1 b0 panel to API
-	 21 mensaje de estado
-	 00 0e longitde
-	 1100 software
-	 00 00 00 00 00 00 warnings
-	 ff test mode
-	 00 00 3c 00 00 others
-	 57
-	 03*/
-	 // need to parse this somehow - need more info
 
-     var decodedText = legacy.decode(datos, 'hex', {
-	  'mode': 'html'
+	var decodedText = legacy.decode(datos, 'hex', {
+		'mode': 'html'
 	});
-     console.log(decodedText);
-    return decodedText;
+	var bits = decodedText.match(/.{2}/g);
+	// 10-14 are the key bits
+
+    return "ACTIVO";
 };
 
 
@@ -239,8 +255,10 @@ Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 	
 };
 
-Fabricante.prototype.sendTextMessageWithEffect=function(texto){
+Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStart,effect,xFinish,yFinish){
 	var that = this;
+
+
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
 	  'mode': 'html'
@@ -248,19 +266,20 @@ Fabricante.prototype.sendTextMessageWithEffect=function(texto){
 
 	var encodedString = [];
 
-	encodedString.push("AD"); // Message order. Needs defining
+	encodedString.push(order); // Message order. Needs defining
 	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed elements
 
 	// Make the data length here. For effects text this is the string bytes + 14
-	var dataLength = encodedString.length + 14; 
+	var dataLength = encodedText.length + 14; 
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
 
-	encodedString.push(this.textWithEffectsCommand); // Texto with effects command
-	encodedString.push("01"); // Almacena command
-	encodedString.push("01") // velocidad
-	encodedString.push("05") // effecto parpadeo
+	encodedString.push(this.textWithEffectsCommand); 
+	encodedString.push("00"); // Almacena command
+
+	var effectCode = this.effects[effect];
+	console.log(effect + " " + effectCode);
 	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
 		encodedString.push(byte);
 	});

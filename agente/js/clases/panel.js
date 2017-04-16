@@ -226,18 +226,15 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         // Send messages. Can send them all as one long string
         var trama = "";
         trama += panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,120,27);
-        //_that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+        _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
         mensajes.forEach(function(m,i){
-            //panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
-            var t = panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
+            var t;
+            if (m[3] === null ) t = panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
+            else t = panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]);
             console.log(t);
             trama += t;
              _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-            //var buff = new Buffer(trama, 'hex');
-            //envioSocket.write(buff);
-            //debug.log(global.param.debugmode,_that.proceso + " - Envio trama peticion -" + _that.ip + " - " + trama);
         });
-        //var tramaSync = panelEnvio.sendSyncCommand();
         var tramaSync = trama + panelEnvio.sendSyncCommand();
         var buffSync = new Buffer(tramaSync, 'hex');
         envioSocket.write(buffSync);
@@ -331,7 +328,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
             if (_that.intentosEnvio < global.param.numReintentos){
                 _that.intentosEnvio++;
 
-                _that._conexionParaEnvio(mensaje,callback);
+                _that._conexionParaEnvio(mensajes,callback);
             }
         }, global.param.tiempoReintentos);
     });
@@ -340,7 +337,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 /* FUNCTIONS FOR CALCULATING SERVICES AND THE FINAL PANEL OUTPUT*/
 
-/* Servicios-dia panel - currently sending hours. Adds up to 3 services */
+/* Servicios-dia panel - currently sending hours. Adds up to 5 services. Needs completion */
 Panel.prototype.calculaEstadoServicios = function (){
     var services = [];
     this.listaServicios.sort(function(a, b){
@@ -382,6 +379,7 @@ Panel.prototype.calculaEstadoServicios = function (){
     this.segments = segments;
 }
 
+
 /* Servicios-parada panel - currently sending services with minutes to wait  Adds up to 3 services*/
 Panel.prototype.calculaEstadoParada = function (){
     var services = [];
@@ -389,6 +387,7 @@ Panel.prototype.calculaEstadoParada = function (){
         return a.wait-b.wait;
     })
 
+    // Calculate waits
     this.listaServicios.forEach(function(s){
         if (services.length < 3) {
             if (s.wait >= 0) {
@@ -398,24 +397,37 @@ Panel.prototype.calculaEstadoParada = function (){
     });
     this.servicios = services;
     
-    
     var segments = [];
 
+    // Spacing between lines on marquesina. x 1,30,96 and y 1,10,19
     var yPosition = 1;
-    var ySpacing = 9; // Spacing between lines on a marquesina. Are these hardcoded? // X positions are 1,30,96
+    var ySpacing = 9; 
     services.forEach(function(obj){
-        segments.push([obj.service,1,yPosition,null]);  // Line code
+        // Service number. No events possible
+        segments.push([obj.service,1,yPosition,null]);  
 
-        segments.push([obj.name,31,yPosition,obj.name.length > 12 ? 'scroll' : null]);
+        // Service destination. Possible scroll. effect if greater than 12 charcters
+        if (obj.name.length > 12) segments.push([obj.name,31,yPosition,'scroll',103,yPosition + ySpacing -1]);
+        else segments.push([obj.name,31,yPosition,null]);
 
+        // Service wait. 
+        // Change to two arrows if arriving soon.
+        // Reduce the buses more than 100 minutes away to 99
         var waitText = obj.wait;
         var waitTime = parseInt(obj.wait);
-        console.log("wait time " + waitTime);
-        if (waitTime <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz;  // Possible change for arrows
-        var waitSpace = (waitTime <= global.param.tiempoDeInmediataz || waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
-        segments.push([waitText,109,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);
-        
+        if (waitTime > 100) waitText = "99";
 
+        if (waitTime <= global.param.tiempoDeInmediataz) {
+            segments.push([waitText,109,yPosition,'blink',120,yPosition + ySpacing -1]);
+        } else {
+            var waitSpace = (waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
+            segments.push([waitText,waitSpace,yPosition,null]);
+        }
+
+        /*if (waitTime <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz; 
+        var waitSpace = (waitTime <= global.param.tiempoDeInmediataz || waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
+        segments.push([waitText,waitSpace,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);*/
+        
         yPosition = yPosition + ySpacing;
     });
     if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 19, null]); 
