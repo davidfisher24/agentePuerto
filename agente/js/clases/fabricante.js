@@ -47,27 +47,10 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
 	var decodedText = legacy.decode(datos, 'hex', {
 		'mode': 'html'
 	});
-	console.log(decodedText);
 	var bits = decodedText.match(/.{2}/g);
-	console.log(bits);
 	//var order = parseInt(bits[1],16); // order is 160 for example
 	//order.toString(16); // turns this back to a0
-
-	var answers = [];
-	var indexIncrement = 0;
-	while (bits.length > indexIncrement) {
-		var nextEndMessage = bits.indexOf('03',0);
-		if (nextEndMessage === 9 || nextEndMessage === 10 && bits[nextEndMessage + 1] === '02') {
-			answers.push(bits.splice(0,nextEndMessage));
-			indexIncrement = 0;
-		} else {
-			indexIncrement = nextEndMessage + 1;
-		}
-	}
-
-	
-
-
+	// Need to split the strings
 
 	return decodedText;
 

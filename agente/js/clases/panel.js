@@ -424,22 +424,29 @@ Panel.prototype.calculaEstadoParada = function (){
             segments.push([waitText,waitSpace,yPosition,null]);
         }
 
-        /*if (waitTime <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz; 
-        var waitSpace = (waitTime <= global.param.tiempoDeInmediataz || waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
-        segments.push([waitText,waitSpace,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);*/
         
         yPosition = yPosition + ySpacing;
     });
-    if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 19, null]); 
-    if (services.length === 1) segments.push([global.param.textos.ultimo_servicio, 1, 19, null]);
-    if (services.length === 0) segments.push([global.param.textos.servicios_finalizados, 1, 19, null]);
+
+    // Final messages. These go at the end.
+    // Calculation to centre - 120 - t*6 (total length - 6px x text length) / 2 (half on each side) and add 1
+    // Should I add scrolling events
+    if (services.length === 2) {
+        var text = global.param.textos.ultimos_servicios;
+        segments.push([text, (120 - (text.length * 6)) /2 + 1, 19, null]); 
+    }
+    if (services.length === 1) {
+        
+        var text = global.param.textos.ultimo_servicio;
+        segments.push([text, (120 - (text.length * 6)) /2 + 1, 19, null]);
+    }
+    if (services.length === 0) {
+        var text = global.param.textos.servicios_finalizados;
+        segments.push([text, (120 - (text.length * 6)) /2 + 1, 19, null]);
+    }
 
     this.segments = segments;
 }
-
-
-
-
 
 
 module.exports = Panel;
