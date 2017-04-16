@@ -209,7 +209,7 @@ Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed elements
 
 	// Make the data length here. For fixed text this is the string bytes + 8
-	var dataLength = encodedString.length + 8; 
+	var dataLength = encodedText.length + 8; 
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
@@ -325,6 +325,7 @@ Fabricante.prototype.makeChecksum = function(array) {
 
 	return current;
 }
+
 
 
 

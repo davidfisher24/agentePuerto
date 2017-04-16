@@ -404,15 +404,17 @@ Panel.prototype.calculaEstadoParada = function (){
     var yPosition = 1;
     var ySpacing = 9; // Spacing between lines on a marquesina. Are these hardcoded? // X positions are 1,30,96
     services.forEach(function(obj){
-        /*segments.push([obj.service,1,yPosition,null]);  // Line code
-        segments.push([obj.name,31,yPosition,obj.name.length > 12 ? 'scroll' : null]); // Desintation with possible scroll
+        segments.push([obj.service,1,yPosition,null]);  // Line code
+
+        segments.push([obj.name,31,yPosition,obj.name.length > 12 ? 'scroll' : null]);
 
         var waitText = obj.wait;
-        if (obj.wait <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz;  // Possible change for arrows
-        segments.push([waitText,109,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);*/
-        segments.push(['MMMM',1,yPosition,null])
-        segments.push(['MMMM',30,yPosition,null]);
-        segments.push(['MMMM',96,yPosition,null]);
+        var waitTime = parseInt(obj.wait);
+        console.log("wait time " + waitTime);
+        if (waitTime <= global.param.tiempoDeInmediataz) waitText = global.param.simboloDeInmediataz;  // Possible change for arrows
+        var waitSpace = (waitTime <= global.param.tiempoDeInmediataz || waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
+        segments.push([waitText,109,yPosition,waitText == global.param.simboloDeInmediataz ? 'blink' : null]);
+        
 
         yPosition = yPosition + ySpacing;
     });
