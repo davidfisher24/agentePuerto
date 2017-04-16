@@ -31,8 +31,8 @@ var Fabricante= function (ipPanel){
 	this.keepAliveCommand = "23";
 	// Effects
 	this.effects = {
-		"scroll" : 00,
-		"blink" : 05,
+		"scroll" : "00",
+		"blink" : "05",
 	};
 };
 
@@ -51,7 +51,7 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
 	//var order = parseInt(bits[1],16); // order is 160 for example
 	//order.toString(16); // turns this back to a0
 	// Need to split the strings
-
+	console.log(decodedText);
 	return decodedText;
 
 	//06 is good, 15 is bad
@@ -240,6 +240,14 @@ Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStart,effect,xFinish,yFinish){
 	var that = this;
 
+	/*02 a2 B0 B1 20 00 1b      27 bytes
+	13 00 00 efect almancena scroll 
+
+	00 1f 00 01 00 67 00 09 position
+	11 07 amber altura
+	53 43 52 4f 4c 4c 49 4e 47 20 54 45 58 54 14 digits text
+	9d 03*/
+
 
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -253,15 +261,18 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 
 	// Make the data length here. For effects text this is the string bytes + 14
 	var dataLength = encodedText.length + 14; 
+	console.log(dataLength);
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
 
 	encodedString.push(this.textWithEffectsCommand); 
 	encodedString.push("00"); // Almacena command
+	encodedString.push("01"); // Velocity
 
 	var effectCode = this.effects[effect];
-	console.log(effect + " " + effectCode);
+	encodedString.push(effectCode);
+
 	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
 		encodedString.push(byte);
 	});
@@ -288,7 +299,6 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 	encodedString.unshift(this.startTransmissionKey);
 	encodedString.push(this.endTransmissionKey);
 	return encodedString.join("");
-	
 };
 
 // HELPERS

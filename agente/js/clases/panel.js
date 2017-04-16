@@ -407,7 +407,7 @@ Panel.prototype.calculaEstadoParada = function (){
         segments.push([obj.service,1,yPosition,null]);  
 
         // Service destination. Possible scroll. effect if greater than 12 charcters
-        if (obj.name.length > 12) segments.push([obj.name,31,yPosition,'scroll',103,yPosition + ySpacing -1]);
+        if (obj.name.length > 12) segments.push([obj.name,31,yPosition,'scroll',103,yPosition + ySpacing]);
         else segments.push([obj.name,31,yPosition,null]);
 
         // Service wait. 
@@ -424,7 +424,6 @@ Panel.prototype.calculaEstadoParada = function (){
             segments.push([waitText,waitSpace,yPosition,null]);
         }
 
-        
         yPosition = yPosition + ySpacing;
     });
 
