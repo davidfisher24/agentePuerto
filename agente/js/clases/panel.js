@@ -335,6 +335,8 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 };
 
+
+
 /* FUNCTIONS FOR CALCULATING SERVICES AND THE FINAL PANEL OUTPUT*/
 
 /* Servicios-dia panel - currently sending hours. Adds up to 5 services. Needs completion */
@@ -344,9 +346,9 @@ Panel.prototype.calculaEstadoServicios = function (){
         return a.wait-b.wait;
     })
 
-    // There is a bug here. We are pushing pas services to the end as they  have a too large number of minutes
+    // Here we have the time issues to solve. Minus and Minutes and thousands of minutes
     this.listaServicios.forEach(function(s){
-        if (services.length < 3) {
+        if (services.length < 3) { // Left as three for the moment. Will be five in the end
             if (s.wait >= 0) {
                 services.push(s);
             }
@@ -354,21 +356,20 @@ Panel.prototype.calculaEstadoServicios = function (){
     });
     this.servicios = services;
 
-
     var segments = [];
     var yPosition = 1;
-    var ySpacing = 9; // Spacing between lines on information. Are these hardcoded? // X positions are 1,30,96
+    var ySpacing = 9; // Spacing between lines on information.? // X positions are 1,31,181
 
     services.forEach(function(obj){
         segments.push([obj.service,1,yPosition,null]);  
-        var nameText = (obj.flagRetraso > 0) ? obj.name + "-RETRESADO" : obj.name;
-        segments.push([nameText,30,yPosition,nameText.length > 24 ? 'scroll' : null]); // Desintation with possible scroll
+        var nameText = (obj.flagRetraso > 0) ? obj.name + "-RETRESADO" : obj.name; // Don't have cancelled
+        segments.push([nameText,31,yPosition,nameText.length > 24 ? 'scroll' : null]); // Desintation with possible scroll
         
         var timeText = obj.time;
         if (obj.flagRetraso > 0) timeText = "*"+timeText;
         if (obj.wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz;  // Possible change for arrows
         
-        segments.push([timeText,96,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null]);
+        segments.push([timeText,181,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null]);
 
         yPosition = yPosition + ySpacing;
     });

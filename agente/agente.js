@@ -94,7 +94,7 @@ var agentePaneles = function (params) {
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);
-            if (p.type === "MARQUESINA") panelesSistema.push (p);
+            if (p.type === "INFORMACION") panelesSistema.push (p);
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);
             if (p.type === "INFORMACION") panelesInformacion.push(p);
         });
@@ -204,11 +204,10 @@ var agentePaneles = function (params) {
     }
 
 //-----------------------------------------------------------------------------------
-// Function - SERVICIOS-DIA.DO resource // sent to PANELES INFORMACION
+// Send services function 1 - SERVICIOS-DIA.DO resource // sent to INFORMACION PANELES
 // Gets the whole resouces in one chunk and pushes it to the list of services for that panel
-// This needs some more work to filter the types of services and the estados
-// Presently it is only filtering for the salidas at that stop
-// Sends them to each panel
+// Point 1 - Filtering on services paso, mixto, and salida. Ignoring llegada
+// Point 2 - Filtering on normal and en curso. Ignoring Finalizado
 //-----------------------------------------------------------------------------------
 
     function enviaServiciosDia() {
@@ -238,8 +237,8 @@ var agentePaneles = function (params) {
                             serv.paneles.forEach (function (elem){
                                 panelesInformacion.filter(function(panel,ind){
                                     var servicio = new agente.Servicio(serv);
-                                    if (panel.id == elem.id) {
-                                        if (serv.estado === "Normal") {
+                                    if (panel.id == elem.id && elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
+                                        if (serv.estado === "Normal" || serv.estado === "En curso") {
                                             panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                         }
                                     }
@@ -250,11 +249,11 @@ var agentePaneles = function (params) {
                         panelesInformacion.forEach(function (p) {
                            p.calculaEstadoServicios();
                            
-                            /*p.enviaServicios(function(err,res){
+                            p.enviaServicios(function(err,res){
                                 if (err) {
                                     debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
                                 }
-                            });*/
+                            });
                         });
                     }
                 } 
@@ -264,9 +263,10 @@ var agentePaneles = function (params) {
 
 
 //-----------------------------------------------------------------------------------
-// Function - SERVICIOS-PARADA.DO resource // sent to PANELES MARQUESINA
-// Gets the resource for each panel in the panelsMarquesina array
-// Sends them to each panel
+// Send services function 1 - SERVICIOS-PARADA.DO resource // sent to MARQUESINA PANELES
+// Gets the resource for each panel in the panels Marquesina array
+// Sends them individually to each panel
+// Filtering on "normal" services only
 //-----------------------------------------------------------------------------------
 
     function enviaServiciosParada(p) {
@@ -299,7 +299,6 @@ var agentePaneles = function (params) {
                             
                         });
                         p.calculaEstadoParada();
-                        console.log(p.segments);
 
                         p.enviaServicios(function(err,res){
                             if (err) {
