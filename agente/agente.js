@@ -44,6 +44,7 @@ var agentePaneles = function (params) {
     var recursoEstados={};
     var recursoServicios ={};
     var recursoServiciosParada = {}; 
+    // Arrays of panels
     var panelesSistema =[]; 
     var panelesMarquesina = [];
     var panelesInformacion = [];
@@ -63,6 +64,7 @@ var agentePaneles = function (params) {
         global.param.tiempoReintentos = parametros.tiempoEntreReintento * 1000;
         global.param.tiempoEspera = parametros.tiempoEspera * 1000;
         global.param.textos=settingJSON.textos;
+        global.param.panelTypes=settingJSON.panelTypes;
         global.param.tiempoDeInmediataz = parametros.tiempoDeInmediataz;
         global.param.simboloDeInmediataz = parametros.simboloDeInmediataz;
         recursoIncidencias= {
@@ -241,7 +243,7 @@ var agentePaneles = function (params) {
                         });
 
                         panelesInformacion.forEach(function (p) {
-                           p.calculaEstadoServicios();
+                           p.calculateServicesInSegments();
                            
                             p.enviaServicios(function(err,res){
                                 if (err) {
@@ -292,8 +294,7 @@ var agentePaneles = function (params) {
                             }  
                             
                         });
-                        p.calculaEstadoParada();
-                        console.log(p.segments);
+                        p.calculateServicesInSegments();
 
                         p.enviaServicios(function(err,res){
                             if (err) {

@@ -10,13 +10,19 @@
          "simboloDeInmediataz" : ">>"
     },
     "panelTypes" : {
-        "marquesina" : {
-            "lineas" : 3,
-            "lineasServicios" : 3
+        "MARQUESINA" : {
+            "lineasTotal" : 3,
+            "lineasServicios" : 3,
+            "alturaDeLinea" : 9,
+            "longitudDeLinea" : 120,
+            "maxCaracteresNombre" : 12
         },
-        "informacion" : {
-            "lineas" : 5,
-            "lineasServicios" : 3
+        "INFORMACION" : {
+            "lineasTotal" : 5,
+            "lineasServicios" : 5,
+            "alturaDeLinea" : 9,
+            "longitudDeLinea" : 225,
+            "maxCaracteresNombre" : 24
         }
     },
 
@@ -31,8 +37,6 @@
         "panel"            : "APEADERO BERJA",
         "ip"               : "10.250.16.147",
         "puerto"           : 4001,
-        "luminosidad"      : 1,
-        "forzarluminosidad": false,
         "inactivo"         : false,
         "lineas"           : 3,
         "idestado"         : 0,

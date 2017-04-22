@@ -248,7 +248,6 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 
 	// Make the data length here. For effects text this is the string bytes + 14
 	var dataLength = encodedText.length + 14; 
-	console.log(dataLength);
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
 		encodedString.push(byte);
 	});
