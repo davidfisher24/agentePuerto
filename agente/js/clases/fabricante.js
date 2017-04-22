@@ -34,51 +34,37 @@ var Fabricante= function (ipPanel){
 		"scroll" : "00",
 		"blink" : "05",
 	};
+	// Response
+	this.ack_rx = "06";
+	this.nack_rx = "15";
+	this.nack_rx_errors = {
+		"00" : "Causa desconocida",
+		"01" : "Error de chk",
+		"02" : "Error código nivel de enlace",
+		"03" : "Error código nivel de aplicación",
+		"04" : "Error formato aplicación"
+	}
 };
 
 
 
-
-
-
 Fabricante.prototype.trataEnvio= function (datos,callback) {
-
-
 	var decodedText = legacy.decode(datos, 'hex', {
 		'mode': 'html'
 	});
 	var bits = decodedText.match(/.{2}/g);
-	//var order = parseInt(bits[1],16); // order is 160 for example
-	//order.toString(16); // turns this back to a0
-	// Need to split the strings
-	console.log(decodedText);
-	return decodedText;
+	var message_response = bits[4];
 
-	//06 is good, 15 is bad
-	// ACK=RX 06  10 digits
-	/*02aeb1b0 4 digits 06 = good 00 01 ad 05 03
-
-	// NACK-RX 15 11 digits
-	02afb1b0 4 digits /15/ 00 02 ad 3 digits/01/ 15 03
-	02a0b1b0 /15/ 00 02 ad /01/ 1a 03
-	02a1b1b0 /15/ 00 02 ad /01/ 1b 03
-	02a2b1b0 /15/ 00 02 ad /01/ 18 03
-
-	02a4b1b0 /15/ 00 02 ad /01/ 1e 03
-	02a5b1b0 /15/ 00 02 ad /01/ 1f 03
-
-	0x00 .- Causa desconocida.
-	0x01 .- Error de chk
-	0x02 .- Error código nivel de enlace
-	0x03 .- Error código nivel de aplicación.
-	0x04 .- Error formato aplicación*/
+	if (message_response === this.ack_rx) 
+		console.log("Message recieved successfully");
+	else if (message_response === this.nack_rx) 
+		console.log("Error in message reading: " + this.nack_rx_errors[bits[8]])
+	return message_response;
 };
                                            
 
 
 Fabricante.prototype.trataConsulta= function (datos) {
-	// Always the same length??
-	// If I get one back, is that fine.
 	// 02 ab b1 b0 21 - stx,orden,panel,API,mensaje estado
 	// 00 0e longitude
 	// 11 00 software
@@ -87,14 +73,25 @@ Fabricante.prototype.trataConsulta= function (datos) {
 	// 00 00 3c 00 00 others. Dont know about these
 	// 57 03 checksum
 
-
 	var decodedText = legacy.decode(datos, 'hex', {
 		'mode': 'html'
 	});
 	var bits = decodedText.match(/.{2}/g);
-	// 10-14 are the key bits
 
-    return "ACTIVO";
+	var status;
+	if (bits[9] === "00" && bits[10] === "00" && bits[11] === "00" && bits[12] === "00") {
+		status = "ACTIVO";
+	} else {
+		status = [];
+		if (bits[9] !== "00") status.push("Alamra de batería.");
+		if (bits[10] !== "00" && parseInt(bits[10] % 2 === 0)) status.push("Algún LED Mal");
+		if (bits[10] !== "00" && parseInt(bits[10] % 2 !== 0)) status.push("Ningún LED Mal");
+		if (bits[11] !== "00") status.push("Alarma de puerta abierta.");
+		if (bits[12] !== "00") status.push("Alarma de vibración");
+	}
+
+	console.log("Panel status: " + status);
+    return status;
 };
 
 
@@ -239,16 +236,6 @@ Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 
 Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStart,effect,xFinish,yFinish){
 	var that = this;
-
-	/*02 a2 B0 B1 20 00 1b      27 bytes
-	13 00 00 efect almancena scroll 
-
-	00 1f 00 01 00 67 00 09 position
-	11 07 amber altura
-	53 43 52 4f 4c 4c 49 4e 47 20 54 45 58 54 14 digits text
-	9d 03*/
-
-
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
 	  'mode': 'html'

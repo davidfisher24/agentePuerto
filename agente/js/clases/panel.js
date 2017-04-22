@@ -40,12 +40,19 @@ var Panel = function(campos){;
     this.segments = []; // Segments of strings to send
 };
 
+Panel.prototype.EstaConectado = function () {
+  var Estado = this.conectado || this.conectadoEnv; 
+  if (Estado) debug.log(global.param.debugmode,"Conexión ya abierta. Se pospone nueva conexión.");
+  return Estado; 
+};
 
-/**
- * Consult the state of a panel
- */
+
+
+/***********************************************************************************************
+// CONSULTATION OF ESTADOS
+***********************************************************************************************/
+
 Panel.prototype.consultaEstado = function(callback){
-    //Si el panel esta INACTIVO - ESTADO 2
     if (this.inactivo) {
         debug.log(global.param.debugmode,"Consulta estado de panel " + this.ip + " - Panel Inactivo");
         var obj={"id": this.id.toString(),
@@ -58,12 +65,6 @@ Panel.prototype.consultaEstado = function(callback){
     }
 };
 
-
-Panel.prototype.EstaConectado = function () {
-  var Estado = this.conectado || this.conectadoEnv; 
-  if (Estado) debug.log(global.param.debugmode,"Conexión ya abierta. Se pospone nueva conexión.");
-  return Estado; 
-};
 
 
 Panel.prototype._conexionParaConsulta = function (callback){
@@ -103,14 +104,13 @@ Panel.prototype._conexionParaConsulta = function (callback){
         }
     });
 
-    //Event Close se emite cuando se produce un error en el socket
     panelSocket.on('close', function (had_error){
         _that.conectado=false;
         if (had_error){
             if ((_that.intentosEstados<global.param.numReintentos) && (_that.intentosEstados!=0)) {
                 setTimeout(function(){
                     _that._conexionParaConsulta(callback);
-                }, global.param.tiempoReintentos); //Try to reconnect EDITED
+                }, global.param.tiempoReintentos);
             }
         } else {
             _that.intentosEstados =0;
@@ -120,7 +120,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     panelSocket.on('error', function (e){
         console.log(e);
         if (_that.conectado) {
-            panelSocket.destroy();  // cerramos manualmente la conexion
+            panelSocket.destroy(); 
         };
 
         if (_that.intentosEstados == global.param.numReintentos) {
@@ -145,21 +145,22 @@ Panel.prototype._conexionParaConsulta = function (callback){
     panelSocket.on('timeout', function(){
         debug.log(global.param.debugmode,_that.proceso + ' - Peticion de estado TIMEOUT - ' + _that.ip);
         if (_that.conectado) {
-            panelSocket.destroy();  // cerramos manualmente la conexion
+            panelSocket.destroy();  
         }
         setTimeout(function(){
             if (_that.intentosEstados < global.param.numReintentos){
                 _that.intentosEstados++;
                 _that._conexionParaConsulta(callback);
             }
-        }, global.param.tiempoReintentos); //Try to reconnect EDITED
+        }, global.param.tiempoReintentos); 
     });
 };
 
 
-/**
- * Envia una incidencia a un panel siempre que no este inactivo
- */
+/***********************************************************************************************
+// INCIDENCES
+***********************************************************************************************/
+
 Panel.prototype.enviaIncidencia= function(callback){
 
     if (this.inactivo == 1){
@@ -174,22 +175,10 @@ Panel.prototype.enviaIncidencia= function(callback){
     }
 };
 
-/**
- * Envia una incidencia a un panel
- */
-Panel.prototype.enviaServicios= function(callback){
+/***********************************************************************************************
+// INFORMACTIOn
+***********************************************************************************************/
 
-    if (this.inactivo == 1){
-        debug.log(global.param.debugmode,"Envio de servicios a panel " + this.ip + " - Panel Inactivo");
-        callback (null,null);
-    } else {
-        if (this.incidencia == ''){
-            this._conexionParaEnvio(this.segments, function (err,res) {
-                callback(err,res);
-            });
-        }
-    }
-};
 
 Panel.prototype.enviaInformacion  = function(mensaje,done){
 
@@ -205,8 +194,31 @@ Panel.prototype.enviaInformacion  = function(mensaje,done){
     };
 
 
-Panel.prototype._conexionParaEnvio=function (mensajes,callback){
+/***********************************************************************************************
+// ENVIOS
+***********************************************************************************************/
 
+Panel.prototype.enviaServicios= function(callback){
+    var that = this;
+    if (this.inactivo == 1){
+        debug.log(global.param.debugmode,"Envio de servicios a panel " + this.ip + " - Panel Inactivo");
+        callback (null,null);
+    } else {
+        // If there is no incidence, we can send all the segments we currently have
+        if (this.incidencia == ''){
+            this._conexionParaEnvio(this.segments, function (err,res) {
+                callback(err,res);
+            });
+        }
+    }
+};
+
+/***********************************************************************************************
+// FUNCTION TO SEND INCIDENCES, INFORMATION, AND MESSAGES
+***********************************************************************************************/
+
+Panel.prototype._conexionParaEnvio=function (mensajes,callback){
+    var _that = this;
     if (this.EstaConectado()) return;
 
     var ran = Math.floor((Math.random() * 9999) + 1);
@@ -217,37 +229,61 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     envioSocket.setTimeout(global.param.tiempoEspera);
 
-    var _that = this;
+    // Make an array of the current segments we have - delete command - 9-15 segments - sync command
+    var buffers = [];
+    var deleteAreas = [];
+    if (this.type === "MARQUESINA") deleteAreas = [120,27];
+    else if (this.type === "INFORMACION") deleteAreas = [225,45];
+    buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,deleteAreas[0],deleteAreas[1]));
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    mensajes.forEach(function(m,i){
+        if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
+        else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
+         _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    });
+    buffers.push(panelEnvio.sendSyncCommand());
 
+    // Connect - Send the first buffer
+    // Commented is the old version that sends all the messages together
     envioSocket.on('connect',function(){
-        debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         _that.conectadoEnv=true;
+        var buff = new Buffer(buffers[0], 'hex');
+        envioSocket.write(buff);
+        //debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
+        //var trama = "";
+        //trama += panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,120,27);
 
-        // Send messages. Can send them all as one long string
-        var trama = "";
-        trama += panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,120,27);
-        _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-        mensajes.forEach(function(m,i){
+        //_that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+        /*mensajes.forEach(function(m,i){
             var t;
             if (m[3] === null ) t = panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
             else t = panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]);
-            console.log(t);
             trama += t;
              _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-        });
-        var tramaSync = trama + panelEnvio.sendSyncCommand();
+        });*/
+        /*var tramaSync = trama + panelEnvio.sendSyncCommand();
         var buffSync = new Buffer(tramaSync, 'hex');
         envioSocket.write(buffSync);
-        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
+        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");*/
     });
 
+    // When recieve a response, reduce the buffers array by on, and send the next message.
+    // Need to handle error messages here.
     envioSocket.on('data', function (data) {
-        console.log("data recieved : " + data.length);
-        if (data.length !== 0) {
-            panelEnvio.trataEnvio(data,function(err,mens){
+        buffers.splice(0,1); // Reduce the last message
+        panelEnvio.trataEnvio(data) // Parse the message that was sent
 
+        if (buffers.length > 0) {
+            var buff = new Buffer(buffers[0], 'hex');
+            envioSocket.write(buff);
+        } else {
+            envioSocket.destroy();
+        }
+        // Deal with errors
+        /*if (data.length !== 0) {
+            panelEnvio.trataEnvio(data,function(err,mens){
                 if (mens!=null) {
-                    if (mens=='S') {  // Finalizacion del envio
+                    if (mens=='S') {  
                         callback(null, "Mensaje enviado correctamente al panel");
                         envioSocket.end();
                     } else if (mens=='N') {
@@ -256,6 +292,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                         var buff3 = new Buffer(mens, 'hex');
                         envioSocket.write(buff3);
                     }
+                    
                 } else {
                     if (_that.intentosEnvio == global.param.numReintentos) {
                         var obj = {
@@ -276,7 +313,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     }
                 }
             });
-        }
+        }*/
     });
 
     //Si hay error enviado informacion, se realiza un reintento de envio
@@ -337,7 +374,9 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 
 
-/* FUNCTIONS FOR CALCULATING SERVICES AND THE FINAL PANEL OUTPUT*/
+/***********************************************************************************************
+// FUNCTIONS FOR CALCLUATIONS OF SERVICES SEGMENTS
+***********************************************************************************************/
 
 /* Servicios-dia panel - currently sending hours. Adds up to 5 services. Needs completion */
 Panel.prototype.calculaEstadoServicios = function (){
@@ -370,7 +409,6 @@ Panel.prototype.calculaEstadoServicios = function (){
         if (obj.wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz;  // Possible change for arrows
         
         segments.push([timeText,181,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null]);
-
         yPosition = yPosition + ySpacing;
     });
     if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 37, null]); 
@@ -416,10 +454,10 @@ Panel.prototype.calculaEstadoParada = function (){
         // Reduce the buses more than 100 minutes away to 99
         var waitText = obj.wait;
         var waitTime = parseInt(obj.wait);
-        if (waitTime > 100) waitText = "99";
+        if (waitTime > 99) waitText = "99";
 
         if (waitTime <= global.param.tiempoDeInmediataz) {
-            segments.push([waitText,109,yPosition,'blink',120,yPosition + ySpacing -1]);
+            segments.push([global.param.simboloDeInmediataz,109,yPosition,'blink',120,yPosition + ySpacing -1]);
         } else {
             var waitSpace = (waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
             segments.push([waitText,waitSpace,yPosition,null]);

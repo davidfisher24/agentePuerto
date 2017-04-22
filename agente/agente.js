@@ -94,7 +94,7 @@ var agentePaneles = function (params) {
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);
-            if (p.type === "INFORMACION") panelesSistema.push (p);
+            if (p.type === "MARQUESINA") panelesSistema.push (p);
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);
             if (p.type === "INFORMACION") panelesInformacion.push(p);
         });
@@ -120,14 +120,8 @@ var agentePaneles = function (params) {
         });
 
         debug.log(1,"Agente inciado");
-        //test();
     };
 
-    function test(){
-        panelesSistema.forEach (function (item,i){
-            item.test();
-        });
-    }
 
 //----------------------------------------------------
 // Function - Consult  the status of the panels and post to the API - Not yet the post
@@ -299,6 +293,7 @@ var agentePaneles = function (params) {
                             
                         });
                         p.calculaEstadoParada();
+                        console.log(p.segments);
 
                         p.enviaServicios(function(err,res){
                             if (err) {
