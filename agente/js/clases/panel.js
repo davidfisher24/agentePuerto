@@ -438,7 +438,7 @@ Panel.prototype.calculateServicesInSegments = function (){
     })
 
     this.listaServicios.forEach(function(s){
-        if (services.length < 2) {
+        if (services.length < _this.servicesLines) {
             if (s.wait >= 0) {
                 services.push(s);
             }
