@@ -14,7 +14,7 @@ var fs = require('fs');
 
 
 
-var Fabricante= function (ipPanel){
+var Fabricante= function (ipPanel,textColor){
 
 	this.encodingType = "windows1252";
 	this.startTransmissionKey = "02";
@@ -23,6 +23,7 @@ var Fabricante= function (ipPanel){
 	this.panelKey = "B1";
 	this.applicationCode = "20";
 	this.textHeight = "07";
+	this.textColor = textColor;
 	// commands
 	this.deleteCommand = "01";
 	this.fixedTestCommand = "11";
@@ -217,7 +218,7 @@ Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
 	this.makeHexNumberTwoBytes(yStart).forEach(function(byte){ //y start needs defining
 		encodedString.push(byte);
 	});
-	encodedString.push("11"); //Color - Amber
+	encodedString.push(this.textColor); //Color - Amber
 	encodedString.push(this.textHeight); //Altura del texto
 	
 	encodedText.forEach(function(hex){ // The hexes of the string
@@ -271,7 +272,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){ 
 		encodedString.push(byte);
 	});
-	encodedString.push("11"); //Color - Amber
+	encodedString.push(this.textColor); //Color - Amber
 	encodedString.push(this.textHeight); //Altura del texto
 	
 	encodedText.forEach(function(hex){ // The hexes of the string

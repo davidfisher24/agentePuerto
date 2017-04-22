@@ -24,6 +24,8 @@ var Panel = function(campos){
     this.lineHeight = global.param.panelTypes[this.type].alturaDeLinea;
     this.lineLength = global.param.panelTypes[this.type].longitudDeLinea;
     this.maxCharactersForName = global.param.panelTypes[this.type].maxCaracteresNombre;
+    this.maxCharactersTotal = global.param.panelTypes[this.type].maxCaractersTotal
+    this.textColor = global.param.panelTypes[this.type].colorTexto;
     // Dynamic parameters for the panel
     this.listaServicios =[];
     this.servicios = '',
@@ -39,6 +41,7 @@ var Panel = function(campos){
     this.serieP = -1;
     this.messageOrder = 160; // 160 - 175
     this.segments = []; // Segments to encode
+    this.incidenciaSegments = [];
 };
 
 Panel.prototype.EstaConectado = function () {
@@ -168,7 +171,7 @@ Panel.prototype.enviaIncidencia= function(callback){
         callback (null,null);
     } else {
         if (this.incidencia != ''){
-            this._conexionParaEnvio(this.incidencia, function (err,res) {
+            this._conexionParaEnvio(this.incidenciaSegments, function (err,res) {
                 callback(err,res);
             });
         }
@@ -178,7 +181,7 @@ Panel.prototype.enviaIncidencia= function(callback){
 /***********************************************************************************************
 // INFORMACTIOn
 ***********************************************************************************************/
-
+// I don't think that we will use this
 
 Panel.prototype.enviaInformacion  = function(mensaje,done){
 
@@ -224,7 +227,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var ran = Math.floor((Math.random() * 9999) + 1);
     this.proceso=ran;
     this.conectadoEnv=false;
-    var panelEnvio = new Fabricante(this.ip);
+    var panelEnvio = new Fabricante(this.ip, this.textColor);
     var envioSocket = net.connect({host: this.ip, port: this.puerto});
 
     envioSocket.setTimeout(global.param.tiempoEspera);
@@ -473,7 +476,7 @@ Panel.prototype.calculateServicesInSegments = function (){
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
            segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
-        } else if (_this.type === "INFORMACTION") {
+        } else if (_this.type === "INFORMACION") {
             segments.push(_this.calculateServiceNameInformacion(obj.name,obj.flagRetraso,yPosition,ySpacing));
             segments.push(_this.calculateDepartTimeInformacion(obj.time,obj.wait,obj.flagRetraso,yPosition,ySpacing));
         }
@@ -543,6 +546,44 @@ Panel.prototype.calculateScrollSyncronization = function(textSpace){
             s.name = s.name + space.repeat(maxStringLength - s.name.length);
         });
     } 
+}
+
+Panel.prototype.calculateIncidenciaInSegments = function() {
+    var _this = this;
+    var segments = [];
+
+    if (this.incidencia.length <= this.maxCharactersTotal)  {
+       var centrePosition = Math.floor((_this.lineHeight * _this.totalLines / 2));
+       segments.push([_this.incidencia, (_this.lineLength - (_this.incidencia.length * 6)) /2 + 1, centrePosition, null]); 
+    } else {
+        var arrayOfWords = this.incidencia.split(" ");
+        var lines = ["","",""];
+        var i = 0;
+
+        array.forEach(function(w){
+            if (lines[i] === null) {
+                lines[i] = w + " ";
+            } else if (lines[i].length + w.length < 20) {
+                lines[i] += w + " ";
+            } else {
+                i++;
+                lines[i] = w + " ";
+            }
+        })
+    }
+
+    console.log(segments);
+    this.incidenciaSegments = segments;
+
+    // Incidence on central line 
+    
+
+    /*this.totalLines
+    this.maxCharactersTotal 
+    this.lineHeight 
+    this.lineLength 
+    this.maxCharactersForName */
+    
 }
 
     

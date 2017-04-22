@@ -55,7 +55,7 @@ var agentePaneles = function (params) {
 
 
     _that.cargaInicial =function (callback){
-        settingJSON = require('../api/files/config.json'); // JSON configuration of the applications
+        settingJSON = require('../api/files/config.json'); 
         panelesGlobal = settingJSON.paneles;
         parametros = settingJSON.parametros;
         global.param.debugmode = parametros.debugmode;
@@ -96,7 +96,7 @@ var agentePaneles = function (params) {
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);
-            if (p.type === "MARQUESINA") panelesSistema.push (p);
+            panelesSistema.push (p);
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);
             if (p.type === "INFORMACION") panelesInformacion.push(p);
         });
@@ -126,7 +126,7 @@ var agentePaneles = function (params) {
 
 
 //----------------------------------------------------
-// Function - Consult  the status of the panels and post to the API - Not yet the post
+// Function - Consult the status of the panels and post to the API - Not yet the post
 //----------------------------------------------------
 
     function consultaInformacion(){
@@ -158,6 +158,11 @@ var agentePaneles = function (params) {
                 debug.log(global.param.debugmode,'Error obtaining incidents: ' + err.message);
             } else {
                 incidenciasJSON = res;
+                console.log("Getting incidences");
+                
+
+                incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":43,"tipo":"Salida"},{"id":35,"tipo":"Salida"},{"id":27,"tipo":"Salida"},{"id":26,"tipo":"Salida"},{"id":36,"tipo":"Salida"},{"id":38,"tipo":"Salida"},{"id":22,"tipo":"Salida"},{"id":41,"tipo":"Salida"},{"id":46,"tipo":"Llegada"},{"id":21,"tipo":"Salida"},{"id":47,"tipo":"Salida"},{"id":14,"tipo":"Salida"},{"id":40,"tipo":"Salida"},{"id":23,"tipo":"Salida"},{"id":25,"tipo":"Salida"},{"id":45,"tipo":"Salida"},{"id":42,"tipo":"Salida"},{"id":34,"tipo":"Salida"},{"id":24,"tipo":"Salida"}],"texto":"SERVICIOS#  EN BUS"}],"refresco":30,"serie":0,"total":1}');
+
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco *1000;
                     if (incidenciasJSON.serie != global.param.serieI) {
@@ -182,7 +187,9 @@ var agentePaneles = function (params) {
                                 });
                             });
 
+
                             panelesSistema.forEach(function (item) {
+                                item.calculateIncidenciaInSegments();
                                 item.enviaIncidencia(function (err, result) {
                                     if (err) {
                                         debug.log(global.param.debugmode, "Error sending incidents to panel " + item.ip + " - " + err.message);

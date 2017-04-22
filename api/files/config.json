@@ -15,14 +15,18 @@
             "lineasServicios" : 3,
             "alturaDeLinea" : 9,
             "longitudDeLinea" : 120,
-            "maxCaracteresNombre" : 12
+            "maxCaracteresNombre" : 12,
+            "maxCaractersTotal" : 20,
+            "colorTexto" : "01"
         },
         "INFORMACION" : {
-            "lineasTotal" : 5,
-            "lineasServicios" : 5,
+            "lineasTotal" : 3,
+            "lineasServicios" : 3,
             "alturaDeLinea" : 9,
             "longitudDeLinea" : 225,
-            "maxCaracteresNombre" : 24
+            "maxCaracteresNombre" : 24,
+            "maxCaractersTotal" : 35,
+            "colorTexto" : "11"
         }
     },
 
