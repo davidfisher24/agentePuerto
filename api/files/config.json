@@ -13,6 +13,7 @@
         "MARQUESINA" : {
             "lineasTotal" : 3,
             "lineasServicios" : 3,
+            "numeroUltimosServicios" : 2,
             "alturaDeLinea" : 9,
             "longitudDeLinea" : 120,
             "maxCaracteresNombre" : 12,
@@ -22,6 +23,7 @@
         "INFORMACION" : {
             "lineasTotal" : 3,
             "lineasServicios" : 3,
+            "numeroUltimosServicios" : 3,
             "alturaDeLinea" : 9,
             "longitudDeLinea" : 225,
             "maxCaracteresNombre" : 24,

@@ -160,7 +160,7 @@ var agentePaneles = function (params) {
                 incidenciasJSON = res;
                 console.log("Getting incidences");
                 
-
+                // Testing incidences
                 //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"Good Morning David Fisher"}],"refresco":30,"serie":0,"total":1}');
 
                 if (typeof incidenciasJSON == 'object'){

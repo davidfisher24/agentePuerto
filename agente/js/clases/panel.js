@@ -21,6 +21,7 @@ var Panel = function(campos){
     // Static paramters taken from the panel type configuration
     this.totalLines = global.param.panelTypes[this.type].lineasTotal;
     this.servicesLines = global.param.panelTypes[this.type].lineasServicios;
+    this.flagLastServices = global.param.panelTypes[this.type].numeroUltimosServicios;
     this.lineHeight = global.param.panelTypes[this.type].alturaDeLinea;
     this.lineLength = global.param.panelTypes[this.type].longitudDeLinea;
     this.maxCharactersForName = global.param.panelTypes[this.type].maxCaracteresNombre;
@@ -177,25 +178,6 @@ Panel.prototype.enviaIncidencia= function(callback){
         }
     }
 };
-
-/***********************************************************************************************
-// INFORMACTIOn
-***********************************************************************************************/
-// I don't think that we will use this
-
-Panel.prototype.enviaInformacion  = function(mensaje,done){
-
-        if (this.inactivo==1){
-            done (null,null);
-        } else {
-            if (this.incidencia != ''){
-                this._conexionParaEnvio(mensaje, function (err,res) {
-                    done(err,res);
-                });
-            }
-        }
-    };
-
 
 /***********************************************************************************************
 // ENVIOS
@@ -380,6 +362,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 // PARSING OF THE CURRENT SERVICES INTO SEGMENTS TO SEND TO THE PANELS
 ***********************************************************************************************/
 
+// Going to delete this.
 Panel.prototype.calculatePanelInformationServicesState = function (){
     var services = []; 
     // Organise by wait
@@ -455,7 +438,7 @@ Panel.prototype.calculateServicesInSegments = function (){
     })
 
     this.listaServicios.forEach(function(s){
-        if (services.length < _this.servicesLines) {
+        if (services.length < 2) {
             if (s.wait >= 0) {
                 services.push(s);
             }
@@ -486,20 +469,27 @@ Panel.prototype.calculateServicesInSegments = function (){
 
 
     var lastLineStart = this.lineHeight * (this.totalLines - 1) + 1;
-    if (services.length === 2) {
+    if (services.length <= this.flagLastServices && services.length > 1) {
         var text = global.param.textos.ultimos_servicios;
-        segments.push([text, (_this.lineLength - (text.length * 6)) /2 + 1, lastLineStart, null]); 
+        if (text.length > this.maxCharactersTotal) 
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+        else 
+            segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 1) {
-        
         var text = global.param.textos.ultimo_servicio;
-        segments.push([text, (_this.lineLength - (text.length * 6)) /2 + 1, lastLineStart, null]);
+        if (text.length > this.maxCharactersTotal) 
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+        else 
+            segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 0) {
         var text = global.param.textos.servicios_finalizados;
-        segments.push([text, (_this.lineLength - (text.length * 6)) /2 + 1, lastLineStart, null]);
+        if (text.length > this.maxCharactersTotal) 
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+        else 
+            segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
-
     this.segments = segments;
 }
 
@@ -510,7 +500,8 @@ Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacin
 
 Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,yPosition,ySpacing){
     var nameText = (flagRetraso > 0) ? name + "-RETRESADO" : name; 
-    return [nameText,31,yPosition,nameText.length > this.maxCharactersForName ? 'scroll' : null];
+    if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',180,yPosition + ySpacing];
+    else return [name,31,yPosition,'null'];
 }
 
 Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
@@ -583,7 +574,6 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
         });
     }
 
-    console.log(segments);
     this.incidenciaSegments = segments;
 }
 
