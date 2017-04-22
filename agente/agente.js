@@ -161,7 +161,7 @@ var agentePaneles = function (params) {
                 console.log("Getting incidences");
                 
 
-                incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":43,"tipo":"Salida"},{"id":35,"tipo":"Salida"},{"id":27,"tipo":"Salida"},{"id":26,"tipo":"Salida"},{"id":36,"tipo":"Salida"},{"id":38,"tipo":"Salida"},{"id":22,"tipo":"Salida"},{"id":41,"tipo":"Salida"},{"id":46,"tipo":"Llegada"},{"id":21,"tipo":"Salida"},{"id":47,"tipo":"Salida"},{"id":14,"tipo":"Salida"},{"id":40,"tipo":"Salida"},{"id":23,"tipo":"Salida"},{"id":25,"tipo":"Salida"},{"id":45,"tipo":"Salida"},{"id":42,"tipo":"Salida"},{"id":34,"tipo":"Salida"},{"id":24,"tipo":"Salida"}],"texto":"SERVICIOS#  EN BUS"}],"refresco":30,"serie":0,"total":1}');
+                //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"Good Morning David Fisher"}],"refresco":30,"serie":0,"total":1}');
 
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco *1000;

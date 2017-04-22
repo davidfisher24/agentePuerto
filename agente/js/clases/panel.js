@@ -557,33 +557,34 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
        segments.push([_this.incidencia, (_this.lineLength - (_this.incidencia.length * 6)) /2 + 1, centrePosition, null]); 
     } else {
         var arrayOfWords = this.incidencia.split(" ");
-        var lines = ["","",""];
+        var lines = [];
         var i = 0;
-
-        array.forEach(function(w){
-            if (lines[i] === null) {
+        
+        arrayOfWords.forEach(function(w){
+            if (lines[i] === undefined) {
                 lines[i] = w + " ";
-            } else if (lines[i].length + w.length < 20) {
+            } else if (lines[i].length + w.length < _this.maxCharactersTotal) {
                 lines[i] += w + " ";
             } else {
                 i++;
                 lines[i] = w + " ";
             }
         })
+
+        var panelHeight = _this.lineHeight * _this.totalLines;
+        var paddingTop = lines.length < _this.totalLines ? Math.floor((panelHeight - (_this.lineHeight * 2)) / 2 + 1) : 1;
+
+        lines.forEach(function(l,i){
+            if (l !== "") {
+                l = l.trim();
+                var positionY = _this.lineHeight * i + paddingTop;
+                segments.push([l,(_this.lineLength - (l.length * 6)) /2 + 1, positionY, null])
+            }
+        });
     }
 
     console.log(segments);
     this.incidenciaSegments = segments;
-
-    // Incidence on central line 
-    
-
-    /*this.totalLines
-    this.maxCharactersTotal 
-    this.lineHeight 
-    this.lineLength 
-    this.maxCharactersForName */
-    
 }
 
     
