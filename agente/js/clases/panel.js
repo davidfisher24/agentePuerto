@@ -435,6 +435,23 @@ Panel.prototype.calculaEstadoParada = function (){
         }
     });
     this.servicios = services;
+
+    // SCROLL SYNC CALCULATION
+    var flagScrollSync = 0;
+    var maxStringLength = 0;
+    // Calculate scrolls that need to be in sync
+    this.servicios.forEach(function(s){
+        if (s.name.length > 12) flagScrollSync++;
+        if (s.name.length > maxStringLength) maxStringLength = s.name.length;
+    });
+    // If more than one have scroll, edit the lengths
+    if (flagScrollSync > 1) {
+        var space = " ";
+        this.servicios.forEach(function(s){
+            if (s.name.length > 12 && s.name.length < maxStringLength) 
+                s.name = s.name + space.repeat(maxStringLength - s.name.length);
+        });
+    }
     
     var segments = [];
 
