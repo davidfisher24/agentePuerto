@@ -546,6 +546,37 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
     var _this = this;
     var segments = [];
 
+    // Array of incidencias segments
+    var incidenciasArray = this.incidencia.trim().split("#");
+    if (incidenciasArray[0].trim() === "") incidenciasArray.splice(0,1);
+
+    // Space of lines needed and the starting line calculation
+    var spaceNeeded = _this.lineHeight * incidenciasArray.length;
+    var startingLine = Math.floor((_this.lineHeight * _this.totalLines - spaceNeeded) / 2) +1;
+
+   
+    var flagScroll = false;
+    var textLimit = 0;
+    incidenciasArray.forEach(function(el){
+        if (el.trim().length > _this.maxCharactersTotal) flagScroll = true;
+        if (el.trim().length > textLimit) textLimit = el.trim().length;
+    });
+
+     // Trim and push each element
+    incidenciasArray.forEach(function(word,ind){
+        var space = " ";
+        word = flagScroll ? word.trim() + space.repeat(textLimit - word.trim().length) : word.trim();
+        var positionY = _this.lineHeight * ind + startingLine;
+        if (flagScroll) segments.push([word,1, positionY, 'scroll',_this.maxCharactersTotal * 6,positionY + _this.lineHeight]);
+        else segments.push([word,(_this.lineLength - (word.length * 6)) /2 + 1, positionY, null]);
+    });
+    console.log(segments);
+    this.incidenciaSegments = segments;
+
+
+    /*var _this = this;
+    var segments = [];
+
     if (this.incidencia.length <= this.maxCharactersTotal)  {
        var centrePosition = Math.floor((_this.lineHeight * _this.totalLines / 2));
        segments.push([_this.incidencia, (_this.lineLength - (_this.incidencia.length * 6)) /2 + 1, centrePosition, null]); 
@@ -577,7 +608,7 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
         });
     }
 
-    this.incidenciaSegments = segments;
+    this.incidenciaSegments = segments;*/
 }
 
     

@@ -164,7 +164,7 @@ var agentePaneles = function (params) {
                 console.log("Getting incidences");
                 
                 // Testing incidences
-                incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"#Incindencia 1 #Incidencia2 #incidencia3"}],"refresco":30,"serie":0,"total":1}');
+                //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"#A very very long incidence#testing aga"}],"refresco":30,"serie":0,"total":1}');
 
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco *1000;
