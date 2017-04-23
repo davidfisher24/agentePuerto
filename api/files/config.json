@@ -21,9 +21,9 @@
             "colorTexto" : "01"
         },
         "INFORMACION" : {
-            "lineasTotal" : 3,
-            "lineasServicios" : 3,
-            "numeroUltimosServicios" : 3,
+            "lineasTotal" : 5,
+            "lineasServicios" : 5,
+            "numeroUltimosServicios" : 4,
             "alturaDeLinea" : 9,
             "longitudDeLinea" : 225,
             "maxCaracteresNombre" : 24,
@@ -47,12 +47,15 @@
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : "MARQUESINA"
+        "type"             : "INFORMACION"
       }
     ],
     "textos" : {
         "ultimo_servicio" : "ULTIMO SERVICIO",
         "ultimos_servicios" : "ULTIMOS SERVICIOS",
-        "servicios_finalizados" : "SERVICIOS FINALIZADOS POR HOY"
+        "servicios_finalizados" : "SERVICIOS FINALIZADOS POR HOY",
+        "servicioRetrasado" : "-RETRESADO",
+        "servicioCancelado" : "-CANCELADO",
+        "simboloRetrasoCancelo" : "*"
     }
 }

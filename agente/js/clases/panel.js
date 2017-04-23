@@ -190,6 +190,7 @@ Panel.prototype.enviaServicios= function(callback){
         callback (null,null);
     } else {
         if (this.incidencia == ''){
+            console.log(this.segments);
             this._conexionParaEnvio(this.segments, function (err,res) {
                 callback(err,res);
             });
@@ -223,6 +224,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     // Add each segment
     mensajes.forEach(function(m,i){
+        console.log("Encoding " + m);
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
          _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
@@ -502,9 +504,12 @@ Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacin
 }
 
 Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,yPosition,ySpacing){
-    var nameText = (flagRetraso > 0) ? name + "-RETRESADO" : name; 
-    if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',180,yPosition + ySpacing];
-    else return [name,31,yPosition,'null'];
+    if (yPosition === 1) {
+        name = "AAAAAAAAAAAAAAAAAAAAAAAA"; 
+    }
+    var nameText = (flagRetraso > 0) ? name + global.param.textos.servicioRetrasado : name; 
+    if (name.length > this.maxCharactersForName) return [nameText,31,yPosition,'scroll',174,yPosition + ySpacing];
+    else return [nameText,31,yPosition,null];
 }
 
 Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
@@ -520,10 +525,24 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
 }
 
 Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,yPosition,ySpacing){
+    if (yPosition === 1) wait = 1; 
     var timeText = time;
-    if (flagRetraso > 0) timeText = "*"+timeText;
-    if (wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz; 
-    return [timeText,181,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null];
+    var action = null;
+    var startPosition = 181;
+
+    if (flagRetraso > 0) {
+        timeText = global.param.textos.simboloRetrasoCancelo+timeText;
+        //action = 'blink';
+        startPosition = 175;
+    }
+    if (wait <= global.param.tiempoDeInmediataz) {
+        timeText = global.param.simboloDeInmediataz; 
+        action = 'blink';
+        startPosition = 193;
+    }
+    // 175 or 181 ??
+    if (action === 'blink') return [timeText,startPosition,yPosition,'blink',225,yPosition + ySpacing];
+    else return [timeText,startPosition,yPosition,null];
 }
 
 Panel.prototype.calculateScrollSyncronization = function(textSpace){
