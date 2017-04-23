@@ -5,9 +5,9 @@
         "tiempoEntreReintento": 10,
         "tiempoRefresco"      : 85,
         "tiempoEspera": 60,
-         "debugmode" : 1,
-         "tiempoDeInmediataz" : 1,
-         "simboloDeInmediataz" : ">>"
+        "debugmode" : 1,
+        "tiempoDeInmediataz" : 1,
+        "simboloDeInmediataz" : ">>"
     },
     "panelTypes" : {
         "MARQUESINA" : {
@@ -51,17 +51,6 @@
       }
     ],
     "textos" : {
-        "retraso"  : "R",
-        "lineaL"   : "DE",
-        "lineaS"   : "A",
-        "normalL": {"line1": "Próximas llegadas", "line2": "","line3": "","line4": "" },
-        "normalS": {"line1": "Próximas salidas","line2": "","line3": "","line4": ""},
-        "penultimaL": {"line1": "Próximas llegadas","line2": "","line3": "","line4": "últimas llegadas"},
-        "penultimaS": {"line1": "Próximas salidas","line2": "","line3": "","line4": "últimas salidas"},
-        "ultimaL": {"line1": "Próximas llegadas","line2": "","line3": "","line4": "última llegada"},
-        "ultimaS": {"line1": "Próximas salidas","line2": "","line3": "","line4": "última salida"},
-        "finalizadosL": {"line1": "SERVICIOS","line2": "FINALIZADOS","line3": "POR HOY","line4": ""},
-        "finalizadosS": {"line1": "SERVICIOS","line2": "FINALIZADOS","line3": "POR HOY","line4": ""},
         "ultimo_servicio" : "ULTIMO SERVICIO",
         "ultimos_servicios" : "ULTIMOS SERVICIOS",
         "servicios_finalizados" : "SERVICIOS FINALIZADOS POR HOY"

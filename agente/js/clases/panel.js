@@ -87,8 +87,8 @@ Panel.prototype._conexionParaConsulta = function (callback){
     panelSocket.on('connect', function () {
         debug.log(global.param.debugmode,_that.proceso + " - Consulta estado de panel " + _that.ip);
         _that.conectado=true;
-
-        var trama=panelConsulta.sendKeepAlive(_that.id);
+        var trama=panelConsulta.sendKeepAlive(_that.messageOrder.toString(16));
+        _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
         var buff = new Buffer(trama, 'hex');
         panelSocket.write(buff);
 
@@ -162,7 +162,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
 
 
 /***********************************************************************************************
-// INCIDENCES
+// ENVIAR INCINDENCIAS
 ***********************************************************************************************/
 
 Panel.prototype.enviaIncidencia= function(callback){
@@ -180,7 +180,7 @@ Panel.prototype.enviaIncidencia= function(callback){
 };
 
 /***********************************************************************************************
-// ENVIOS
+// ENVIAR SERVICIOS
 ***********************************************************************************************/
 
 Panel.prototype.enviaServicios= function(callback){
@@ -189,7 +189,6 @@ Panel.prototype.enviaServicios= function(callback){
         debug.log(global.param.debugmode,"Envio de servicios a panel " + this.ip + " - Panel Inactivo");
         callback (null,null);
     } else {
-        // If there is no incidence, we can send all the segments we currently have
         if (this.incidencia == ''){
             this._conexionParaEnvio(this.segments, function (err,res) {
                 callback(err,res);
@@ -214,21 +213,24 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     envioSocket.setTimeout(global.param.tiempoEspera);
 
-    // Make an array of the current segments we have - delete command - 9-15 segments - sync command
+    // Array of buffers. Delete message, all segments, and sync commands/
     var buffers = [];
+    // Parameters for delete message
     var endRight = _that.lineLength;
     var endBottom = _that.lineHeight * _that.totalLines;
+    // Add delete message
     buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,endRight,endBottom));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    // Add each segment
     mensajes.forEach(function(m,i){
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
          _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     });
-    buffers.push(panelEnvio.sendSyncCommand());
+    // Add sync command
+    buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
 
-    // Connect - Send the first buffer
-    // Commented is the old version that sends all the messages together
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
@@ -254,8 +256,9 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     // When recieve a response, reduce the buffers array by on, and send the next message.
     // Need to handle error messages here.
     envioSocket.on('data', function (data) {
-        buffers.splice(0,1); // Reduce the last message
-        panelEnvio.trataEnvio(data) // Parse the message that was sent
+        buffers.splice(0,1);
+        panelEnvio.trataEnvio(data);
+        // Do we need to wait for a response to do something here.
 
         if (buffers.length > 0) {
             var buff = new Buffer(buffers[0], 'hex');

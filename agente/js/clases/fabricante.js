@@ -81,73 +81,63 @@ Fabricante.prototype.trataConsulta= function (datos) {
 
 	var status;
 	if (bits[9] === "00" && bits[10] === "00" && bits[11] === "00" && bits[12] === "00") {
-		status = "ACTIVO";
+		status = "NORMAL";
+		//status = "ACTIVO";
 	} else {
-		status = [];
+		status = "DESCONOCIDO";
+		/*status = [];
 		if (bits[9] !== "00") status.push("Alamra de batería.");
 		if (bits[10] !== "00" && parseInt(bits[10] % 2 === 0)) status.push("Algún LED Mal");
 		if (bits[10] !== "00" && parseInt(bits[10] % 2 !== 0)) status.push("Ningún LED Mal");
 		if (bits[11] !== "00") status.push("Alarma de puerta abierta.");
-		if (bits[12] !== "00") status.push("Alarma de vibración");
+		if (bits[12] !== "00") status.push("Alarma de vibración");*/
 	}
 
-	console.log("Panel status: " + status);
     return status;
 };
 
 
-Fabricante.prototype.tramaSeleccion=function(idpanel) {
-    /*envia una trama de seleccion de panel*/
-};
 
-Fabricante.prototype.tramaPeticionEstado=function(){
-/*
-Envia una trama al panel para solicitarle el estado en que se encuentra
-*/
-};
-
-// DAVID
-
-Fabricante.prototype.sendKeepAlive = function(){
+Fabricante.prototype.sendKeepAlive = function(order){
 	var that = this;
 	var encodedString = [];
 
-	encodedString.push("A7"); // Message order. Needs defining
-	encodedString.push(this.agenteKey,this.panelKey); // Fixed element
-	encodedString.push(this.keepAliveCommand); // Texto Fijo command
+	encodedString.push(order); // Message order. 
+	encodedString.push(this.agenteKey,this.panelKey); // Communication format
+	encodedString.push(this.keepAliveCommand); // Keep Alive Command
 
 	var dataLength = 0;
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // Data Length
 	});
 
-	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
-		encodedString.push(that.makeHexNumberOneByte(hex));
+	this.makeChecksum(encodedString).forEach(function(hex){ 
+		encodedString.push(that.makeHexNumberOneByte(hex));  // Checksum
 	});
 
-	encodedString.unshift(this.startTransmissionKey);
-	encodedString.push(this.endTransmissionKey);
+	encodedString.unshift(this.startTransmissionKey); // Start key
+	encodedString.push(this.endTransmissionKey); // End key
 	return encodedString.join("");
 };
 
-Fabricante.prototype.sendSyncCommand = function(){
+Fabricante.prototype.sendSyncCommand = function(order){
 	var that = this;
 	var encodedString = [];
 
-	encodedString.push("AD"); // Message order. Needs defining
-	encodedString.push(this.agenteKey,this.panelKey); // Fixed element
-	encodedString.push(this.syncCommand); // Texto Fijo command
+	encodedString.push(order); // Message order. 
+	encodedString.push(this.agenteKey,this.panelKey); // Communication format
+	encodedString.push(this.syncCommand); // Sync command
 
-	var dataLength = 0; // 10 for the delete message
+	var dataLength = 0; 
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte); // Data Length
 	});
-	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	});
 
-	encodedString.unshift(this.startTransmissionKey);
-	encodedString.push(this.endTransmissionKey);
+	encodedString.unshift(this.startTransmissionKey); // Start key
+	encodedString.push(this.endTransmissionKey); // End key
 	return encodedString.join("");
 	
 };
@@ -158,16 +148,15 @@ Fabricante.prototype.sendDeleteMessage=function(order,xStart,yStart,xFinish,yFin
 
 	var encodedString = [];
 
-	encodedString.push(order); // Message order. Needs defining
-	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Fixed element
+	encodedString.push(order); // Message order
+	encodedString.push(this.agenteKey,this.panelKey,this.applicationCode); // Communication format, and app code
 
-	var dataLength = 10; // 10 for the delete message
+	var dataLength = 10; 
 	this.makeHexNumberTwoBytes(dataLength).forEach(function(byte){
-		encodedString.push(byte);
+		encodedString.push(byte);  // Data Length - 10 for delete message
 	});
 
-	// Extra data
-	encodedString.push(this.deleteCommand); // Texto Fijo command
+	encodedString.push(this.deleteCommand); // Deletecommand
 	encodedString.push("00"); // Almacena command
 	
 	this.makeHexNumberTwoBytes(xStart).forEach(function(byte){
@@ -182,7 +171,7 @@ Fabricante.prototype.sendDeleteMessage=function(order,xStart,yStart,xFinish,yFin
 	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){
 		encodedString.push(byte); // yfinish
 	});
-	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum added
+	this.makeChecksum(encodedString).forEach(function(hex){ // Checksum 
 		encodedString.push(that.makeHexNumberOneByte(hex));
 	})
 	

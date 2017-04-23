@@ -1,4 +1,4 @@
-'use strict';
+ 'use strict';
 
 //---------------------------------------
 // Dependecines
@@ -14,17 +14,19 @@ var Fabricante=require('../agente/js/clases/fabricante.js');
 //----------------------------------------------------
 
 global.param={
-    debugmode: 0,      
-    serieS : -1,           
-    serieI : -1,          
-    refrescoS : 65*1000,  
-    refrescoI : 65*1000,       
+    debugmode: 0, // Debug mode yes or no
+    serieS : -1,  // Current series for servicios-dia.do. Used for flagging changes 
+    serieI : -1,  // Current series for incidencias.do. Used for flagging changes
+    refrescoS : 65*1000,  // Default refresh value for servicios-dia.do (Changed by API)
+    refrescoP : 65*1000,  // Default refresh value for servicios-parada.do (Changed by API)
+    refrescoI : 65*1000,  // Default refresh value for servicios-incidencias.do (Changed by API)   
     refrescoE : 60*1000,     
-    numReintentos : 1,     
-    tiempoReintentos : 1, 
-    tiempoEspera : 30,     
-    textos :"",
-    tiempoDeInmediataz: 1
+    numReintentos : 1,  // Default number of retrys to API connect 
+    tiempoReintentos : 1,  // Defaukt time between retrys to API connect
+    tiempoEspera : 30,  // Default waiting time for a server response
+    textos :"",  // Texts used or the panels (JSON config)
+    tiempoDeInmediataz: 1,  // Default "arriving now" flag time
+    simboloDeInmediataz: ">>" // Default "arriving now" symbol
 };
 
 //----------------------------------------------------
@@ -52,7 +54,6 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 // Function - initial load of the configuration
 //----------------------------------------------------
-
 
     _that.cargaInicial =function (callback){
         settingJSON = require('../api/files/config.json'); 
@@ -95,10 +96,10 @@ var agentePaneles = function (params) {
 
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
-            var p = new  agente.Panel(elem);
-            panelesSistema.push (p);
-            if (p.type === "MARQUESINA") panelesMarquesina.push(p);
-            if (p.type === "INFORMACION") panelesInformacion.push(p);
+            var p = new  agente.Panel(elem);  // Create new panel
+            panelesSistema.push (p); // All panels go to panelessistema
+            if (p.type === "MARQUESINA") panelesMarquesina.push(p);  // Marquesina panels
+            if (p.type === "INFORMACION") panelesInformacion.push(p); // Information panels
         });
         debug.log(1,"Cargando configuracion del agente. MODO DEBUG : " + global.param.debugmode );
         callback (null);
@@ -137,6 +138,8 @@ var agentePaneles = function (params) {
                 } else {
                     panelesSistema[i].estado=result;
                     _that.io.emit('consultaestado',item.estado);
+                    // Texto - desconocido, normal, inactivo
+                    // Estado 0, 1, 2
                     //postEstadoAPI(result,item);  // We can't do this yet
                 }
             });
@@ -161,7 +164,7 @@ var agentePaneles = function (params) {
                 console.log("Getting incidences");
                 
                 // Testing incidences
-                //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"Good Morning David Fisher"}],"refresco":30,"serie":0,"total":1}');
+                incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"#Incindencia 1 #Incidencia2 #incidencia3"}],"refresco":30,"serie":0,"total":1}');
 
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco *1000;
@@ -266,7 +269,7 @@ var agentePaneles = function (params) {
 
 
 //-----------------------------------------------------------------------------------
-// Send services function 1 - SERVICIOS-PARADA.DO resource // sent to MARQUESINA PANELES
+// Send services function 2 - SERVICIOS-PARADA.DO resource // sent to MARQUESINA PANELES
 // Gets the resource for each panel in the panels Marquesina array
 // Sends them individually to each panel
 // Filtering on "normal" services only
@@ -383,7 +386,6 @@ var agentePaneles = function (params) {
         });
 
         req.on('error', function(e) {
-            // TODO: handle error.
             debug.log(global.param.debugmode,"Error en el envio de estado al API para el panel " + item.ip );
         });
         req.write(estadoString);

@@ -11,7 +11,6 @@ var express = require('express');               // Express
 var morgan  = require('morgan');                // Development log tool
 var bodyParser = require('body-parser');        // Parsing information from http requests
 
-
 var api = require('./api');						// Backbone web application
 var ioSocket = require('socket.io');			// Sockets for communication with panels
 
