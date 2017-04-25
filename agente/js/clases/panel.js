@@ -192,7 +192,6 @@ Panel.prototype.enviaServicios= function(callback){
         callback (null,null);
     } else {
         if (this.incidencia == ''){
-            console.log(this.segments);
             this._conexionParaEnvio(this.segments, function (err,res) {
                 callback(err,res);
             });
@@ -222,12 +221,11 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var endRight = _that.lineLength;
     var endBottom = _that.lineHeight * _that.totalLines;
     // Add delete message
-    console.log(endRight,endBottom);
     buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,endRight,endBottom));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     // Add each segment
     mensajes.forEach(function(m,i){
-        console.log("Encoding " + m);
+        console.log(m);
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
          _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
@@ -387,8 +385,6 @@ Panel.prototype.calculateServicesInSegments = function (){
         }
     });
     this.servicios = services;
-    services[3].flagCancelado = 1;
-    console.log(services[3].flagCancelado);
 
     this.calculateScrollSyncronization(this.maxCharactersForName);
     var segments = [];
@@ -399,12 +395,13 @@ Panel.prototype.calculateServicesInSegments = function (){
 
     services.forEach(function(obj){
         segments.push([obj.service,1,yPosition,null]); 
-        console.log(obj.flagCancelado);
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
            segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
         } else if (_this.type === "INFORMACION") {
             segments.push(_this.calculateServiceNameInformacion(obj.name,obj.flagRetraso,obj.flagCancelado,yPosition,ySpacing));
+            if (obj.flagRetraso > 0) segments.push(_this.addFlashingAsterix(yPosition,ySpacing));
+            if (obj.flagCancelado > 0) segments.push(_this.addFlashingAsterix(yPosition,ySpacing));
             segments.push(_this.calculateDepartTimeInformacion(obj.time,obj.wait,obj.flagRetraso,obj.flagCancelado,yPosition,ySpacing));
         }
 
@@ -437,18 +434,44 @@ Panel.prototype.calculateServicesInSegments = function (){
     this.segments = segments;
 }
 
+/* MARQEUESINA NAME
+// Simple scroll added if we are over the maximum number of characters
+*/
+
 Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacing){
     if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',103,yPosition + ySpacing];
     else return [name,31,yPosition,null];
 }
 
+/* INFORMATION NAME
+// Default position 31 - 174
+// Compares with maximum text. Paramter reduceCharForAsterix reduces 1 char for asterik space
+// Simple scroll added if over the maximum number of characters
+*/
+
 Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,flagCancelado,yPosition,ySpacing){
-    var nameText = name; 
-    if (flagRetraso > 0) nameText = nameText + global.param.textos.servicioRetrasado;
-    if (flagCancelado > 0) nameText = nameText + global.param.textos.servicioCancelado;
-    if (name.length > this.maxCharactersForName) return [nameText,31,yPosition,'scroll',174,yPosition + ySpacing];
+    var nameText = name;
+    var endPosition = 174;
+    var reduceCharForAsterix = 0;
+
+    if (flagRetraso > 0) {
+        nameText = nameText + global.param.textos.servicioRetrasado;
+        endPosition = 168;
+        reduceCharForAsterix = 1;
+    }
+    if (flagCancelado > 0) {
+        nameText = nameText + global.param.textos.servicioCancelado;
+        endPosition = 168;
+        reduceCharForAsterix = 1;
+    }
+    if (name.length > this.maxCharactersForName - reduceCharForAsterix) return [nameText,31,yPosition,'scroll',endPosition,yPosition + ySpacing];
     else return [nameText,31,yPosition,null];
 }
+
+/* MARQUESINA WAIT TIME
+// Changes anything above 100 to 99 for default spacing
+// Calculates if an event is needed for blinking immediate event
+*/
 
 Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     var waitText = wait;
@@ -462,25 +485,35 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     }
 }
 
-Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,flagCancelado,yPosition,ySpacing){
-    var timeText = time;
-    var action = null;
-    var startPosition = 181;
+/* PANEL DEPART TIME
+// DEfault position is 181 - 210
+// Reduce start position to 199 for blinking immediate symbols
+*/
 
-    if (flagRetraso > 0 || flagCancelado > 0) {
-        timeText = global.param.textos.simboloRetrasoCancelo+timeText;
-        //action = 'blink'; ??
-        startPosition = 175;
-    }
+Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,flagCancelado,yPosition,ySpacing){
+    var timeText = time; 
+    var action = null; 
+    var startPosition = 181; 
+
     if (wait <= global.param.tiempoDeInmediataz) {
         timeText = global.param.simboloDeInmediataz; 
         action = 'blink';
-        startPosition = 199;
+        startPosition = 199; // Two characters only. Blinks from 199 to the end
     }
-    // 175 or 181 ??
     if (action === 'blink') return [timeText,startPosition,yPosition,'blink',210,yPosition + ySpacing];
     else return [timeText,startPosition,yPosition,null];
 }
+
+/* ADDS FLASHING ASTERIX TO INFORMATION PANEL
+// Default 1 character in position 175 - 180
+*/
+
+Panel.prototype.addFlashingAsterix = function(yPosition,ySpacing){
+    return ["*",175,yPosition,'blink',180,yPosition + ySpacing];
+}
+
+/* CALCULATE SCROLL SYNC
+*/
 
 Panel.prototype.calculateScrollSyncronization = function(textSpace){
     var flagScrollSync = 0;
@@ -497,6 +530,10 @@ Panel.prototype.calculateScrollSyncronization = function(textSpace){
         });
     } 
 }
+
+/* CALCULATE INCIDENCIAS IN SEGMENTS
+*/
+
 
 Panel.prototype.calculateIncidenciaInSegments = function() {
     var _this = this;
@@ -526,7 +563,6 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
         if (flagScroll) segments.push([word,1, positionY, 'scroll',_this.maxCharactersTotal * 6,positionY + _this.lineHeight]);
         else segments.push([word,(_this.lineLength - (word.length * 6)) /2 + 1, positionY, null]);
     });
-    console.log(segments);
     this.incidenciaSegments = segments;
 
 

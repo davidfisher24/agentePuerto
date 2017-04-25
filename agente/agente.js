@@ -161,7 +161,6 @@ var agentePaneles = function (params) {
                 debug.log(global.param.debugmode,'Error obtaining incidents: ' + err.message);
             } else {
                 incidenciasJSON = res;
-                console.log("Getting incidences");
                 
                 // Testing incidences
                 //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"#A very very long incidence#testing aga"}],"refresco":30,"serie":0,"total":1}');
@@ -299,7 +298,7 @@ var agentePaneles = function (params) {
                         p.flag =0;
                         listaServiciosJSON.informacion.forEach (function(serv,i){
                             var servicio = new agente.Servicio(serv);
-                            if (serv.estado === "Normal") {
+                            if (serv.estado === "Normal" || serv.estado === "Retrasado") {
                                 p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
                             }  
                             
