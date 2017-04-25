@@ -25,7 +25,7 @@
             "lineasServicios" : 5,
             "numeroUltimosServicios" : 4,
             "alturaDeLinea" : 9,
-            "longitudDeLinea" : 225,
+            "longitudDeLinea" : 210,
             "maxCaracteresNombre" : 24,
             "maxCaractersTotal" : 35,
             "colorTexto" : "11"

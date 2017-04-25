@@ -220,6 +220,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var endRight = _that.lineLength;
     var endBottom = _that.lineHeight * _that.totalLines;
     // Add delete message
+    console.log(endRight,endBottom);
     buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,endRight,endBottom));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     // Add each segment
@@ -504,9 +505,7 @@ Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacin
 }
 
 Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,yPosition,ySpacing){
-    if (yPosition === 1) {
-        name = "AAAAAAAAAAAAAAAAAAAAAAAA"; 
-    }
+    //if (yPosition === 1) name = "AAAAAAAAAAAAAAAAAAAAAAAA"; 
     var nameText = (flagRetraso > 0) ? name + global.param.textos.servicioRetrasado : name; 
     if (name.length > this.maxCharactersForName) return [nameText,31,yPosition,'scroll',174,yPosition + ySpacing];
     else return [nameText,31,yPosition,null];
@@ -525,7 +524,7 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
 }
 
 Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,yPosition,ySpacing){
-    if (yPosition === 1) wait = 1; 
+    //if (yPosition === 1) wait = 1; 
     var timeText = time;
     var action = null;
     var startPosition = 181;
