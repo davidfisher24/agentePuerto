@@ -27,6 +27,8 @@ var Panel = function(campos){
     this.maxCharactersForName = global.param.panelTypes[this.type].maxCaracteresNombre;
     this.maxCharactersTotal = global.param.panelTypes[this.type].maxCaractersTotal
     this.textColor = global.param.panelTypes[this.type].colorTexto;
+    this.textSpeed = global.param.panelTypes[this.type].velocidadTexto;
+    this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     // Dynamic parameters for the panel
     this.listaServicios =[];
     this.servicios = '',
@@ -209,7 +211,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var ran = Math.floor((Math.random() * 9999) + 1);
     this.proceso=ran;
     this.conectadoEnv=false;
-    var panelEnvio = new Fabricante(this.ip, this.textColor);
+    var panelEnvio = new Fabricante(this.ip, this.textColor, this.textSpeed, this.textHeight);
     var envioSocket = net.connect({host: this.ip, port: this.puerto});
 
     envioSocket.setTimeout(global.param.tiempoEspera);
@@ -368,72 +370,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 // PARSING OF THE CURRENT SERVICES INTO SEGMENTS TO SEND TO THE PANELS
 ***********************************************************************************************/
 
-// Going to delete this.
-Panel.prototype.calculatePanelInformationServicesState = function (){
-    var services = []; 
-    // Organise by wait
-    this.listaServicios.sort(function(a, b){
-        return a.wait-b.wait;
-    })
-
-    // Push in any that haven't left
-    this.listaServicios.forEach(function(s){
-        if (services.length < 3) { 
-            if (s.wait >= 0) {
-                services.push(s);
-            }
-        }
-    });
-    this.servicios = services;
-
-    // Calculate scroll syncing
-    this.calculateScrollSyncronization(24);
-    var segments = [];
-
-    //Spacing
-    var yPosition = 1;
-    var ySpacing = 9; //X positions are 1,31,181
-
-    services.forEach(function(obj){
-        // Service
-        segments.push([obj.service,1,yPosition,null]);  
-
-        // Name Text
-        var nameText = (obj.flagRetraso > 0) ? obj.name + "-RETRESADO" : obj.name; 
-        segments.push([nameText,31,yPosition,nameText.length > 24 ? 'scroll' : null]);
-        
-        // Time Text
-        var timeText = obj.time;
-        if (obj.flagRetraso > 0) timeText = "*"+timeText;
-        if (obj.wait <= global.param.tiempoDeInmediataz) timeText = global.param.simboloDeInmediataz;  // Possible change for arrows
-        segments.push([timeText,181,yPosition,timeText == global.param.simboloDeInmediataz ? 'blink' : null]);
-
-        // Line Increment
-        yPosition = yPosition + ySpacing;
-    });
-    if (services.length === 2) segments.push([global.param.textos.ultimos_servicios, 1, 37, null]); 
-    if (services.length === 1) segments.push([global.param.textos.ultimo_servicio, 1, 37, null]);
-    if (services.length === 0) segments.push([global.param.textos.servicios_finalizados, 1, 37, null]);
-
-    // Calculation to centre final message - 225 - t*6 (total length - 6px x text length) / 2 (half on each side) and add 1
-    if (services.length === 2) {
-        var text = global.param.textos.ultimos_servicios;
-        segments.push([text, (225 - (text.length * 6)) /2 + 1, 37, null]); 
-    }
-    if (services.length === 1) {
-        
-        var text = global.param.textos.ultimo_servicio;
-        segments.push([text, (225 - (text.length * 6)) /2 + 1, 37, null]);
-    }
-    if (services.length === 0) {
-        var text = global.param.textos.servicios_finalizados;
-        segments.push([text, (225 - (text.length * 6)) /2 + 1, 37, null]);
-    }
-
-    this.segments = segments;
-}
-
-
 
 Panel.prototype.calculateServicesInSegments = function (){
     var _this = this;
@@ -451,7 +387,9 @@ Panel.prototype.calculateServicesInSegments = function (){
         }
     });
     this.servicios = services;
-    
+    services[3].flagCancelado = 1;
+    console.log(services[3].flagCancelado);
+
     this.calculateScrollSyncronization(this.maxCharactersForName);
     var segments = [];
 
@@ -461,13 +399,13 @@ Panel.prototype.calculateServicesInSegments = function (){
 
     services.forEach(function(obj){
         segments.push([obj.service,1,yPosition,null]); 
-
+        console.log(obj.flagCancelado);
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
            segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
         } else if (_this.type === "INFORMACION") {
-            segments.push(_this.calculateServiceNameInformacion(obj.name,obj.flagRetraso,yPosition,ySpacing));
-            segments.push(_this.calculateDepartTimeInformacion(obj.time,obj.wait,obj.flagRetraso,yPosition,ySpacing));
+            segments.push(_this.calculateServiceNameInformacion(obj.name,obj.flagRetraso,obj.flagCancelado,yPosition,ySpacing));
+            segments.push(_this.calculateDepartTimeInformacion(obj.time,obj.wait,obj.flagRetraso,obj.flagCancelado,yPosition,ySpacing));
         }
 
         yPosition = yPosition + ySpacing;
@@ -504,9 +442,10 @@ Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacin
     else return [name,31,yPosition,null];
 }
 
-Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,yPosition,ySpacing){
-    //if (yPosition === 1) name = "AAAAAAAAAAAAAAAAAAAAAAAA"; 
-    var nameText = (flagRetraso > 0) ? name + global.param.textos.servicioRetrasado : name; 
+Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,flagCancelado,yPosition,ySpacing){
+    var nameText = name; 
+    if (flagRetraso > 0) nameText = nameText + global.param.textos.servicioRetrasado;
+    if (flagCancelado > 0) nameText = nameText + global.param.textos.servicioCancelado;
     if (name.length > this.maxCharactersForName) return [nameText,31,yPosition,'scroll',174,yPosition + ySpacing];
     else return [nameText,31,yPosition,null];
 }
@@ -523,24 +462,23 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     }
 }
 
-Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,yPosition,ySpacing){
-    //if (yPosition === 1) wait = 1; 
+Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,flagCancelado,yPosition,ySpacing){
     var timeText = time;
     var action = null;
     var startPosition = 181;
 
-    if (flagRetraso > 0) {
+    if (flagRetraso > 0 || flagCancelado > 0) {
         timeText = global.param.textos.simboloRetrasoCancelo+timeText;
-        //action = 'blink';
+        //action = 'blink'; ??
         startPosition = 175;
     }
     if (wait <= global.param.tiempoDeInmediataz) {
         timeText = global.param.simboloDeInmediataz; 
         action = 'blink';
-        startPosition = 193;
+        startPosition = 199;
     }
     // 175 or 181 ??
-    if (action === 'blink') return [timeText,startPosition,yPosition,'blink',225,yPosition + ySpacing];
+    if (action === 'blink') return [timeText,startPosition,yPosition,'blink',210,yPosition + ySpacing];
     else return [timeText,startPosition,yPosition,null];
 }
 

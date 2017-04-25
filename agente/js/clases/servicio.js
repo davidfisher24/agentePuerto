@@ -74,6 +74,7 @@ Servicio.prototype.getLineaFromServiciosDiaResource = function (){
         wait: wait,
         flagRetraso: flagRetraso,
         flagArrivingNow: flagArrivingNow,
+        flagCancelado: this.estado === "Cancelado" ? 1 : 0,
     }
 };
 

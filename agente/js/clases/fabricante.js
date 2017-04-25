@@ -14,7 +14,7 @@ var fs = require('fs');
 
 
 
-var Fabricante= function (ipPanel,textColor){
+var Fabricante= function (ipPanel,textColor,textSpeed, textHeight){
 
 	this.encodingType = "windows1252";
 	this.startTransmissionKey = "02";
@@ -22,8 +22,9 @@ var Fabricante= function (ipPanel,textColor){
 	this.agenteKey = "B0";
 	this.panelKey = "B1";
 	this.applicationCode = "20";
-	this.textHeight = "07";
+	this.textHeight = textHeight;
 	this.textColor = textColor;
+	this.textSpeed = textSpeed;
 	// commands
 	this.deleteCommand = "01";
 	this.fixedTestCommand = "11";
@@ -244,7 +245,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 
 	encodedString.push(this.textWithEffectsCommand); 
 	encodedString.push("00"); // Almacena command
-	encodedString.push("01"); // Velocity
+	encodedString.push(this.textSpeed); // Velocity
 
 	var effectCode = this.effects[effect];
 	encodedString.push(effectCode);
