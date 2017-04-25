@@ -225,7 +225,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     // Add each segment
     mensajes.forEach(function(m,i){
-        console.log(m);
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
          _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
@@ -532,6 +531,9 @@ Panel.prototype.calculateScrollSyncronization = function(textSpace){
 }
 
 /* CALCULATE INCIDENCIAS IN SEGMENTS
+// Split the text into lines by # tag, and cut the array to the correct size
+// Calculate the space needed and the vertical start
+// Push each individual line as a segment
 */
 
 
@@ -539,68 +541,24 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
     var _this = this;
     var segments = [];
 
-    // Array of incidencias segments
     var incidenciasArray = this.incidencia.trim().split("#");
     if (incidenciasArray[0].trim() === "") incidenciasArray.splice(0,1);
+    if (incidenciasArray.length > _this.totalLines) incidenciasArray.splice(_this.totalLines,incidenciasArray.length - 1);
 
-    // Space of lines needed and the starting line calculation
     var spaceNeeded = _this.lineHeight * incidenciasArray.length;
-    var startingLine = Math.floor((_this.lineHeight * _this.totalLines - spaceNeeded) / 2) +1;
+    var startingLine = Math.floor((_this.lineHeight * _this.totalLines - spaceNeeded) / 2) + 1;
 
-   
-    var flagScroll = false;
-    var textLimit = 0;
-    incidenciasArray.forEach(function(el){
-        if (el.trim().length > _this.maxCharactersTotal) flagScroll = true;
-        if (el.trim().length > textLimit) textLimit = el.trim().length;
-    });
-
+    var totalLines = 0;
      // Trim and push each element
     incidenciasArray.forEach(function(word,ind){
-        var space = " ";
-        word = flagScroll ? word.trim() + space.repeat(textLimit - word.trim().length) : word.trim();
+        word = word.trim();
+        if (word.length > _this.maxCharactersTotal) word = word.substring(0, _this.maxCharactersTotal);
         var positionY = _this.lineHeight * ind + startingLine;
-        if (flagScroll) segments.push([word,1, positionY, 'scroll',_this.maxCharactersTotal * 6,positionY + _this.lineHeight]);
-        else segments.push([word,(_this.lineLength - (word.length * 6)) /2 + 1, positionY, null]);
+        segments.push([word,(_this.lineLength - (word.length * 6)) /2 + 1, positionY, null]);
     });
+
     this.incidenciaSegments = segments;
 
-
-    /*var _this = this;
-    var segments = [];
-
-    if (this.incidencia.length <= this.maxCharactersTotal)  {
-       var centrePosition = Math.floor((_this.lineHeight * _this.totalLines / 2));
-       segments.push([_this.incidencia, (_this.lineLength - (_this.incidencia.length * 6)) /2 + 1, centrePosition, null]); 
-    } else {
-        var arrayOfWords = this.incidencia.split(" ");
-        var lines = [];
-        var i = 0;
-        
-        arrayOfWords.forEach(function(w){
-            if (lines[i] === undefined) {
-                lines[i] = w + " ";
-            } else if (lines[i].length + w.length < _this.maxCharactersTotal) {
-                lines[i] += w + " ";
-            } else {
-                i++;
-                lines[i] = w + " ";
-            }
-        })
-
-        var panelHeight = _this.lineHeight * _this.totalLines;
-        var paddingTop = lines.length < _this.totalLines ? Math.floor((panelHeight - (_this.lineHeight * 2)) / 2 + 1) : 1;
-
-        lines.forEach(function(l,i){
-            if (l !== "") {
-                l = l.trim();
-                var positionY = _this.lineHeight * i + paddingTop;
-                segments.push([l,(_this.lineLength - (l.length * 6)) /2 + 1, positionY, null])
-            }
-        });
-    }
-
-    this.incidenciaSegments = segments;*/
 }
 
     
