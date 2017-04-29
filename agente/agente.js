@@ -132,7 +132,6 @@ var agentePaneles = function (params) {
 
     function consultaInformacion(){
         panelesSistema.forEach (function (item,i){
-            //item.checkTurnOff();
             item.consultaEstado(function (err,result){
                 if (typeof  err != 'undefined' && err!= null){
                     debug.log(global.param.debugmode,'ERROR CONSULTA ESTADO: ' + err.message);
@@ -154,6 +153,16 @@ var agentePaneles = function (params) {
 
 
     function enviaIncidencias(callback) {
+        var flagPanelsOn = false;
+        panelesSistema.forEach(function(p){
+            p.checkTurnOff();
+            if (p.onOffStatus === 1) flagPanelsOn = true;
+        });
+
+        if (!flagPanelsOn) {
+            return;
+        }
+
         var incidenciasJSON;
         getRecurso(recursoIncidencias, function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
@@ -190,12 +199,14 @@ var agentePaneles = function (params) {
 
 
                             panelesSistema.forEach(function (item) {
-                                item.calculateIncidenciaInSegments();
-                                item.enviaIncidencia(function (err, result) {
-                                    if (err) {
-                                        debug.log(global.param.debugmode, "Error sending incidents to panel " + item.ip + " - " + err.message);
-                                    }
-                                });
+                                if (item.onOffStatus === 1) {
+                                    item.calculateIncidenciaInSegments();
+                                    item.enviaIncidencia(function (err, result) {
+                                        if (err) {
+                                            debug.log(global.param.debugmode, "Error sending incidents to panel " + item.ip + " - " + err.message);
+                                        }
+                                    });
+                                }
                             });
                         }
                     }
@@ -215,6 +226,16 @@ var agentePaneles = function (params) {
 //-----------------------------------------------------------------------------------
 
     function enviaServiciosDia() {
+        var flagPanelsOn = false;
+        panelesInformacion.forEach(function(p){
+            p.checkTurnOff();
+            if (p.onOffStatus === 1) flagPanelsOn = true;
+        });
+
+        if (!flagPanelsOn) {
+            return;
+        }
+
         var listaServiciosJSON;
         var cambioEstado = 0;
         getRecurso(recursoServicios,function(err,res){
@@ -251,13 +272,14 @@ var agentePaneles = function (params) {
                         });
 
                         panelesInformacion.forEach(function (p) {
-                           p.calculateServicesInSegments();
-                           
-                            p.enviaServicios(function(err,res){
-                                if (err) {
-                                    debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
-                                }
-                            });
+                            if (p.onOffStatus === 1) {
+                                p.calculateServicesInSegments();
+                                p.enviaServicios(function(err,res){
+                                    if (err) {
+                                        debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
+                                    }
+                                });
+                            }
                         });
                     }
                 } 
@@ -274,6 +296,9 @@ var agentePaneles = function (params) {
 //-----------------------------------------------------------------------------------
 
     function enviaServiciosParada(p) {
+        p.checkTurnOff();
+        if (p.onOffStatus === 0) return;
+
         var listaServiciosJSON;
         var cambioEstado = 0;
         var recursoThisParada = {
@@ -283,6 +308,7 @@ var agentePaneles = function (params) {
             method: settingJSON.serviciosParada.metodo,
         }
         getRecurso(recursoThisParada,function(err,res){
+            console.log(res);
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining services parada : ' + err.message);
             } else {
@@ -291,26 +317,22 @@ var agentePaneles = function (params) {
                 if (p.flag ==1) cambioEstado =1;
                 if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
-                    if (listaServiciosJSON.total !==0){
-                        p.listaServicios= [];
-                        p.servicios='';
-                        p.flag =0;
-                        listaServiciosJSON.informacion.forEach (function(serv,i){
-                            var servicio = new agente.Servicio(serv);
-                            if (serv.estado === "Normal" || serv.estado === "Retrasado") {
-                                p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
-                            }  
-                            
-                        });
-                        p.calculateServicesInSegments();
-
-                        p.enviaServicios(function(err,res){
-                            if (err) {
-                                debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
-                            }
-                        });
-
-                    }
+                    p.listaServicios= [];
+                    p.servicios='';
+                    p.flag =0;
+                    listaServiciosJSON.informacion.forEach (function(serv,i){
+                        var servicio = new agente.Servicio(serv);
+                        if (serv.estado === "Normal" || serv.estado === "Retrasado") {
+                            p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
+                        }  
+                        
+                    });
+                    p.calculateServicesInSegments();
+                    p.enviaServicios(function(err,res){
+                        if (err) {
+                            debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
+                        }
+                    });
                 } 
             }
         });

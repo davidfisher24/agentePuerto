@@ -53,7 +53,7 @@
         "estado"           : "",
         "type"             : "MARQUESINA",
         "horaEnciendo"     : "06:00",
-        "horaApago"        : "20:24"
+        "horaApago"        : "24:00"
       }
     ],
     "textos" : {

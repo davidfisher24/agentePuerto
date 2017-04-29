@@ -33,7 +33,7 @@ var Panel = function(campos){
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     // Dynamic parameters for the panel
     this.listaServicios =[];
-    this.onOffStatus = 0;
+    this.onOffStatus = 1; // 1 by default for testing (how do we turn on).
     this.servicios = '',
     this.estado='',
     this.incidencia='',
@@ -364,6 +364,11 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 };
 
+/***********************************************************************************************
+// FUNCTION TO CHECK IF THE PANEL IS ON/OFF FROM THE TURN ON AND TURN OFF HOURS
+* if a panel is changing from off => on, it automatically sends an empty message array to 
+trigger a delete-sync message to blank the panel
+***********************************************************************************************/
 
 Panel.prototype.checkTurnOff = function (){
     var _this = this;
@@ -383,9 +388,12 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
+        console.log("We are turned ON");
         this.onOffStatus = 1;
     } else {
+        console.log("We are turned OFF");
         if (this.onOffStatus === 1) {
+            console.log("Triggering a turn off event");
             this.onOffStatus = 0;
             this._conexionParaEnvio([], function (err,res) {
                 callback(err,res);
