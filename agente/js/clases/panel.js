@@ -18,6 +18,8 @@ var Panel = function(campos){
     this.puerto = campos.puerto;
     this.inactivo = campos.inactivo;
     this.type = campos.type;
+    this.horaEnciendo = campos.horaEnciendo;
+    this.horaApago = campos.horaApago;
     // Static paramters taken from the panel type configuration
     this.totalLines = global.param.panelTypes[this.type].lineasTotal;
     this.servicesLines = global.param.panelTypes[this.type].lineasServicios;
@@ -359,6 +361,29 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         }, global.param.tiempoReintentos);
     });
 
+};
+
+
+Panel.prototype.checkTurnOff = function (horaEnciendo,horaApago){
+    function getMinutes(str) {
+        var time = str.split(':');
+        return time[0]*60+time[1]*1;
+    }
+    function getMinutesNow() {
+        var timeNow = new Date();
+        return timeNow.getHours()*60+timeNow.getMinutes();
+    }
+
+    var now = getMinutesNow();
+    var start = getMinutes(horaEnciendo);
+    var end = getMinutes(horaApago);
+    if (start > end) end += getMinutes('24:00');
+
+    if ((now > start) && (now < end)) {
+        // Turned on
+    } else {
+        // Turned off
+    }
 };
 
 
