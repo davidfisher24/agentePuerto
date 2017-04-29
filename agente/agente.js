@@ -97,7 +97,6 @@ var agentePaneles = function (params) {
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
             var p = new  agente.Panel(elem);  // Create new panel
-            console.log(p);
             panelesSistema.push (p); // All panels go to panelessistema
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);  // Marquesina panels
             if (p.type === "INFORMACION") panelesInformacion.push(p); // Information panels
@@ -133,13 +132,13 @@ var agentePaneles = function (params) {
 
     function consultaInformacion(){
         panelesSistema.forEach (function (item,i){
+            //item.checkTurnOff();
             item.consultaEstado(function (err,result){
                 if (typeof  err != 'undefined' && err!= null){
                     debug.log(global.param.debugmode,'ERROR CONSULTA ESTADO: ' + err.message);
                 } else {
                     panelesSistema[i].estado=result;
                     _that.io.emit('consultaestado',item.estado);
-                    console.log("Consult Information Response");
                     postEstadoAPI(result,item); 
                 }
             });
@@ -374,7 +373,6 @@ var agentePaneles = function (params) {
             path:  settingJSON.estados.ruta + POSTParamsString,
             method: settingJSON.estados.metodo,
         }
-        console.log(recursoPOST);
 
         var req = http.request(recursoEstados, function(res) {
             res.setEncoding('utf8');

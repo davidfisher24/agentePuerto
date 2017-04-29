@@ -33,6 +33,7 @@ var Panel = function(campos){
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     // Dynamic parameters for the panel
     this.listaServicios =[];
+    this.onOffStatus = 0;
     this.servicios = '',
     this.estado='',
     this.incidencia='',
@@ -364,7 +365,9 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 };
 
 
-Panel.prototype.checkTurnOff = function (horaEnciendo,horaApago){
+Panel.prototype.checkTurnOff = function (){
+    var _this = this;
+
     function getMinutes(str) {
         var time = str.split(':');
         return time[0]*60+time[1]*1;
@@ -375,15 +378,22 @@ Panel.prototype.checkTurnOff = function (horaEnciendo,horaApago){
     }
 
     var now = getMinutesNow();
-    var start = getMinutes(horaEnciendo);
-    var end = getMinutes(horaApago);
+    var start = getMinutes(this.horaEnciendo);
+    var end = getMinutes(this.horaApago);
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        // Turned on
+        this.onOffStatus = 1;
     } else {
-        // Turned off
+        if (this.onOffStatus === 1) {
+            this.onOffStatus = 0;
+            this._conexionParaEnvio([], function (err,res) {
+                callback(err,res);
+            });
+        } 
     }
+
+    
 };
 
 

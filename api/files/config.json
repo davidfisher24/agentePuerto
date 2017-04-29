@@ -52,8 +52,8 @@
         "idestado"         : 0,
         "estado"           : "",
         "type"             : "MARQUESINA",
-        "horaEnciendo"     : "06.00",
-        "horaApago"        : "24.00"
+        "horaEnciendo"     : "06:00",
+        "horaApago"        : "20:24"
       }
     ],
     "textos" : {
