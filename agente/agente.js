@@ -138,9 +138,8 @@ var agentePaneles = function (params) {
                 } else {
                     panelesSistema[i].estado=result;
                     _that.io.emit('consultaestado',item.estado);
-                    // Texto - desconocido, normal, inactivo
-                    // Estado 0, 1, 2
-                    //postEstadoAPI(result,item);  // We can't do this yet
+                    console.log("Consult Information Response");
+                    postEstadoAPI(result,item); 
                 }
             });
         });
@@ -366,6 +365,16 @@ var agentePaneles = function (params) {
 
     function postEstadoAPI(result, item){
         var estadoString=  JSON.stringify(result);
+        var POSTParamsString = "?id="+item.idpanel+"&estado="+result.estado+"&texto="+result.texto;
+
+        var recursoPOST = {
+            hostname: settingJSON.estados.host,
+            port: settingJSON.estados.puerto,
+            path:  settingJSON.estados.ruta + POSTParamsString,
+            method: settingJSON.estados.metodo,
+        }
+        console.log(recursoPOST);
+
         var req = http.request(recursoEstados, function(res) {
             res.setEncoding('utf8');
             var responseString = '';
