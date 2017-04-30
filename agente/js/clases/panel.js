@@ -238,77 +238,30 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
+        debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
-        //debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
-        //var trama = "";
-        //trama += panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,120,27);
-
-        //_that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-        /*mensajes.forEach(function(m,i){
-            var t;
-            if (m[3] === null ) t = panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]);
-            else t = panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]);
-            trama += t;
-             _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-        });*/
-        /*var tramaSync = trama + panelEnvio.sendSyncCommand();
-        var buffSync = new Buffer(tramaSync, 'hex');
-        envioSocket.write(buffSync);
-        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");*/
+        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
     });
 
-    // When recieve a response, reduce the buffers array by on, and send the next message.
-    // Need to handle error messages here.
+
     envioSocket.on('data', function (data) {
-        buffers.splice(0,1);
-        panelEnvio.trataEnvio(data);
-        // Do we need to wait for a response to do something here.
-
-        if (buffers.length > 0) {
-            var buff = new Buffer(buffers[0], 'hex');
-            envioSocket.write(buff);
-        } else {
-            envioSocket.destroy();
-        }
-        // Deal with errors
-        /*if (data.length !== 0) {
-            panelEnvio.trataEnvio(data,function(err,mens){
-                if (mens!=null) {
-                    if (mens=='S') {  
-                        callback(null, "Mensaje enviado correctamente al panel");
-                        envioSocket.end();
-                    } else if (mens=='N') {
-                        callback(new Error(1,'El panel no da permiso para el envio'),null);
-                    } else {
-                        var buff3 = new Buffer(mens, 'hex');
-                        envioSocket.write(buff3);
-                    }
-                    
+        panelEnvio.trataEnvio(data,function(mens){
+            if (mens === "06") {
+                buffers.splice(0,1);
+                if (buffers.length > 0) {
+                    var buff = new Buffer(buffers[0], 'hex');
+                    envioSocket.write(buff);
+                    debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
                 } else {
-                    if (_that.intentosEnvio == global.param.numReintentos) {
-                        var obj = {
-                            "id"    : _that.id,
-                            "estado": "1",
-                            "texto" : "DESCONOCIDO"
-                        };
-                        _that.estado=obj;
-                        envioSocket.destroy();
-                        _that.intentosEnvio=0;
-
-                        callback(null,obj)
-                    } else {
-                        envioSocket.destroy();
-
-                        _that.intentosEnvio= _that.intentosEnvio + 1;
-                        callback(err, null);
-                    }
-                }
-            });
-        }*/
+                    envioSocket.destroy();
+                } 
+            } else {
+                // Try again and debug
+            }
+        });
     });
 
-    //Si hay error enviado informacion, se realiza un reintento de envio
     envioSocket.on('close', function (had_error){
         _that.conectadoEnv =false;
         if (had_error){
@@ -388,12 +341,13 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        console.log("We are turned ON");
+        console.log("We are on");
         this.onOffStatus = 1;
+        this.inactivo = 0;
     } else {
-        console.log("We are turned OFF");
+        console.log("We are off");
         if (this.onOffStatus === 1) {
-            console.log("Triggering a turn off event");
+            this.inactivo = 1;
             this.onOffStatus = 0;
             this._conexionParaEnvio([], function (err,res) {
                 callback(err,res);

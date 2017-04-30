@@ -170,9 +170,6 @@ var agentePaneles = function (params) {
             } else {
                 incidenciasJSON = res;
                 
-                // Testing incidences
-                //incidenciasJSON = JSON.parse('{"informacion":[{"criticidad":0,"paneles":[{"id":14,"tipo":"Salida"}],"texto":"#A very very very very long and extremeley difficult problem#problem2"}],"refresco":30,"serie":0,"total":1}');
-
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco *1000;
                     if (incidenciasJSON.serie != global.param.serieI) {
@@ -199,6 +196,7 @@ var agentePaneles = function (params) {
 
 
                             panelesSistema.forEach(function (item) {
+                                console.log("Status :" + item.onOffStatus);
                                 if (item.onOffStatus === 1) {
                                     item.calculateIncidenciaInSegments();
                                     item.enviaIncidencia(function (err, result) {

@@ -56,12 +56,13 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
 	});
 	var bits = decodedText.match(/.{2}/g);
 	var message_response = bits[4];
-
-	if (message_response === this.ack_rx) 
+	/*if (message_response === this.ack_rx) 
 		console.log("Message recieved successfully");
 	else if (message_response === this.nack_rx) 
-		console.log("Error in message reading: " + this.nack_rx_errors[bits[8]])
-	return message_response;
+		console.log("Error in message reading: " + this.nack_rx_errors[bits[8]])*/
+	//return message_response;
+	//callback(message_response);
+	callback(message_response);
 };
                                            
 
