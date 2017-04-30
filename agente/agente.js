@@ -261,7 +261,7 @@ var agentePaneles = function (params) {
                                     var servicio = new agente.Servicio(serv);
                                     if (panel.id == elem.id){
                                         if (elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
-                                            if (serv.estado === "Normal" || serv.estado === "En curso" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
+                                            if (serv.estado === "Normal" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
                                                 panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                             }
                                         }
@@ -269,7 +269,6 @@ var agentePaneles = function (params) {
                                 });
                             });
                         });
-
                         panelesInformacion.forEach(function (p) {
                             if (p.onOffStatus === 1) {
                                 p.calculateServicesInSegments();

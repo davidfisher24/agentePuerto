@@ -48,11 +48,18 @@ var Panel = function(campos){
     this.messageOrder = 160; // 160 - 175
     this.segments = []; // Segments to encode
     this.incidenciaSegments = [];
+    // If we are debugging this panel, run the construct function.
+    this.debug = campos.debug;
+    if (this.debug === 1) this.createLogFile();
+};
+
+Panel.prototype.createLogFile = function (){
+    debug.createPanelLog(this.id);
 };
 
 Panel.prototype.EstaConectado = function () {
   var Estado = this.conectado || this.conectadoEnv; 
-  if (Estado) debug.log(global.param.debugmode,"Connection already open. Postponing new connection");
+  if (Estado) debug.panelLog(this.debug,"Connection already open. Postponing new connection",this.id);
   return Estado; 
 };
 
@@ -64,7 +71,7 @@ Panel.prototype.EstaConectado = function () {
 
 Panel.prototype.consultaEstado = function(callback){
     if (this.inactivo) {
-        debug.log(global.param.debugmode,"Consult panel status. Panel: " + this.ip + " - Panel Inactivo");
+        debug.panelLog(this.debug,"Consult panel status. Panel: " + this.ip + " - Panel Inactivo",this.id);
         var obj={"id": this.id.toString(),
             "estado": "2",
             "texto": "INACTIVO"};
@@ -90,7 +97,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     var _that = this;
     
     panelSocket.on('connect', function () {
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request CONNECT - ' + _that.ip);
+        debug.panelLog(_that.ip,_that.proceso + ' - Status request CONNECT - ' + _that.ip,_that.id);
         _that.conectado=true;
         var trama=panelConsulta.sendKeepAlive(_that.messageOrder.toString(16));
         _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
@@ -100,7 +107,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('data', function (data) {
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request DATA - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Status request DATA - ' + _that.ip,_that.id);
         if (data.length!==0) {
             var dR=new Buffer(data.toString(),'hex');
             var datos=panelConsulta.trataConsulta(dR);
@@ -116,7 +123,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('close', function (had_error){
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request CLOSE - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Status request CLOSE - ' + _that.ip,_that.id);
         _that.conectado=false;
         if (had_error){
             if ((_that.intentosEstados<global.param.numReintentos) && (_that.intentosEstados!=0)) {
@@ -130,7 +137,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('error', function (e){
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request ERROR - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Status request ERROR - ' + _that.ip,_that.id);
         if (_that.conectado) {
             panelSocket.destroy(); 
         };
@@ -150,12 +157,12 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('end',function(){
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request END. Connection ended with ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Status request END. Connection ended with ' + _that.ip,_that.id);
     });
 
 
     panelSocket.on('timeout', function(){
-        debug.log(global.param.debugmode,_that.proceso + ' - Status request TIMED OUT - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Status request TIMED OUT - ' + _that.ip,_that.id);
         if (_that.conectado) {
             panelSocket.destroy();  
         }
@@ -176,7 +183,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
 Panel.prototype.enviaIncidencia= function(callback){
 
     if (this.inactivo == 1){
-        debug.log(global.param.debugmode,"Attempted to send incidences " + this.ip + " - Panel Inactivo");
+        debug.panelLog(this.debug,"Attempted to send incidences " + this.ip + " - Panel Inactivo",this.id);
         callback (null,null);
     } else {
         if (this.incidencia != ''){
@@ -194,7 +201,7 @@ Panel.prototype.enviaIncidencia= function(callback){
 Panel.prototype.enviaServicios= function(callback){
     var that = this;
     if (this.inactivo == 1){
-        debug.log(global.param.debugmode,"Attempted to send services " + this.ip + " - Panel Inactivo");
+        debug.panelLog(this.debug,"Attempted to send services " + this.ip + " - Panel Inactivo",this.id);
         callback (null,null);
     } else {
         if (this.incidencia == ''){
@@ -236,23 +243,23 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
-        debug.log(global.param.debugmode,_that.proceso + ' - Send request CONNECT - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Send request CONNECT - ' + _that.ip,_that.id);
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
-        debug.log(global.param.debugmode,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ");
+        debug.panelLog(_that.debug,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
     });
 
 
     envioSocket.on('data', function (data) {
         panelEnvio.trataEnvio(data,function(mens){
-            debug.log(global.param.debugmode,_that.proceso + ' - Send request CONNECT - ' + _that.ip);
-            debug.log(global.param.debugmode,_that.proceso + " - Send request DATA -" + _that.ip + " - recieved: " + mens);
+            debug.panelLog(_that.debug,_that.proceso + ' - Send request CONNECT - ' + _that.ip,_that.id);
+            debug.panelLog(_that.debug,_that.proceso + " - Send request DATA -" + _that.ip + " - recieved: " + mens,_that.id);
             if (mens === "06") {
                 buffers.splice(0,1);
                 if (buffers.length > 0) {
                     var buff = new Buffer(buffers[0], 'hex');
                     envioSocket.write(buff);
-                    debug.log(global.param.debugmode,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ");
+                    debug.panelLog(_that.debug,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 } else {
                     envioSocket.destroy();
                 } 
@@ -270,7 +277,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     _that.intentosEnvio++;
                     var buff = new Buffer(buffers[0], 'hex');
                     envioSocket.write(buff);
-                    debug.log(global.param.debugmode,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ");
+                    debug.panelLog(_that.debug,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                     callback(e, null);
                 } 
             }
@@ -279,7 +286,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     });
 
     envioSocket.on('close', function (had_error){
-        debug.log(global.param.debugmode,_that.proceso + ' - Send request CLOSE - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Send request CLOSE - ' + _that.ip,_that.id);
         _that.conectadoEnv =false;
         if (had_error){
             setTimeout(function(){
@@ -293,7 +300,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 
     envioSocket.on('error', function (e){
-        debug.log(global.param.debugmode,_that.proceso + ' - Send request ERROR - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Send request ERROR - ' + _that.ip,_that.id);
         if (_that.conectadoEnv) {
             envioSocket.destroy();
         } else {
@@ -310,18 +317,18 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 _that.intentosEnvio++;
                 var buff = new Buffer(buffers[0], 'hex');
                 envioSocket.write(buff);
-                debug.log(global.param.debugmode,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ");
+                debug.panelLog(_that.debug,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 callback(e, null);
             }       
         }
     });
 
     envioSocket.on('end',function(){
-        debug.log(global.param.debugmode,_that.proceso + ' - Send request END. Conexion finalizada con ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Send request END. Conexion finalizada con ' + _that.ip,_that.id);
     });
 
     envioSocket.on('timeout', function(){
-        debug.log(global.param.debugmode,_that.proceso + ' - Send request TIMEOUT - ' + _that.ip);
+        debug.panelLog(_that.debug,_that.proceso + ' - Send request TIMEOUT - ' + _that.ip,_that.id);
         if (_that.conectadoEnv) {
             envioSocket.destroy();
         } else {
@@ -338,7 +345,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 _that.intentosEnvio++;
                 var buff = new Buffer(buffers[0], 'hex');
                 envioSocket.write(buff);
-                 debug.log(global.param.debugmode,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ");
+                 debug.panelLog(_that.debug,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 callback(e, null);
             } 
         }

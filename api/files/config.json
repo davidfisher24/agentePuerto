@@ -53,7 +53,8 @@
         "estado"           : "",
         "type"             : "INFORMACION",
         "horaEnciendo"     : "06:00",
-        "horaApago"        : "24:00"
+        "horaApago"        : "24:00",
+        "debug"            : 1
       }
     ],
     "textos" : {
