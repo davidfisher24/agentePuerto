@@ -134,7 +134,7 @@ var agentePaneles = function (params) {
         panelesSistema.forEach (function (item,i){
             item.consultaEstado(function (err,result){
                 if (typeof  err != 'undefined' && err!= null){
-                    debug.log(global.param.debugmode,'ERROR CONSULTA ESTADO: ' + err.message);
+                    debug.log(global.param.debugmode,'Error conuslting estado.do resource : ' + err.message);
                 } else {
                     panelesSistema[i].estado=result;
                     _that.io.emit('consultaestado',item.estado);
@@ -166,7 +166,7 @@ var agentePaneles = function (params) {
         var incidenciasJSON;
         getRecurso(recursoIncidencias, function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
-                debug.log(global.param.debugmode,'Error obtaining incidents: ' + err.message);
+                debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
                 incidenciasJSON = res;
                 
@@ -209,7 +209,7 @@ var agentePaneles = function (params) {
                     }
                 }
                 else {
-                    debug.log(global.param.debugmode,'Error in the resource of incidents');
+                    debug.log(global.param.debugmode,'Error obtaining the incidencias.do resoruce');
                 }
             }
         });
@@ -237,7 +237,7 @@ var agentePaneles = function (params) {
         var cambioEstado = 0;
         getRecurso(recursoServicios,function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
-                debug.log(global.param.debugmode,'Error obtaining services information : ' + err.message);
+                debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {
                 listaServiciosJSON=res;
                 global.param.refrescoS=listaServiciosJSON.refresco * 1000;
@@ -275,7 +275,7 @@ var agentePaneles = function (params) {
                                 p.calculateServicesInSegments();
                                 p.enviaServicios(function(err,res){
                                     if (err) {
-                                        debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
+                                        debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
                                     }
                                 });
                             }
@@ -308,7 +308,7 @@ var agentePaneles = function (params) {
         }
         getRecurso(recursoThisParada,function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
-                debug.log(global.param.debugmode,'Error obtaining services parada : ' + err.message);
+                debug.log(global.param.debugmode,'Error obtaining servicios-parada.do resoruce for panel '+p.id+' : ' + err.message);
             } else {
                 listaServiciosJSON=res;
                 p.refrescoP=listaServiciosJSON.refresco * 1000;
@@ -327,7 +327,7 @@ var agentePaneles = function (params) {
                     p.calculateServicesInSegments();
                     p.enviaServicios(function(err,res){
                         if (err) {
-                            debug.log(global.param.debugmode, "Error enviando servicios al panel " + p.ip + " - " + err.message);
+                            debug.log(global.param.debugmode, "Error sending services to panel - " + p.ip + " - " + err.message);
                         }
                     });
                 } 
@@ -404,15 +404,15 @@ var agentePaneles = function (params) {
             res.on('end', function() {
                 var resultObject = JSON.parse(responseString);
                 if (!resultObject.success){
-                    debug.log(global.param.debugmode,"Error actualizando estado para  " + item.ip + " Respuesta API: \"" + (resultObject.data) + "\"");
+                    debug.log(global.param.debugmode,"Error updating status for  " + item.ip + " Response API: \"" + (resultObject.data) + "\"");
                 }else {
-                    debug.log (global.param.debugmode,"Estado actualizado para " + item.ip + " Respuesta API: \"" + (resultObject.data) + "\"");
+                    debug.log (global.param.debugmode,"Status updated for " + item.ip + " Response API: \"" + (resultObject.data) + "\"");
                 }
             });
         });
 
         req.on('error', function(e) {
-            debug.log(global.param.debugmode,"Error en el envio de estado al API para el panel " + item.ip );
+            debug.log(global.param.debugmode,"Error sending status to the API for panel " + item.ip );
         });
         req.write(estadoString);
         req.end();
