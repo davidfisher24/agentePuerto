@@ -215,38 +215,34 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     this.conectadoEnv=false;
     var panelEnvio = new Fabricante(this.ip, this.textColor, this.textSpeed, this.textHeight);
     var envioSocket = net.connect({host: this.ip, port: this.puerto});
-
     envioSocket.setTimeout(global.param.tiempoEspera);
 
-    // Array of buffers. Delete message, all segments, and sync commands/
     var buffers = [];
-    // Parameters for delete message
     var endRight = _that.lineLength;
     var endBottom = _that.lineHeight * _that.totalLines;
-    // Add delete message
     buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,endRight,endBottom));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-    // Add each segment
     mensajes.forEach(function(m,i){
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
          _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
     });
-    // Add sync command
     buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+
 
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
         debug.log(global.param.debugmode, _that.proceso +' - Panel conectado para el envio: ' + _that.ip);
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
-        debug.log(global.param.debugmode,_that.proceso + " - Envio trama de sync -" + _that.ip + " - ");
+        debug.log(global.param.debugmode,_that.proceso + " - Envio trama -" + _that.ip + " - ");
     });
 
 
     envioSocket.on('data', function (data) {
         panelEnvio.trataEnvio(data,function(mens){
+            debug.log(global.param.debugmode,_that.proceso + " - Mensage Recibido -" + _that.ip + " - " + mens);
             if (mens === "06") {
                 buffers.splice(0,1);
                 if (buffers.length > 0) {
@@ -257,8 +253,27 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     envioSocket.destroy();
                 } 
             } else {
-                // Try again and debug
+                if (_that.intentosEnvio == global.param.numReintentos) {
+                    var obj = {
+                        "id"    : _that.id,
+                        "estado": "1",
+                        "texto" : "DESCONOCIDO"
+                    };
+                    _that.estado=obj;
+                    _that.intentosEnvio=0;
+                    callback(null,obj)
+                } else {
+                    _that.intentosEnvio++;
+                    var buff = new Buffer(buffers[0], 'hex');
+                    envioSocket.write(buff);
+                    debug.log(global.param.debugmode,_that.proceso + " - Reintento enviar tramo -" + _that.ip + " - ");
+                    callback(e, null);
+                } 
+                var buff = new Buffer(buffers[0], 'hex');
+                envioSocket.write(buff);
+                debug.log(global.param.debugmode,_that.proceso + " - Reintento enviar tramo -" + _that.ip + " - ");
             }
+            
         });
     });
 
@@ -278,41 +293,51 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     envioSocket.on('error', function (e){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
-        }
-        if (_that.intentosEnvio == global.param.numReintentos) {
-            var obj = {
-                "id"    : _that.id,
-                "estado": "1",
-                "texto" : "DESCONOCIDO"
-            };
-            _that.estado=obj;
-            _that.intentosEnvio=0;
-
-            callback(null,obj)
         } else {
-
-            _that.intentosEnvio++;
-            callback(e, null);
+            if (_that.intentosEnvio == global.param.numReintentos) {
+                var obj = {
+                    "id"    : _that.id,
+                    "estado": "1",
+                    "texto" : "DESCONOCIDO"
+                };
+                _that.estado=obj;
+                _that.intentosEnvio=0;
+                callback(null,obj)
+            } else {
+                _that.intentosEnvio++;
+                var buff = new Buffer(buffers[0], 'hex');
+                envioSocket.write(buff);
+                debug.log(global.param.debugmode,_that.proceso + " - Reintento enviar tramo -" + _that.ip + " - ");
+                callback(e, null);
+            }       
         }
-
     });
 
     envioSocket.on('end',function(){
-
         debug.log(global.param.debugmode,_that.proceso + ' - Envio termiando. Conexion finalizada con ' + _that.ip);
     });
 
     envioSocket.on('timeout', function(){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
-        }
-        setTimeout(function(){
-            if (_that.intentosEnvio < global.param.numReintentos){
+        } else {
+            if (_that.intentosEnvio == global.param.numReintentos) {
+                var obj = {
+                    "id"    : _that.id,
+                    "estado": "1",
+                    "texto" : "DESCONOCIDO"
+                };
+                _that.estado=obj;
+                _that.intentosEnvio=0;
+                callback(null,obj)
+            } else {
                 _that.intentosEnvio++;
-
-                _that._conexionParaEnvio(mensajes,callback);
-            }
-        }, global.param.tiempoReintentos);
+                var buff = new Buffer(buffers[0], 'hex');
+                envioSocket.write(buff);
+                debug.log(global.param.debugmode,_that.proceso + " - Reintento enviar tramo -" + _that.ip + " - ");
+                callback(e, null);
+            } 
+        }
     });
 
 };
@@ -341,11 +366,9 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        console.log("We are on");
         this.onOffStatus = 1;
         this.inactivo = 0;
     } else {
-        console.log("We are off");
         if (this.onOffStatus === 1) {
             this.inactivo = 1;
             this.onOffStatus = 0;

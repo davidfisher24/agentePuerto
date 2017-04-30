@@ -196,7 +196,6 @@ var agentePaneles = function (params) {
 
 
                             panelesSistema.forEach(function (item) {
-                                console.log("Status :" + item.onOffStatus);
                                 if (item.onOffStatus === 1) {
                                     item.calculateIncidenciaInSegments();
                                     item.enviaIncidencia(function (err, result) {
@@ -306,7 +305,6 @@ var agentePaneles = function (params) {
             method: settingJSON.serviciosParada.metodo,
         }
         getRecurso(recursoThisParada,function(err,res){
-            console.log(res);
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining services parada : ' + err.message);
             } else {
