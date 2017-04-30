@@ -259,11 +259,13 @@ var agentePaneles = function (params) {
                             serv.paneles.forEach (function (elem){
                                 panelesInformacion.filter(function(panel,ind){
                                     var servicio = new agente.Servicio(serv);
-                                    if (panel.id == elem.id && elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
-                                        if (serv.estado === "Normal" || serv.estado === "En curso" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
-                                            panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
+                                    if (panel.id == elem.id){
+                                        if (elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
+                                            if (serv.estado === "Normal" || serv.estado === "En curso" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
+                                                panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
+                                            }
                                         }
-                                    }
+                                    } 
                                 });
                             });
                         });
@@ -320,8 +322,7 @@ var agentePaneles = function (params) {
                         var servicio = new agente.Servicio(serv);
                         if (serv.estado === "Normal" || serv.estado === "Retrasado") {
                             p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
-                        }  
-                        
+                        }
                     });
                     p.calculateServicesInSegments();
                     p.enviaServicios(function(err,res){

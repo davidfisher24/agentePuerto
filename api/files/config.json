@@ -51,7 +51,7 @@
         "lineas"           : 3,
         "idestado"         : 0,
         "estado"           : "",
-        "type"             : "MARQUESINA",
+        "type"             : "INFORMACION",
         "horaEnciendo"     : "06:00",
         "horaApago"        : "24:00"
       }
