@@ -98,7 +98,6 @@ var agentePaneles = function (params) {
 
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
-            console.log(elem);
             var p = new  agente.Panel(elem);  // Create new panel
             panelesSistema.push (p); // All panels go to panelessistema
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);  // Marquesina panels
