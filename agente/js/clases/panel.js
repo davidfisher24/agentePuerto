@@ -276,7 +276,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     var buff = new Buffer(buffers[0], 'hex');
                     envioSocket.write(buff);
                      debug.panelLog(_that.debug,_that.proceso + " - Tried to resend string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
-                    callback(e, null);
                 } 
             }
             

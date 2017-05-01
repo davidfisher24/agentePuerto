@@ -8,6 +8,7 @@ var agente = require('./js/clases');
 var debug = require('../agente/js/utils');
 var http = require('http');
 var Fabricante=require('../agente/js/clases/fabricante.js'); 
+var Tests = require('../agente/js/tests/tests.js'); 
 
 //----------------------------------------------------
 // Global variables 
@@ -20,7 +21,7 @@ global.param={
     refrescoS : 65*1000,  // Default refresh value for servicios-dia.do (Changed by API)
     refrescoP : 65*1000,  // Default refresh value for servicios-parada.do (Changed by API)
     refrescoI : 65*1000,  // Default refresh value for servicios-incidencias.do (Changed by API)   
-    refrescoE : 60*1000,     
+    refrescoE : 60*1000,  // Refresh value for estado.do 
     numReintentos : 1,  // Default number of retrys to API connect 
     tiempoReintentos : 1,  // Defaukt time between retrys to API connect
     tiempoEspera : 30,  // Default waiting time for a server response
@@ -238,6 +239,7 @@ var agentePaneles = function (params) {
         var listaServiciosJSON;
         var cambioEstado = 0;
         getRecurso(recursoServicios,function(err,res){
+            res = Tests.servicios();
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {
