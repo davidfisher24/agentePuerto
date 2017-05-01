@@ -9,9 +9,7 @@ Tests = {
 			total: 0,
 		};
 		for (var i=0; i < Math.floor((Math.random() * 500) + 1); i++) {
-			// Random depature arriveal time
 			var time = _this.getTime();
-			// curent time
 			var currentDate = new Date();
   			var nowTime = ("0" + currentDate.getHours()).slice(-2);
   			nowTime += ":" + ("0" + currentDate.getMinutes()).slice(-2);
@@ -23,7 +21,7 @@ Tests = {
 			if (rand === 9 && estado === "Normal") estado = "Cancelado";
 			if (rand === 10 && (estado === "En Curso" || estado === "Normal")) estado = "Retrasado";
 
-			//var estado = _this.getEstado(Math.floor((Math.random() * 5)));
+
 			serviciosReturn.informacion.push({
 				codigo: "M-" + Math.floor((Math.random() * 299) + 100),
 				destino: _this.getDestino(Math.floor((Math.random() * 25))),
@@ -43,7 +41,37 @@ Tests = {
     },
 
     serviciosParada: function (){
+    	var _this = this;
+		var serviciosReturn = {
+			informacion: [],
+			refresco: 30,
+			serie: Math.floor((Math.random() * 100)),
+			total: 5,
+		};
+		var currentDate = new Date();
+		var nowTime = ("0" + currentDate.getHours()).slice(-2);
+		nowTime += ":" + ("0" + currentDate.getMinutes()).slice(-2);
+		var serviceTimes = [];
+		while (serviceTimes.length < 5) {
+			var time = _this.getSingleTime();
+			if (time > nowTime && time < "24:00") serviceTimes.push(time);
+		}
 
+		for (var i=0; i < 5; i++) {
+			var estado = "Normal";
+			var rand = Math.floor((Math.random() * 10) + 1);
+			if (rand === 9) estado = "Cancelado";
+			if (rand === 10) estado = "Retrasado";
+
+			serviciosReturn.informacion.push({
+				codigo: "M-" + Math.floor((Math.random() * 299) + 100),
+				estado: estado,
+				nombre: _this.getDestino(Math.floor((Math.random() * 25))) + " - " + _this.getDestino(Math.floor((Math.random() * 25))),
+				retraso: estado === "retrasado" ? Math.floor((Math.random() * 10) + 1) : 0,
+				hora: serviceTimes[i],
+			});
+		}
+		return serviciosReturn;
     },
 
     incidencias: function(){
@@ -54,7 +82,7 @@ Tests = {
 			serie: Math.floor((Math.random() * 500) + 1),
 			total: 0,
 		};
-		if (Math.floor((Math.random() * 5) + 1) > 2) {
+		if (Math.floor((Math.random() * 5) + 1) == 5) {
 			incidenciasReturn.informacion.push({
 				criticidad: 0,
 				texto: _this.getIncidencia(Math.floor((Math.random() * 8))),
@@ -96,10 +124,15 @@ Tests = {
     	var numB = Math.floor((Math.random() * 18) + 6);
 
     	var returnArray = [];
-    	returnArray[0] = ("0" + Math.min(numA,numB)).slice(-2) +":"+ ("0" + Math.floor(Math.random()*60)).slice(-2);
-    	returnArray[1] = ("0" + Math.max(numA,numB)).slice(-2) +":"+ ("0" + Math.floor(Math.random()*60)).slice(-2);
-
+    	returnArray[0] = ("0" + (Math.min(numA,numB))).slice(-2) +":"+ ("0" + Math.floor(Math.random()*60)).slice(-2);
+    	returnArray[1] = ("0" + (Math.min(numA,numB))).slice(-2) +":"+ ("0" + Math.floor(Math.random()*60)).slice(-2);
     	return returnArray;
+    },
+
+    getSingleTime: function(){
+    	var numA = ("0" + (Math.floor(Math.random() * 18) + 6)).slice(-2);
+    	var numB = ("0" + Math.floor(Math.random()*60)).slice(-2);
+    	return numA + ":" + numB;
     },
 
 }

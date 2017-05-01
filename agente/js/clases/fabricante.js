@@ -56,7 +56,6 @@ Fabricante.prototype.trataEnvio= function (datos,callback) {
 	});
 	var bits = decodedText.match(/.{2}/g);
 	var message_response = bits[4];
-
 	callback(message_response);
 };
                                            
@@ -179,6 +178,8 @@ Fabricante.prototype.sendDeleteMessage=function(order,xStart,yStart,xFinish,yFin
 
 
 Fabricante.prototype.sendFixedTextMessage=function(order,texto,xStart,yStart){
+
+
 	var that = this;
 
 	var encodedText = legacy.encode(texto, this.encodingType, {
@@ -240,6 +241,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 	});
 
 	encodedString.push(this.textWithEffectsCommand); 
+
 	encodedString.push("00"); // Almacena command
 	encodedString.push(this.textSpeed); // Velocity
 
@@ -258,6 +260,7 @@ Fabricante.prototype.sendTextMessageWithEffect=function(order,texto,xStart,yStar
 	this.makeHexNumberTwoBytes(yFinish).forEach(function(byte){ 
 		encodedString.push(byte);
 	});
+
 	encodedString.push(this.textColor); //Color - Amber
 	encodedString.push(this.textHeight); //Altura del texto
 	

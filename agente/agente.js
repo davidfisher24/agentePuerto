@@ -168,8 +168,6 @@ var agentePaneles = function (params) {
 
         var incidenciasJSON;
         getRecurso(recursoIncidencias, function(err,res){
-            res = Tests.incidencias();
-            console.log(res);
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
@@ -243,7 +241,6 @@ var agentePaneles = function (params) {
         var listaServiciosJSON;
         var cambioEstado = 0;
         getRecurso(recursoServicios,function(err,res){
-            res = Tests.servicios();
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {

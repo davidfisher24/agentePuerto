@@ -240,7 +240,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
 
-
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
@@ -468,7 +467,10 @@ Panel.prototype.calculateServicesInSegments = function (){
 */
 
 Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacing){
-    if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',103,yPosition + ySpacing];
+    var yOffset = yPosition + ySpacing;
+    if (yOffset > this.totalLines * this.lineHeight) yOffset = this.totalLines * this.lineHeight;
+
+    if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',103,yOffset];
     else return [name,31,yPosition,null];
 }
 
@@ -493,7 +495,11 @@ Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,flag
         endPosition = 168;
         reduceCharForAsterix = 1;
     }
-    if (name.length > this.maxCharactersForName - reduceCharForAsterix) return [nameText,31,yPosition,'scroll',endPosition,yPosition + ySpacing];
+
+    var yOffset = yPosition + ySpacing;
+    if (yOffset > this.totalLines * this.lineHeight) yOffset = this.totalLines * this.lineHeight;
+
+    if (nameText.length > this.maxCharactersForName - reduceCharForAsterix) return [nameText,31,yPosition,'scroll',endPosition,yOffset];
     else return [nameText,31,yPosition,null];
 }
 
@@ -529,7 +535,11 @@ Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,
         action = 'blink';
         startPosition = 199; // Two characters only. Blinks from 199 to the end
     }
-    if (action === 'blink') return [timeText,startPosition,yPosition,'blink',210,yPosition + ySpacing];
+
+    var yOffset = yPosition + ySpacing;
+    if (yOffset > this.totalLines * this.lineHeight) yOffset = this.totalLines * this.lineHeight;
+
+    if (action === 'blink') return [timeText,startPosition,yPosition,'blink',210,yOffset];
     else return [timeText,startPosition,yPosition,null];
 }
 
@@ -538,7 +548,9 @@ Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,
 */
 
 Panel.prototype.addFlashingAsterix = function(yPosition,ySpacing){
-    return ["*",175,yPosition,'blink',180,yPosition + ySpacing];
+    var yOffset = yPosition + ySpacing;
+    if (yOffset > this.totalLines * this.lineHeight) yOffset = this.totalLines * this.lineHeight;
+    return ["*",175,yPosition,'blink',180,yOffset];
 }
 
 /* CALCULATE SCROLL SYNC
