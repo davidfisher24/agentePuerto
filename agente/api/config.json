@@ -40,23 +40,7 @@
     "serviciosParada" : {"name": "serviciosParada", "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/servicios-parada.do?id={id}&numeroElementos{numero}", "metodo": "GET"},
     "incidencias"   :  {"name": "incidencias",  "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/incidencias.do", "metodo": "GET"},
     "estados"       :  {"name": "estados", "host" : "10.249.0.64", "puerto":8080 , "ruta": "/laharpe/rest/estado.do", "metodo": "POST"} ,
-    "paneles"       : [
-      {
-        "id"               : 14,
-        "idpanel"          : 78,
-        "panel"            : "APEADERO BERJA",
-        "ip"               : "10.250.16.147",
-        "puerto"           : 4001,
-        "inactivo"         : false,
-        "lineas"           : 3,
-        "idestado"         : 0,
-        "estado"           : "",
-        "type"             : "INFORMACION",
-        "horaEnciendo"     : "06:00",
-        "horaApago"        : "24:00",
-        "debug"            : 1
-      }
-    ],
+
     "textos" : {
         "ultimo_servicio" : "ULTIMO SERVICIO",
         "ultimos_servicios" : "ULTIMOS SERVICIOS",

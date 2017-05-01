@@ -12,6 +12,8 @@
   "devDependencies": {
     "bitwise": "^0.2.0",
     "bitwise-xor": "0.0.0",
+    "legacy-encoding": "^3.0.0",
+    "moment": "^2.18.1",
     "morgan": "^1.5.1",
     "windows-1252": "^1.0.0"
   },

@@ -1,0 +1,22 @@
+{
+    "paneles"       : [
+
+      {
+        "id"               : 14,
+        "idpanel"          : 78,
+        "panel"            : "APEADERO BERJA",
+        "ip"               : "10.250.16.147",
+        "puerto"           : 4001,
+        "inactivo"         : false,
+        "lineas"           : 3,
+        "idestado"         : 0,
+        "estado"           : "",
+        "type"             : "INFORMACION",
+        "horaEnciendo"     : "06:00",
+        "horaApago"        : "24:00",
+        "debug"            : 1
+      }
+
+    ]
+
+}

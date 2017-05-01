@@ -41,6 +41,7 @@ var agentePaneles = function (params) {
     };
     var panelesGlobal=[];
     var settingJSON;
+    var panelsJSON;
     var parametros;
     var recursoIncidencias={};
     var recursoEstados={};
@@ -56,8 +57,9 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.cargaInicial =function (callback){
-        settingJSON = require('../api/files/config.json'); 
-        panelesGlobal = settingJSON.paneles;
+        settingJSON = require('./api/config.json'); 
+        panelsJSON = require('./api/panels.json');
+        panelesGlobal = panelsJSON.paneles;
         parametros = settingJSON.parametros;
         global.param.debugmode = parametros.debugmode;
         global.param.refrescoE= parametros.tiempoRefresco * 1000;
@@ -96,6 +98,7 @@ var agentePaneles = function (params) {
 
         // Panels array formation 
         panelesGlobal.forEach(function(elem){
+            console.log(elem);
             var p = new  agente.Panel(elem);  // Create new panel
             panelesSistema.push (p); // All panels go to panelessistema
             if (p.type === "MARQUESINA") panelesMarquesina.push(p);  // Marquesina panels
