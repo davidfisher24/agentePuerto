@@ -168,6 +168,8 @@ var agentePaneles = function (params) {
 
         var incidenciasJSON;
         getRecurso(recursoIncidencias, function(err,res){
+            res = Tests.incidencias();
+            console.log(res);
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
@@ -185,7 +187,9 @@ var agentePaneles = function (params) {
 
                         if (incidenciasJSON.total != 0){
                             incidenciasJSON.informacion.forEach(function (incidencia) {
+                                console.log(incidencia);
                                 var texto = incidencia.texto;
+                                console.log(texto);
                                 incidencia.paneles.forEach(function (elem) {
                                     panelesSistema.filter(function (value, ind) {
                                         if(value.id == this.id) {

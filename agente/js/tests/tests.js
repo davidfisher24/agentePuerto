@@ -5,10 +5,10 @@ Tests = {
 		var serviciosReturn = {
 			informacion: [],
 			refresco: 60,
-			series: Math.floor((Math.random() * 500) + 1),
+			serie: Math.floor((Math.random() * 100)),
 			total: 0,
 		};
-		for (var i=0; i < Math.floor((Math.random() * 100) + 1); i++) {
+		for (var i=0; i < Math.floor((Math.random() * 500) + 1); i++) {
 			// Random depature arriveal time
 			var time = _this.getTime();
 			// curent time
@@ -20,8 +20,8 @@ Tests = {
 			else if (time[1] > nowTime) estado = "Normal";		
 			else estado = "En curso";
 			var rand = Math.floor((Math.random() * 10) + 1);
-			if (rand === 9) estado = "Cancelado";
-			if (rand === 10) estado = "Retrasado";
+			if (rand === 9 && estado === "Normal") estado = "Cancelado";
+			if (rand === 10 && (estado === "En Curso" || estado === "Normal")) estado = "Retrasado";
 
 			//var estado = _this.getEstado(Math.floor((Math.random() * 5)));
 			serviciosReturn.informacion.push({
@@ -42,12 +42,47 @@ Tests = {
 		return serviciosReturn;
     },
 
+    serviciosParada: function (){
+
+    },
+
+    incidencias: function(){
+    	var _this = this;
+		var incidenciasReturn = {
+			informacion: [],
+			refresco: 60,
+			serie: Math.floor((Math.random() * 500) + 1),
+			total: 0,
+		};
+		if (Math.floor((Math.random() * 5) + 1) > 2) {
+			incidenciasReturn.informacion.push({
+				criticidad: 0,
+				texto: _this.getIncidencia(Math.floor((Math.random() * 8))),
+				paneles: [{
+					id: 14,
+					tipo: _this.getTipo(Math.floor((Math.random() * 4))) 
+				}],
+			});
+			incidenciasReturn.total = 1;
+		}
+		return incidenciasReturn;
+    },
+
     getDestino:function(num){
     	var destinosAlmeria = ["ALMERIA","ROQUETAS","BERJA","ADRA","CABO DE GATA","AGUADULCE","RODALQUILER","CARBONERAS",
     	"SAN PEDRO","VILLAFIQUE","MOJACAR","TABERNAS","EL EJIDO","ALBOX","VELEZ RUBIO","CUEVAS DE ALMANZORA","ENIX",
     	"ALHAMA DE ALMERIA","HUERCAL DE ALMERIA","MINI HOLLYWOOD","SORBAS","AGUA AMARGA","LUCIANA DE LAS TORRES",
     	"LOS GALLARDOS","MOJACAR PUEBLO"];
     	return destinosAlmeria[num];
+    },
+
+    getIncidencia:function(num){
+    	var incidencias = ["TODAS LAS SALIDAS#EMBARQUE 1","PRÓXIMAS SALIDAS#19:45 A CADIZ#Ultima salida",
+    	"PROXIMAS SALIDAS#16:20 A EL PUERTO#17:40 A EL PUERTO#20:30 A EL PUERTO",
+    	"Próximas salidas#17:00 A CADIZ#18:20 A CADIZ#ULTIMAS SALIDAS",
+    	"BIG BIG PROBLEMS","EVERYTHING HAS DIED","THE MARTIANS ARE INVADING#RUN!!!!!!!",
+    	"IT'S 9AM.#ANDALUCIAS IS ASLEEP#GO BACK TO BED"];
+    	return incidencias[num];
     },
 
 
