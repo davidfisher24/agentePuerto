@@ -43,9 +43,8 @@ module.exports = {
     },
 
     getPaneles: function(req,res){
-        console.log("Going to the panels");
         res.type('application/json');
-        res.send (panels);
+        res.send (panelsConfig.paneles);
     },
 
     // General config - We get the main json options
@@ -61,9 +60,10 @@ module.exports = {
         res.send(obj);
     },
 
+    // Individual config - We get a panel by id
     getPanelPorId : function(req,res){
         var idpanel=req.params.id;
-        var paneles= config.paneles;
+        var panels= panelsConfig.paneles;
         res.type('application/json');
         var r = panels.filter(function (value) {
             return (value.id == this.id);

@@ -13,17 +13,14 @@ window.PanelModel=Backbone.Model.extend({
 
     defaults : {
         id               : null,
-        idpanel         : null,
+        idpanel          : null,
         panel            : "",
         ip               : "",
-        puerto           : 6000,
-        luminosidad      : 1,
-        forzarluminosidad: false,
+        puerto           : 4001,
         inactivo         : false,
-        tipo             : "MARQUESINA",
-        lineas           : 4,
-        idestado         :0,
-        estado           :""
+        type             : "MARQUESINA",
+        horaEnciendo     : "06:00",
+        horaApago        : "24:00",
     },
 
     validate: function (attrs) {
@@ -38,7 +35,6 @@ window.PanelModel=Backbone.Model.extend({
           if (!ipvalidate.test (attrs.ip)) errors.ip="Formato de IP invalido";
         }
         if (!attrs.puerto) errors.puerto= "Introduzca el puerto de comunicaciones del panel";
-        if (attrs.luminosidad<1 || attrs.luminosidad>11) errors.luminosidad= "Indique un valor de 1 a 10 para la luminosidad";
 
         if (!_.isEmpty(errors)) {
             return errors;
