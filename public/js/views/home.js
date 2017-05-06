@@ -33,7 +33,6 @@ window.HomeView =  Backbone.View.extend  ({
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-success');
             } else if (itemPanel.get('idestado')==1){
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-danger');
-                //$('.panel').addClass('panel-warning');
             } else {
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-warning');
             }

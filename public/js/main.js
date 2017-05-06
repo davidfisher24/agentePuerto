@@ -7,10 +7,11 @@ var AppAgente= Backbone.Router.extend({
     routes :{
         "" : "cargaVisor",
         "general" : "cargaGeneral",
+        "textos" : "cargaTextos",
         "paneles" : "cargaPaneles",
         "recursos" : "cargaRecursos",
         "paneles/add" : "addPanel",
-        "paneles/:id" : "detallePanel"
+        "paneles/:id" : "detallePanel",
     },
 
 
@@ -47,6 +48,15 @@ var AppAgente= Backbone.Router.extend({
         this.menuView.selectSubMenuItem('general-menu');
     },
 
+    cargaTextos : function(){
+        var confTextos = new TextosModel();
+        confTextos.fetch({success: function(){
+            $("#content").html(new  TextosView({model: confTextos}).el);
+        }});
+
+        this.menuView.selectSubMenuItem('textos-menu');
+    },
+
     cargaPaneles: function(){
         var listaPaneles= this.panelesCol;
         listaPaneles.fetch({ success: function(){
@@ -80,7 +90,7 @@ var AppAgente= Backbone.Router.extend({
 
 });
 
-utils.loadTemplate(['HomeView', 'MenuView','GeneralView','RecursosListView','RecursoView','PanelesListView','PanelesListItemView','PanelView'], function() {
+utils.loadTemplate(['HomeView', 'MenuView','GeneralView','TextosView','RecursosListView','RecursoView','PanelesListView','PanelesListItemView','PanelView'], function() {
     var app = new AppAgente();
     Backbone.history.start();
 });

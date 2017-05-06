@@ -4,14 +4,11 @@
 window.RecursosModel=Backbone.Model.extend({
 
     defaults : {
-        id               : null,
-        panel            : "",
-        ip               : "",
-        puerto           : 6000,
-        luminosidad      : 1,
-        forzarluminosidad: false,
-        inactivo         : false,
-        lineas           : 4
+        name             : "",
+        host             : "",
+        puerto           : "",
+        ruta             : "",
+        metodo           : "",
     }
 });
 

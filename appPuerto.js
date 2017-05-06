@@ -32,13 +32,17 @@ app.set('puerto', process.env.PORT || 4000);  // Web port
 // Backbone http routes
 //---------------------
 
+// GET Routes
 app.get('/', api.rutas.index);
 app.get('/config', api.rutas.getConfig);
 app.get('/general', api.rutas.getGeneral);
+app.get('/textos', api.rutas.getTextos);
 app.get('/recursos', api.rutas.getRecursos);
+app.get('/panelesTipos', api.rutas.getPanelesTipos);
 app.get('/paneles', api.rutas.getPaneles);
-app.post('/paneles',api.rutas.addPanel);
 app.get('/paneles/:id', api.rutas.getPanelPorId);
+// Update Routes
+app.post('/paneles',api.rutas.addPanel);
 app.put('/paneles',api.rutas.updatePanel);
 app.delete('/paneles',api.rutas.deletePanel);
 

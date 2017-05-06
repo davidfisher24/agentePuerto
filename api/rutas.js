@@ -30,18 +30,19 @@ var panelsConfig = dbPanels.getData("/");
 
 module.exports = {
 
+    // Index page
     index: function(req,res){
-        console.log("Going to the index");
-      res.render("index");
+        res.render("index");
     },
 
     getConfig: function (req,res){
-        console.log("lokking for config");
         res.type('application/json');
-        console.log(config);
         res.send (config);  
     },
 
+    
+
+    // Paneles config - We get the array of panels in the panel config file
     getPaneles: function(req,res){
         res.type('application/json');
         res.send (panelsConfig.paneles);
@@ -53,10 +54,22 @@ module.exports = {
         res.send (generalConfig);  
     },
 
+    // Textos config - we get the textos from the main json
+    getTextos: function (req,res){
+        res.type('application/json');
+        res.send (textosConfig);  
+    },
+
+    // Recursos - A text list of recursos. We make an array of the recursos.
     getRecursos: function(req,res){
         res.type('application/json');
-        var obj = [config.servicios, config.incidencias, config.estados ];
-        console.log(obj);
+        console.log(generalConfig);
+        var obj = [
+            dbConfig.getData("/servicios"), 
+            dbConfig.getData("/serviciosParada"), 
+            dbConfig.getData("/incidencias"), 
+            dbConfig.getData("/estados")
+        ];
         res.send(obj);
     },
 
