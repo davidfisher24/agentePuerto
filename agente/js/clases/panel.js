@@ -112,9 +112,18 @@ Panel.prototype._conexionParaConsulta = function (callback){
             var datos=panelConsulta.trataConsulta(dR);
             if (typeof datos != 'undefined') {
                 debug.panelLog(_that.debug,_that.proceso + ' - DATA status request - ' + _that.ip + " - " + datos.toString(),_that.id);
+                
+                var screenText = "";
+                _that.segments.forEach(function(segTxt){
+                    screenText += segTxt[0] + "#";
+                });
+                screenText = screenText.substring(0,screenText.length - 1);
+
                 var obj={id: (_that.id).toString(),
                     estado: "0",
-                    texto: datos.toString()};
+                    //texto: datos.toString()
+                    texto: screenText,
+                };
                 _that.estado = obj;
                 panelSocket.end();
                 callback(null,obj);

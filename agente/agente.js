@@ -115,13 +115,13 @@ var agentePaneles = function (params) {
     _that.iniciaAgente = function (){
         consultaInformacion();
         enviaIncidencias ();
-        setTimeout(enviaServiciosDia(),7000);  
+        setTimeout(enviaServiciosDia,7000);  
         setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
         setInterval(function(){enviaServiciosDia();}, global.param.refrescoS);
         setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
         panelesMarquesina.forEach(function (p) {
-            setTimeout(enviaServiciosParada(p),7000);
+            setTimeout(enviaServiciosParada,7000,p);
             setInterval(function(){enviaServiciosParada(p);}, p.refrescoP);
         });
 
@@ -185,9 +185,7 @@ var agentePaneles = function (params) {
 
                         if (incidenciasJSON.total != 0){
                             incidenciasJSON.informacion.forEach(function (incidencia) {
-                                console.log(incidencia);
                                 var texto = incidencia.texto;
-                                console.log(texto);
                                 incidencia.paneles.forEach(function (elem) {
                                     panelesSistema.filter(function (value, ind) {
                                         if(value.id == this.id) {
@@ -389,7 +387,6 @@ var agentePaneles = function (params) {
     function postEstadoAPI(result, item){
         var estadoString=  JSON.stringify(result);
         var POSTParamsString = "?id="+item.idpanel+"&estado="+result.estado+"&texto="+result.texto;
-
         var recursoPOST = {
             hostname: settingJSON.estados.host,
             port: settingJSON.estados.puerto,
