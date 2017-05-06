@@ -63,12 +63,21 @@ module.exports = {
     // Recursos - A text list of recursos. We make an array of the recursos.
     getRecursos: function(req,res){
         res.type('application/json');
-        console.log(generalConfig);
         var obj = [
             dbConfig.getData("/servicios"), 
             dbConfig.getData("/serviciosParada"), 
             dbConfig.getData("/incidencias"), 
             dbConfig.getData("/estados")
+        ];
+        res.send(obj);
+    },
+
+    // Panel Types - A text list of the types of panels
+    getPanelesTipos: function(req,res){
+        res.type('application/json');
+        var obj = [
+            panelTypesConfig.MARQUESINA, 
+            panelTypesConfig.INFORMACION, 
         ];
         res.send(obj);
     },

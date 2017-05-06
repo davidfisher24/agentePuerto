@@ -10,6 +10,7 @@ var AppAgente= Backbone.Router.extend({
         "textos" : "cargaTextos",
         "paneles" : "cargaPaneles",
         "recursos" : "cargaRecursos",
+        "panelesTipos" : "cargaPanelesTipos",
         "paneles/add" : "addPanel",
         "paneles/:id" : "detallePanel",
     },
@@ -72,7 +73,14 @@ var AppAgente= Backbone.Router.extend({
             $('#content').html(new RecursosListView({model: listaRecursos}).el);
         }});
         this.menuView.selectSubMenuItem('recursos-menu');
+    },
 
+    cargaPanelesTipos: function(){
+        var listaTiposPaneles = new PanelesTiposCollection();
+        listaTiposPaneles.fetch({ success: function(){
+            $('#content').html(new PanelesTiposListView({model: listaTiposPaneles}).el);
+        }});
+        this.menuView.selectSubMenuItem('paneles-tipos-menu');
     },
 
     addPanel : function() {
@@ -90,7 +98,8 @@ var AppAgente= Backbone.Router.extend({
 
 });
 
-utils.loadTemplate(['HomeView', 'MenuView','GeneralView','TextosView','RecursosListView','RecursoView','PanelesListView','PanelesListItemView','PanelView'], function() {
+utils.loadTemplate(['HomeView', 'MenuView','GeneralView','TextosView','RecursosListView','RecursoView',
+    'PanelesTiposView','PanelesTiposListView','PanelesListView','PanelesListItemView','PanelView'], function() {
     var app = new AppAgente();
     Backbone.history.start();
 });

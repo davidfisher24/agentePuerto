@@ -14,7 +14,6 @@ window.PanelesListView = Backbone.View.extend({
         this.$el.html(this.template);
 
         for (var i = 0; i < len; i++) {
-            console.log(listapaneles[i]);
             $('tbody', this.el).append(new PanelesListItemView({model: listapaneles[i]}).render().el);
         }
         return this;
