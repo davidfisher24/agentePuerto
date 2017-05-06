@@ -11,7 +11,7 @@ var express = require('express');               // Express
 var morgan  = require('morgan');                // Development log tool
 var bodyParser = require('body-parser');        // Parsing information from http requests
 
-//var api = require('./api');						// Backbone web application
+var api = require('./api');						// Backbone web application
 var ioSocket = require('socket.io');			// Sockets for communication with panels
 
 //------------------------------------------------
@@ -32,7 +32,7 @@ app.set('puerto', process.env.PORT || 4000);  // Web port
 // Backbone http routes
 //---------------------
 
-/*app.get('/', api.rutas.index);
+app.get('/', api.rutas.index);
 app.get('/config', api.rutas.getConfig);
 app.get('/general', api.rutas.getGeneral);
 app.get('/recursos', api.rutas.getRecursos);
@@ -40,7 +40,7 @@ app.get('/paneles', api.rutas.getPaneles);
 app.post('/paneles',api.rutas.addPanel);
 app.get('/paneles/:id', api.rutas.getPanelPorId);
 app.put('/paneles',api.rutas.updatePanel);
-app.delete('/paneles',api.rutas.deletePanel);*/
+app.delete('/paneles',api.rutas.deletePanel);
 
 //-----------------------------------------------------
 // Agente 

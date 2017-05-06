@@ -7,7 +7,7 @@
         "tiempoEspera": 60,
         "debugmode" : 1,
         "tiempoDeInmediataz" : 1,
-        "simboloDeInmediataz" : ">>"
+        "simboloDeInmediataz" : "!>"
     },
     "panelTypes" : {
         "MARQUESINA" : {

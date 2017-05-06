@@ -5,13 +5,12 @@ window.GeneralModel=Backbone.Model.extend({
 
     url: "/general",
     defaults : {
-        id               : null,
-        panel            : "",
-        ip               : "",
-        puerto           : 6000,
-        luminosidad      : 1,
-        forzarluminosidad: false,
-        inactivo         : false,        
-        lineas           : 4
+        numeroReintentos    : 3,
+        tiempoEntreReintento: 10,
+        tiempoRefresco      : 85,
+        tiempoEspera: 60,
+        debugmode : 1,
+        tiempoDeInmediataz : 1,
+        simboloDeInmediataz : ">>"
     }
 });

@@ -58,6 +58,9 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.cargaInicial =function (callback){
+        //var db = new JsonDB('./agente/api/config.json', true, false);
+        //var info = db.getData("/textos");
+
         settingJSON = require('./api/config.json'); 
         panelsJSON = require('./api/panels.json');
         panelesGlobal = panelsJSON.paneles;

@@ -2,6 +2,7 @@
  * Created by Lola on 27/10/2014.
  */
 
+
 var AppAgente= Backbone.Router.extend({
     routes :{
         "" : "cargaVisor",
@@ -13,7 +14,7 @@ var AppAgente= Backbone.Router.extend({
     },
 
 
-    initialize : function() {
+    initialize : function(res) {
         //Captura los eventos de la aplicacion
         this.eventosApp = _.extend({},Backbone.Events);
         this.eventosView = _.extend({},Backbone.Events);
@@ -38,7 +39,6 @@ var AppAgente= Backbone.Router.extend({
     },
 
     cargaGeneral : function(){
-
         var confGeneral = new GeneralModel();
         confGeneral.fetch({success: function(){
             $("#content").html(new  GeneralView({model: confGeneral}).el);
