@@ -95,19 +95,9 @@ module.exports = {
 
     /// ROUTES FOR DB UPDATES
 
-    // Add a new panel to the database
-    addPanel : function(req,res){
-        console.log("Trying to add a new panel");
-        var panel=req.body;
-        util.log('Añadiendo Panel:' + JSON.stringify(panel));
-        
-    },
- 
-    // Update a panel currently in the databae
+    // Update a panel currently in the databae or adds a new panel
     updatePanel : function(req,res){
-        console.log("In the same update function");
         var id = req.params.id;
-        console.log(id);
         var panel = req.body;
         util.log('Modificando panel: ' + id);
         util.log(JSON.stringify(panel));
@@ -115,7 +105,6 @@ module.exports = {
         var thesePanels = dbPanels.getData("/paneles"); // Full array
         var thisPanelIndex = null; // Index of the panel we need
         var thisPanel = thesePanels.filter(function(p,i){
-            console.log(i);
             if (p.id == id) thisPanelIndex = i; // Index of the panel when we find it
             return p.id == id; // Get the full panel
         });
