@@ -26,8 +26,10 @@ window.HomeView =  Backbone.View.extend  ({
         var estado='';
         for (var i=0;i<this.collection.length; i ++) {
             var itemPanel = this.collection.at(i);
-            var texto = itemPanel.get('estado').split('#');
-            estado ='';
+            console.log(itemPanel);
+            //var texto = itemPanel.get('estado').split('#');
+            var texto
+             ='ACTIVO';
             $('#estado'+itemPanel.get('id')).removeClass("panel-danger panel-warning panel-success");
             if (itemPanel.get('idestado')==0) {
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-success');

@@ -19,7 +19,11 @@
                 <div class="panel-heading">
                     <h3 class="panel-title altopanelhead"><%- panel.panel %></h3>
                 </div>
-                <div id="panel<%= panel.id %>" class="panel-body altopanelbody"><%- panel.estado %></div>
+                <div id="panel<%= panel.id %>" class="panel-body altopanelbody">
+                    <%- panel.currentEstado %>
+                    <br>
+                    <%- panel.currentTexto %>
+                </div>
             </div>
         </div>
         <% }); %>

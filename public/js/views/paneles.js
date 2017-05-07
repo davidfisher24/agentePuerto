@@ -141,5 +141,5 @@ window.PanelAddView =Backbone.View.extend ({
             }});
             window.location.hash = "paneles";
         }
-    }
+    },
 });

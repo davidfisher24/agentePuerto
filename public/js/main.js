@@ -13,6 +13,7 @@ var AppAgente= Backbone.Router.extend({
         "panelesTipos" : "cargaPanelesTipos",
         "paneles/add" : "addPanel",
         "paneles/:id" : "detallePanel",
+        "delete/:id" : "deletePanel",
     },
 
 
@@ -32,9 +33,13 @@ var AppAgente= Backbone.Router.extend({
     cargaVisor : function (){
         var _this=this;
         this.eventosApp.on('cargaEstadoPanel',function(datos){
-           var itemPanel=_this.panelesCol.get(datos.id);
-            itemPanel.set({idestado: datos.estado, estado : datos.texto});
-        } );
+            var itemPanel=_this.panelesCol.get(datos.id);
+
+            itemPanel.set({
+                idestado: datos.estado, 
+                lineas: datos.texto,
+            });
+        });
        this.homeView = new HomeView ({collection: _this.panelesCol, evento: _this.eventosView});
        this.$content.html(this.homeView.el);
        this.menuView.selectMenuItem('home-menu');
@@ -94,12 +99,20 @@ var AppAgente= Backbone.Router.extend({
             $('#content').html(new PanelView({model: panel}).el);
         }});
         this.menuView.selectSubMenuItem();
-    }
+    },
+
+    deletePanel : function(id){
+        var panel = this.panelesCol.get(id);
+        panel.fetch({success: function(){
+            $('#content').html(new DeleteView({model: panel}).el);
+        }});
+    },
 
 });
 
 utils.loadTemplate(['HomeView', 'MenuView','GeneralView','TextosView','RecursosListView','RecursoView',
-    'PanelesTiposView','PanelesTiposListView','PanelesListView','PanelesListItemView','PanelView','PanelAddView'], function() {
+    'PanelesTiposView','PanelesTiposListView','PanelesListView','PanelesListItemView','PanelView','PanelAddView',
+    'DeleteView'], function() {
     var app = new AppAgente();
     Backbone.history.start();
 });

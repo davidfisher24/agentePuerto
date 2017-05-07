@@ -35,13 +35,6 @@ module.exports = {
         res.render("index");
     },
 
-    getConfig: function (req,res){
-        res.type('application/json');
-        res.send (config);  
-    },
-
-    
-
     // Paneles config - We get the array of panels in the panel config file
     getPaneles: function(req,res){
         res.type('application/json');
@@ -93,6 +86,16 @@ module.exports = {
         (r.length==0) ? res.send({}) : res.send(r[0]);
     },
 
+    deletePanelPorId : function(req,res){
+        var idpanel=req.params.id;
+        var panels= panelsConfig.paneles;
+        res.type('application/json');
+        var r = panels.filter(function (value) {
+            return (value.id == this.id);
+        }, {id: idpanel});
+        res.send(r[0]);
+    },
+
     /// ROUTES FOR DB UPDATES
 
     // Update a panel currently in the databae or adds a new panel
@@ -134,10 +137,13 @@ module.exports = {
 
     // Delete a pannel currently in the database
     deletePanel : function(req,res){
-        console.log("in the delete function");
         var id = req.params.id;
-        console.log('Borrando panel: ' + id);
-
+        var thesePanels = dbPanels.getData("/paneles"); 
+        var thisPanelIndex = null; 
+        thesePanels.filter(function(p,i){
+            if (p.id == id) thisPanelIndex = i;
+        });
+        dbPanels.delete("/paneles["+thisPanelIndex+"]");
     }
 
 }
