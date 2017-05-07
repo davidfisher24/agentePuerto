@@ -93,18 +93,29 @@ module.exports = {
         (r.length==0) ? res.send({}) : res.send(r[0]);
     },
 
+    /// ROUTES FOR DB UPDATES
+
     addPanel : function(req,res){
         var panel=req.body;
         util.log('Añadiendo Panel:' + JSON.stringify(panel));
 
     },
-
+ 
     updatePanel : function(req,res){
         var id = req.params.id;
         var panel = req.body;
         util.log('Modificando panel: ' + id);
         util.log(JSON.stringify(panel));
 
+        var thesePanels = dbPanels.getData("/paneles"); // Full array
+        var thisPanelIndex = null; // Index of the panel we need
+        var thisPanel = thesePanels.filter(function(p,i){
+            console.log(i);
+            if (p.id == id) thisPanelIndex = i; // Index of the panel when we find it
+            return p.id == id; // Get the full panel
+        });
+        dbPanels.delete("/paneles["+thisPanelIndex+"]");
+        dbPanels.push("/paneles[]",panel);
     },
 
     deletePanel : function(req,res){

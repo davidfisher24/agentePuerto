@@ -76,7 +76,7 @@ window.PanelView =Backbone.View.extend ({
             ip: this.$el.find('input[name=ip]').val(),
             puerto: this.$el.find('input[name=puerto]').val(),
             inactivo: this.$el.find('input[name=inactivo]').val(),
-            type: this.$el.find('input[name=type]').val(),
+            type: this.$el.find('select[name=type]').val(),
             horaEnciendo: this.$el.find('input[name=horaEnciendo]').val(),
             horaApago: this.$el.find('input[name=horaApago]').val(),
         });

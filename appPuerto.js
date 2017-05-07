@@ -43,7 +43,7 @@ app.get('/paneles', api.rutas.getPaneles);
 app.get('/paneles/:id', api.rutas.getPanelPorId);
 // Update Routes
 app.post('/paneles',api.rutas.addPanel);
-app.put('/paneles',api.rutas.updatePanel);
+app.post('/paneles/:id',api.rutas.updatePanel);
 app.delete('/paneles',api.rutas.deletePanel);
 
 //-----------------------------------------------------
