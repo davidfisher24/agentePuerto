@@ -119,19 +119,17 @@ module.exports = {
 
     // Update the textos window
     updateTextos:function(req,res){
-        console.log("Preparing to update textos");
         var textos = req.body;
         util.log('Modificando textos');
         util.log(JSON.stringify(textos));
-        console.log(textos);
+        dbConfig.push("/textos", textos);
     },
 
     updateConfig:function(req,res){
-        console.log("Preparing to update config");
         var config = req.body;
         util.log('Modificando config');
         util.log(JSON.stringify(config));
-        console.log(config);
+        dbConfig.push("/parametros", config);
     },
 
     // Delete a pannel currently in the database
