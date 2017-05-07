@@ -23,8 +23,7 @@ window.TextosModel=Backbone.Model.extend({
         if (!attrs.servicioCancelado) errors.id= "Debe introducir un texto de servicio cancelado.";
         if (!attrs.simboloRetrasoCancelo) errors.id= "Debe introducir un simbolo de retraso/cancelo.";
         if (attrs.simboloRetrasoCancelo && attrs.simboloRetrasoCancelo.length > 1)
-        	errors.id="El simbolo retraso/cancelo solo puede contenir un caracter."
-        console.log(errors);
+        	errors.id="El simbolo retraso/cancelo solo puede contenir un caracter.";
         if (!_.isEmpty(errors)) {
             return errors;
         }

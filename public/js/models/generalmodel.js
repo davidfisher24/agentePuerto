@@ -15,7 +15,6 @@ window.GeneralModel=Backbone.Model.extend({
     },
 
     validate: function (attrs) {
-        console.log(attrs);
         var errors = {};
         if (!attrs.numeroReintentos) errors.id= "Debe introducir un numero de reintentos";
         if (!attrs.tiempoEntreReintento) errors.id= "Debe introducir un tiempo entre reintentos.";

@@ -39,7 +39,6 @@ window.TextosView = Backbone.View.extend({
             servicioCancelado: this.$el.find('input[name=servicioCancelado]').val(),
             simboloRetrasoCancelo: this.$el.find('input[name=simboloRetrasoCancelo]').val(),
         });
-        console.log(this.nuevoTextos.isValid());
         if (this.nuevoTextos.isValid()) {
             this.nuevoTextos.save(null,{type: "POST", success: function(){
                 console.log ("valida");
