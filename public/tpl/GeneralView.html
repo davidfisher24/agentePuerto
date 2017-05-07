@@ -10,6 +10,13 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-lg-6">
+
+                        <div class="alert alert-danger fade in" style="display:none;"></div>
+                        <div class="alert alert-success alert-dismissable" style="display:none">
+                          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                          <strong>Configuracion general actualizado.</strong>
+                        </div>
+
                         <form role="form">
                             <div class="form-group">
                                 <label>Número de reintentos</label>
@@ -29,11 +36,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Tiempo De Inmediataz</label>
-                                <input class="form-control" placeholder="Tiempo De Inmediataz" value="<%= tiempoDeInmediataz %>">
+                                <input class="form-control" placeholder="Tiempo De Inmediataz" name="tiempoDeInmediataz" value="<%= tiempoDeInmediataz %>">
                             </div>
                             <div class="form-group">
                                 <label>Simbolo De Inmediataz</label>
-                                <input class="form-control" placeholder="Simbolo De Inmediataz" value="<%= simboloDeInmediataz %>">
+                                <input class="form-control" placeholder="Simbolo De Inmediataz" name="simboloDeInmediataz" value="<%= simboloDeInmediataz %>">
                             </div>
 
                             <button type="submit" class="guardar btn btn-default"><span class="glyphicon glyphicon-save"></span> Guardar</button>

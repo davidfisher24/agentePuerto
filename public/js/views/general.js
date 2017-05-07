@@ -20,7 +20,11 @@ window.GeneralView = Backbone.View.extend({
     },
 
     muestraErrores: function (panel, errors) {
-
+        this.$el.find('.error').removeClass('error');
+        this.$el.find('.alert').html(_.values(errors).join('<br>')).show();
+        _.each(_.keys(errors), _.bind(function (key) {
+            this.$el.find('*[name=' + key + ']').parent().addClass('error');
+        }, this));
     },
 
     guardaConfig : function (event) {
@@ -32,7 +36,7 @@ window.GeneralView = Backbone.View.extend({
             tiempoEntreReintento: this.$el.find('input[name=tiempoEntreReintento]').val(),
             tiempoRefresco: this.$el.find('input[name=tiempoRefresco]').val(),
             tiempoEspera: this.$el.find('input[name=tiempoEspera]').val(),
-            tiempoDeInmediataz : this.$el.find('input[name=tiempoDeInmediataz ]').val(),
+            tiempoDeInmediataz : this.$el.find('input[name=tiempoDeInmediataz]').val(),
             simboloDeInmediataz: this.$el.find('input[name=simboloDeInmediataz]').val(),
         });
         if (this.nuevoConfig.isValid()) {

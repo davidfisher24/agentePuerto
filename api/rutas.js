@@ -38,24 +38,31 @@ module.exports = {
     // Paneles config - We get the array of panels in the panel config file
     getPaneles: function(req,res){
         res.type('application/json');
+        var dbPanels = new JsonDB('./agente/api/panels.json', true, false);
+        var panelsConfig = dbPanels.getData("/");
         res.send (panelsConfig.paneles);
     },
 
     // General config - We get the main json options
     getGeneral: function(req,res){
         res.type('application/json');
+        var dbConfig = new JsonDB('./agente/api/config.json', true, false);
+        var generalConfig = dbConfig.getData("/parametros");
         res.send (generalConfig);  
     },
 
     // Textos config - we get the textos from the main json
     getTextos: function (req,res){
         res.type('application/json');
+        var dbConfig = new JsonDB('./agente/api/config.json', true, false);
+        var textosConfig = dbConfig.getData("/textos");
         res.send (textosConfig);  
     },
 
     // Recursos - A text list of recursos. We make an array of the recursos.
     getRecursos: function(req,res){
         res.type('application/json');
+        var dbConfig = new JsonDB('./agente/api/config.json', true, false);
         var obj = [
             dbConfig.getData("/servicios"), 
             dbConfig.getData("/serviciosParada"), 
@@ -68,6 +75,7 @@ module.exports = {
     // Panel Types - A text list of the types of panels
     getPanelesTipos: function(req,res){
         res.type('application/json');
+        var panelTypesConfig = dbConfig.getData("/panelTypes");
         var obj = [
             panelTypesConfig.MARQUESINA, 
             panelTypesConfig.INFORMACION, 
@@ -78,6 +86,8 @@ module.exports = {
     // Individual config - We get a panel by id
     getPanelPorId : function(req,res){
         var idpanel=req.params.id;
+        var dbPanels = new JsonDB('./agente/api/panels.json', true, false);
+        var panelsConfig = dbPanels.getData("/");
         var panels= panelsConfig.paneles;
         res.type('application/json');
         var r = panels.filter(function (value) {
@@ -88,6 +98,8 @@ module.exports = {
 
     deletePanelPorId : function(req,res){
         var idpanel=req.params.id;
+        var dbPanels = new JsonDB('./agente/api/panels.json', true, false);
+        var panelsConfig = dbPanels.getData("/");
         var panels= panelsConfig.paneles;
         res.type('application/json');
         var r = panels.filter(function (value) {

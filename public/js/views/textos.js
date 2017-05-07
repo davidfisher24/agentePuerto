@@ -20,10 +20,15 @@ window.TextosView = Backbone.View.extend({
     },
 
     muestraErrores: function (panel, errors) {
-
+        this.$el.find('.error').removeClass('error');
+        this.$el.find('.alert').html(_.values(errors).join('<br>')).show();
+        _.each(_.keys(errors), _.bind(function (key) {
+            this.$el.find('*[name=' + key + ']').parent().addClass('error');
+        }, this));
     },
 
     guardaTextos : function (event) {
+        console.log("Saving the new text");
         event.stopPropagation();
         event.preventDefault();
         // modificamos el modelo con los datos del formulario
@@ -35,6 +40,7 @@ window.TextosView = Backbone.View.extend({
             servicioCancelado: this.$el.find('input[name=servicioCancelado]').val(),
             simboloRetrasoCancelo: this.$el.find('input[name=simboloRetrasoCancelo]').val(),
         });
+        console.log(this.nuevoTextos.isValid());
         if (this.nuevoTextos.isValid()) {
             this.nuevoTextos.save(null,{type: "POST", success: function(){
                 console.log ("valida");
