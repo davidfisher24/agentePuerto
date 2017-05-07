@@ -46,6 +46,7 @@ window.GeneralView = Backbone.View.extend({
                 console.log ("error");
             }});
             window.location.hash = "general";
+            $('.alert-dismissable').show();
         }
     },
 

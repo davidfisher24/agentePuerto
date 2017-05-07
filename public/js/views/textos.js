@@ -28,7 +28,6 @@ window.TextosView = Backbone.View.extend({
     },
 
     guardaTextos : function (event) {
-        console.log("Saving the new text");
         event.stopPropagation();
         event.preventDefault();
         // modificamos el modelo con los datos del formulario
@@ -48,6 +47,7 @@ window.TextosView = Backbone.View.extend({
                 console.log ("error");
             }});
             window.location.hash = "textos";
+            $('.alert-dismissable').show();
         }
     },
 

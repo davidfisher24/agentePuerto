@@ -81,7 +81,6 @@ window.PanelView =Backbone.View.extend ({
             horaApago: this.$el.find('input[name=horaApago]').val(),
         });
         if (this.nuevoPanel.isValid()) {
-            //this.paneles.add(this.nuevoPanel);
             this.nuevoPanel.save(null,{type: "POST", success: function(){
                 console.log ("valida");
             }, error: function() {
