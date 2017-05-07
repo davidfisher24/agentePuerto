@@ -13,19 +13,19 @@
                         <form role="form">
                             <div class="form-group">
                                 <label>Número de reintentos</label>
-                                <input class="form-control" placeholder="Nº de reintentos" value="<%= numeroReintentos %>">
+                                <input class="form-control" placeholder="Nº de reintentos" name="numeroReintentos" value="<%= numeroReintentos %>">
                             </div>
                             <div class="form-group">
                                 <label>Tiempo reintentos (seg)</label>
-                                <input class="form-control" placeholder="Tiempo reintentos" value="<%= tiempoEntreReintento %>">
+                                <input class="form-control" placeholder="Tiempo reintentos" name="tiempoEntreReintento" value="<%= tiempoEntreReintento %>">
                             </div>
                             <div class="form-group">
                                 <label>Tiempo Refresco (seg)</label>
-                                <input class="form-control" placeholder="Tiempo refresco" value="<%= tiempoRefresco %>">
+                                <input class="form-control" placeholder="Tiempo refresco" name="tiempoRefresco" value="<%= tiempoRefresco %>">
                             </div>
                             <div class="form-group">
                                 <label>Tiempo Espera (seg)</label>
-                                <input class="form-control" placeholder="Tiempo refresco" value="<%= tiempoEspera %>">
+                                <input class="form-control" placeholder="Tiempo refresco" name="tiempoEspera" value="<%= tiempoEspera %>">
                             </div>
                             <div class="form-group">
                                 <label>Tiempo De Inmediataz</label>
@@ -36,7 +36,7 @@
                                 <input class="form-control" placeholder="Simbolo De Inmediataz" value="<%= simboloDeInmediataz %>">
                             </div>
 
-                            <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-save"></span> Guardar</button>
+                            <button type="submit" class="guardar btn btn-default"><span class="glyphicon glyphicon-save"></span> Guardar</button>
                             <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> Cancelar </button>
                         </form>
                     </div>

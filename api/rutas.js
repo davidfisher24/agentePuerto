@@ -114,12 +114,29 @@ module.exports = {
             // Delete the old panel and add a new one
             dbPanels.delete("/paneles["+thisPanelIndex+"]");
             dbPanels.push("/paneles[]",panel);
-        }
-        
+        }  
+    },
+
+    // Update the textos window
+    updateTextos:function(req,res){
+        console.log("Preparing to update textos");
+        var textos = req.body;
+        util.log('Modificando textos');
+        util.log(JSON.stringify(textos));
+        console.log(textos);
+    },
+
+    updateConfig:function(req,res){
+        console.log("Preparing to update config");
+        var config = req.body;
+        util.log('Modificando config');
+        util.log(JSON.stringify(config));
+        console.log(config);
     },
 
     // Delete a pannel currently in the database
     deletePanel : function(req,res){
+        console.log("in the delete function");
         var id = req.params.id;
         console.log('Borrando panel: ' + id);
 

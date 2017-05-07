@@ -43,7 +43,7 @@ className: 'gradeA',
 window.PanelView =Backbone.View.extend ({
 
     events: {
-        "click button.guardar": "guardaPanel"
+        "click button.guardar": "guardaPanel",
     },
 
     initialize: function (options) {
@@ -89,7 +89,7 @@ window.PanelView =Backbone.View.extend ({
             }});
             window.location.hash = "paneles";
         }
-    }
+    },
 });
 
 window.PanelAddView =Backbone.View.extend ({

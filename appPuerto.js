@@ -42,7 +42,10 @@ app.get('/panelesTipos', api.rutas.getPanelesTipos);
 app.get('/paneles', api.rutas.getPaneles);
 app.get('/paneles/:id', api.rutas.getPanelPorId);
 // Update Routes
+app.post('/general',api.rutas.updateConfig);
+app.post('/textos',api.rutas.updateTextos);
 app.post('/paneles/:id',api.rutas.updatePanel); // Updates and adds new panels
+// Not yet working
 app.delete('/paneles',api.rutas.deletePanel);
 
 //-----------------------------------------------------
