@@ -84,7 +84,7 @@ var AppAgente= Backbone.Router.extend({
     },
 
     addPanel : function() {
-        $('#content').html(new PanelView({paneles: this.panelesCol ,model: new PanelModel()}).el);
+        $('#content').html(new PanelAddView({paneles: this.panelesCol ,model: new PanelModel()}).el);
         this.menuView.selectSubMenuItem();
     },
 
@@ -99,7 +99,7 @@ var AppAgente= Backbone.Router.extend({
 });
 
 utils.loadTemplate(['HomeView', 'MenuView','GeneralView','TextosView','RecursosListView','RecursoView',
-    'PanelesTiposView','PanelesTiposListView','PanelesListView','PanelesListItemView','PanelView'], function() {
+    'PanelesTiposView','PanelesTiposListView','PanelesListView','PanelesListItemView','PanelView','PanelAddView'], function() {
     var app = new AppAgente();
     Backbone.history.start();
 });

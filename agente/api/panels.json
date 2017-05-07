@@ -1,1 +1,1 @@
-{"paneles":[{"id":"14","idpanel":"78","panel":"APEADERO BERJA","ip":"10.250.16.147","puerto":"4001","inactivo":"false","type":"MARQUESINA","horaEnciendo":"06:00","horaApago":"24:00","debug":1}]}
+{"paneles":[{"id":"14","idpanel":"78","panel":"APEADERO BERJA","ip":"10.250.16.147","puerto":"4001","inactivo":"false","type":"MARQUESINA","horaEnciendo":"06:00","horaApago":"23:59","debug":1}]}

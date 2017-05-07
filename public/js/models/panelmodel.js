@@ -16,11 +16,11 @@ window.PanelModel=Backbone.Model.extend({
         idpanel          : null,
         panel            : "",
         ip               : "",
-        puerto           : 4001,
+        puerto           : 0,
         inactivo         : false,
         type             : "MARQUESINA",
-        horaEnciendo     : "06:00",
-        horaApago        : "24:00",
+        horaEnciendo     : "00:00",
+        horaApago        : "23:59",
     },
 
     validate: function (attrs) {
