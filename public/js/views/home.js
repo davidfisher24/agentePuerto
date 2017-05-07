@@ -26,26 +26,23 @@ window.HomeView =  Backbone.View.extend  ({
         var estado='';
         for (var i=0;i<this.collection.length; i ++) {
             var itemPanel = this.collection.at(i);
-            console.log(itemPanel);
-            //var texto = itemPanel.get('estado').split('#');
-            var texto
-             ='ACTIVO';
+            var estado;
             $('#estado'+itemPanel.get('id')).removeClass("panel-danger panel-warning panel-success");
             if (itemPanel.get('idestado')==0) {
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-success');
+                estado = "<strong>ESTADO : ACTIVO</strong>";
             } else if (itemPanel.get('idestado')==1){
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-danger');
+                estado = "<strong>ESTADO : DESCONOCIDO</strong>";
             } else {
                 $('#estado'+itemPanel.get('id')).addClass('panel panel-warning');
+                estado = "<strong>ESTADO : INACTIVO</strong>";
             }
-
-            for (var j=1; j <= parseInt(itemPanel.get('lineas')); j++) {
-                if (j <= texto.length) {
-                    estado= estado + '<p>' + texto[j-1] + '</p>';
-
-                } else{
-                    estado = estado +  '<p>' + ' ' + '</p>';
-                }
+            var lineasTotal = itemPanel.get('lineas');
+            var lineas = lineasTotal.split("#");
+            for (var j=0; j <= lineas.length; j++) {
+                if(lineas[j] && lineas[j] !== "")
+                    estado= estado + '<p>' + lineas[j] + '</p>';
             }
             $('#panel'+ itemPanel.get('id')).html(estado);
         }
