@@ -382,15 +382,15 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        if (this.onOffStatus === 0)  debug.panelLog(this.debug, "Triggered turn OFF panel: " + _that.ip,_that.id);
-        this.onOffStatus = 1;
-        this.inactivo = 0;
+        if (this.onOffStatus === 0)  debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
+        _this.onOffStatus = 1;
+        _this.inactivo = 0;
     } else {
         if (this.onOffStatus === 1) {
-            debug.panelLog(this.debug, "Triggered turn ON panel: " + _that.ip,_that.id);
-            this.inactivo = 1;
-            this.onOffStatus = 0;
-            this._conexionParaEnvio([], function (err,res) {
+            debug.panelLog(_this.debug, "Triggered turn ON panel: " + _this.ip,_this.id);
+            _this.inactivo = 1;
+            _this.onOffStatus = 0;
+            _this._conexionParaEnvio([], function (err,res) {
                 callback(err,res);
             });
         } 
