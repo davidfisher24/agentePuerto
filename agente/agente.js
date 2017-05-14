@@ -249,6 +249,7 @@ var agentePaneles = function (params) {
                 global.param.refrescoS=listaServiciosJSON.refresco * 1000;
 
                 panelesInformacion.forEach(function (el) {
+                    debug.panelServicesLog(el.debug,'<!-- Logging services at '+(new Date()).toLocaleString()+' -->',el.id);  //Debugging
                     if (el.flag ==1) cambioEstado =1;
                 });
 
@@ -268,6 +269,8 @@ var agentePaneles = function (params) {
                                     if (panel.id == elem.id){
                                         if (elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
                                             if (serv.estado === "Normal" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
+                                                var serMes = serv.codigo +" "+ serv.destino +" "+ serv.salida +" "+ serv.retraso +" "+ serv.salida;  //Debugging
+                                                debug.panelServicesLog(panel.debug,serMes,panel.id);  //Debugging
                                                 panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                             }
                                         }

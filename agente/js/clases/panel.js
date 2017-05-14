@@ -50,11 +50,12 @@ var Panel = function(campos){
     this.incidenciaSegments = [];
     // If we are debugging this panel, run the construct function.
     this.debug = campos.debug;
-    if (this.debug === 1) this.createLogFile();
+    if (this.debug === 1) this.createLogFiles();
 };
 
-Panel.prototype.createLogFile = function (){
+Panel.prototype.createLogFiles = function (){
     debug.createPanelLog(this.id);
+    debug.createPanelServicesLog(this.id);
 };
 
 Panel.prototype.EstaConectado = function () {
@@ -410,11 +411,17 @@ Panel.prototype.calculateServicesInSegments = function (){
     var _this = this;
     var services = [];
 
+
     this.listaServicios.sort(function(a, b){
         return a.wait-b.wait;
     })
-
+    
+    var currentDate = new Date();// Debugging
+    debug.panelServicesLog(this.debug,'-- List of services after sorting --',this.id); //Debugging
+    debug.panelServicesLog(this.debug,'-- Javascript time now is '+currentDate.getHours() +':'+currentDate.getMinutes()+' --',this.id); //Debugging
     this.listaServicios.forEach(function(s){
+        var serMes = s.service +" "+ s.name +" "+ s.time +" "+ s.wait +" "+ s.flagArrivingNow +" "+ s.flagRetraso;  //Debugging
+        debug.panelServicesLog(_this.debug,serMes,_this.id);  //Debugging
         if (services.length < _this.servicesLines) {
             if (s.wait >= 0) {
                 services.push(s);
@@ -422,6 +429,14 @@ Panel.prototype.calculateServicesInSegments = function (){
         }
     });
     this.servicios = services;
+
+    // Debugging
+    debug.panelServicesLog(this.debug,'-- Final services sent to the panel --',this.id);
+    this.servicios.forEach(function(se){
+        var serMes = se.service +" "+ se.name +" "+ se.time +" "+ se.wait +" "+ se.flagArrivingNow +" "+ se.flagRetraso;
+        debug.panelServicesLog(_this.debug,serMes,_this.id);
+    });
+    // end debugging
 
     this.calculateScrollSyncronization(this.maxCharactersForName);
     var segments = [];

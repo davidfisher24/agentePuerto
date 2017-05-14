@@ -28,21 +28,34 @@ utils = {
         }
     },
 
-    createPanelLog (panelId) {
+    createPanelLog: function (panelId) {
         var panelLog = path.join(__dirname, 'log', 'panel'+panelId+'.log');
         if (!fs.existsSync(panelLog)) {
             fs.writeFileSync(panelLog,'');
         }
     },
 
+    createPanelServicesLog: function (panelId) {
+        var panelServicesLog = path.join(__dirname, 'log', 'services'+panelId+'.log');
+        if (!fs.existsSync(panelServicesLog)) {
+            fs.writeFileSync(panelServicesLog,'');
+        }
+    },
+
     panelLog: function(modeDebug,mes,panelId) {
         if (modeDebug == 1 ) {
-            util.log(mes);
             logMes = (new Date()).toLocaleString() + "  " + mes;
             var panelLog = path.join(__dirname, 'log', 'panel'+panelId+'.log');
             fs.appendFileSync(panelLog, logMes + '\r\n');
         }
     },
+
+    panelServicesLog:function(modeDebug,mes,panelId){
+       if (modeDebug == 1 ) {
+            var panelLog = path.join(__dirname, 'log', 'services'+panelId+'.log');
+            fs.appendFileSync(panelLog, mes + '\r\n');
+        } 
+    }
 };
 
 module.exports=utils;
