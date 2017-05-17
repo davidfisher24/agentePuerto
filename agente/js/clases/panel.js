@@ -547,6 +547,7 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
 /* PANEL DEPART TIME
 // DEfault position is 181 - 210
 // Reduce start position to 199 for blinking immediate symbols
+*** Now deprecated. Only sent is the time blinking. Everything else remains the same ***
 */
 
 Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,flagCancelado,yPosition,ySpacing){
@@ -555,9 +556,9 @@ Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,
     var startPosition = 181; 
 
     if (wait <= global.param.tiempoDeInmediataz) {
-        timeText = global.param.simboloDeInmediataz; 
+        //timeText = global.param.simboloDeInmediataz;  No need to change text to symbol
         action = 'blink';
-        startPosition = 199; // Two characters only. Blinks from 199 to the end
+        ///startPosition = 199; // No need to change start poition of the element
     }
 
     var yOffset = yPosition + ySpacing;
