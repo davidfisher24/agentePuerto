@@ -333,7 +333,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         debug.panelLog(_that.debug,_that.proceso + ' - Send request END. Ending connection with ' + _that.ip,_that.id);
     });
 
-    envioSocket.on('timeout', function(){
+    envioSocket.on('timeout', function(e){
         debug.panelLog(_that.debug,_that.proceso + ' - Send request TIMEOUT - ' + _that.ip,_that.id);
         if (_that.conectadoEnv) {
             envioSocket.destroy();
