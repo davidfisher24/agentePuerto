@@ -10,12 +10,14 @@ var Servicio = require('../agente/js/clases/servicio');  // Services Object
 
 /* Tests the response of the API of the formation of the services that are sent back */
 
-describe('parse ajax data response', function() {
+describe('Building a panel structure from an ajax call for information panel', function() {
   this.timeout(15000);
-  it('does something', function(done) {
-  	global.param = AgenteTraits.returnGlobalParams();
-  	var panel = new Panel(AgenteTraits.returnFakePanel());
-    var simulatedData = ApiTraits.serviciosDiaAjaxCall();
+  it('Sends the correct segments to the server', function() {
+  	global.param = AgenteTraits.returnGlobalParams();  // Fake global params
+  	var panel = new Panel(AgenteTraits.returnFakePanel());  // Fake a panel
+    var simulatedData = ApiTraits.serviciosDiaAjaxCall();  // Fake simulated data
+
+    // Test simulated data
 
     var listaServicios = [];
     simulatedData.informacion.forEach (function(serv){
@@ -34,9 +36,11 @@ describe('parse ajax data response', function() {
     // Test our panel data here
 
     panel.listaServicios = listaServicios;
-    panel.calculateServicesInSegments();
-    
+    panel.calculateServicesInSegments();  // The calculation of the final end of the panel ajax call
+
     // Test our panel segments here
+    // panel.servicios == services
+    // panel.segments == segments
 
     //assert.equal(-1, [1,2,3].indexOf(4));
     //expect(user.fullName).to.equal("Tomas Jakobsen");

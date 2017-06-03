@@ -8,7 +8,6 @@ var agente = require('./js/clases');
 var debug = require('../agente/js/utils');
 var http = require('http');
 var Fabricante=require('../agente/js/clases/fabricante.js'); 
-var Tests = require('../agente/js/tests/tests.js'); 
 
 //----------------------------------------------------
 // Global variables 
