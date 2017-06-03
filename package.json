@@ -12,7 +12,9 @@
   "devDependencies": {
     "bitwise": "^0.2.0",
     "bitwise-xor": "0.0.0",
+    "expect": "^1.20.2",
     "legacy-encoding": "^3.0.0",
+    "mocha": "^3.4.2",
     "moment": "^2.18.1",
     "morgan": "^1.5.1",
     "windows-1252": "^1.0.0"
@@ -20,5 +22,8 @@
   "engines": {
     "node": "^0.10.34",
     "backbone": "1.1.2"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }

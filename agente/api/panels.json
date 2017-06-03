@@ -8,9 +8,9 @@
         "ip"               : "10.250.16.103",
         "puerto"           : 4001,
         "inactivo"         : false,
-        "type"             : "MARQUESINA",
+        "type"             : "INFORMACION",
         "horaEnciendo"     : "06:00",
-        "horaApago"        : "13:22",
+        "horaApago"        : "23:59",
         "debug"            : 1
       }
 

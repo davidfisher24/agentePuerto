@@ -122,7 +122,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
 
                 var obj={id: (_that.id).toString(),
                     estado: "0",
-                    //texto: datos.toString()
                     texto: screenText,
                 };
                 _that.estado = obj;
@@ -366,7 +365,6 @@ trigger a delete-sync message to blank the panel
 ***********************************************************************************************/
 
 Panel.prototype.checkTurnOff = function (){
-    console.log("checking turn off");
     var _this = this;
 
     function getMinutes(str) {
@@ -384,12 +382,10 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        console.log("Triggering turn on");
         if (this.onOffStatus === 0)  debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
         _this.onOffStatus = 1;
         _this.inactivo = 0;
     } else {
-        console.log("truggering turn off");
         if (this.onOffStatus === 1) debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
         _this.inactivo = 1;
         _this.onOffStatus = 0;
