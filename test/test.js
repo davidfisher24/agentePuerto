@@ -1,24 +1,23 @@
 var assert = require('assert');
 var expect = require('expect');
+var chai = require('chai');
 
 var AgenteTraits = require('./AgenteTraits'); 
 var ApiTraits = require('./ApiTraits');  // Fake AJax data
 
 var Panel = require('../agente/js/clases/panel'); 
-var Servicio = require('../agente/js/clases/servicio');  // Services Object
+var Servicio = require('../agente/js/clases/servicio');  
 
 
 /* Tests the response of the API of the formation of the services that are sent back */
 
-describe('Building a panel structure from an ajax call for information panel', function() {
-  this.timeout(15000);
-  it('Sends the correct segments to the server', function() {
-  	global.param = AgenteTraits.returnGlobalParams();  // Fake global params
-  	var panel = new Panel(AgenteTraits.returnFakePanel());  // Fake a panel
-    var simulatedData = ApiTraits.serviciosDiaAjaxCall();  // Fake simulated data
+describe('Testing faked ajax data parsing of information panel', function() {
+    this.timeout(15000);
+  	global.param = AgenteTraits.returnGlobalParams();  // Set up fake global params
+  	var panel = new Panel(AgenteTraits.returnFakePanel());  // Set up a fake panel
+    var simulatedData = ApiTraits.serviciosDiaAjaxCall();  // Get simulated ajax data
 
-    // Test simulated data
-
+    // Parsing Functions
     var listaServicios = [];
     simulatedData.informacion.forEach (function(serv){
         serv.paneles.forEach (function (elem){
@@ -32,18 +31,19 @@ describe('Building a panel structure from an ajax call for information panel', f
                 } 
         });
     });
-
-    // Test our panel data here
-
     panel.listaServicios = listaServicios;
-    panel.calculateServicesInSegments();  // The calculation of the final end of the panel ajax call
+    panel.calculateServicesInSegments(); 
 
-    // Test our panel segments here
-    // panel.servicios == services
-    // panel.segments == segments
+    // simulatedData = ajax call
+	// panel.listaServicios = base list of services
+	// panel.servicios = base list of segments
+	// panel.segments = list of final segments
 
-    //assert.equal(-1, [1,2,3].indexOf(4));
-    //expect(user.fullName).to.equal("Tomas Jakobsen");
+	it('Has final services in the correct order', function() {
+		var services = panel.servicios;
+		for (var i=1; i < services.length; i++) {
+			chai.expect(services[i - 1].wait).to.be.below(services[i].wait);
+		}
+	});
 
-  });
 });

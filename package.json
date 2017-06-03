@@ -4,20 +4,21 @@
   "main": "appPuerto.js",
   "private": true,
   "dependencies": {
-    "body-parser": "^1.10.1",
-    "express": "^4.7.2",
-    "node-json-db": "^0.7.3",
-    "socket.io": "^1.2.1"
-  },
-  "devDependencies": {
     "bitwise": "^0.2.0",
     "bitwise-xor": "0.0.0",
-    "expect": "^1.20.2",
+    "body-parser": "^1.10.1",
+    "express": "^4.7.2",
     "legacy-encoding": "^3.0.0",
-    "mocha": "^3.4.2",
     "moment": "^2.18.1",
-    "morgan": "^1.5.1",
+    "node-json-db": "^0.7.3",
+    "socket.io": "^1.2.1",
     "windows-1252": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.0.1",
+    "expect": "^1.20.2",
+    "mocha": "^3.4.2",
+    "morgan": "^1.5.1"
   },
   "engines": {
     "node": "^0.10.34",
