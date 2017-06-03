@@ -32,8 +32,7 @@ describe('Testing faked ajax data parsing of information panel', function() {
         });
     });
     panel.listaServicios = listaServicios;
-    panel.calculateServicesInSegments(); 
-
+    panel.calculateServicesInSegments();  
     // simulatedData = ajax call
 	// panel.listaServicios = base list of services
 	// panel.servicios = base list of segments

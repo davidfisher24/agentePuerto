@@ -6,7 +6,7 @@
         "tiempoRefresco"      : 85,
         "tiempoEspera": 60,
         "debugmode" : 1,
-        "tiempoDeInmediataz" : 1,
+        "tiempoDeInmediataz" : 3,
         "simboloDeInmediataz" : ">>"
     },
     "panelTypes" : {
