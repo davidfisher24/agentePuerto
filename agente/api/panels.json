@@ -5,12 +5,12 @@
         "id"               : 14,
         "idpanel"          : 78,
         "panel"            : "APEADERO BERJA",
-        "ip"               : "10.250.16.147",
+        "ip"               : "10.250.16.103",
         "puerto"           : 4001,
         "inactivo"         : false,
-        "type"             : "INFORMACION",
+        "type"             : "MARQUESINA",
         "horaEnciendo"     : "06:00",
-        "horaApago"        : "24:00",
+        "horaApago"        : "13:22",
         "debug"            : 1
       }
 

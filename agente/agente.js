@@ -165,9 +165,9 @@ var agentePaneles = function (params) {
             if (p.onOffStatus === 1) flagPanelsOn = true;
         });
 
-        if (!flagPanelsOn) {
+        /*if (!flagPanelsOn) {
             return;
-        }
+        }*/
 
         var incidenciasJSON;
         getRecurso(recursoIncidencias, function(err,res){
@@ -231,13 +231,15 @@ var agentePaneles = function (params) {
     function enviaServiciosDia() {
         var flagPanelsOn = false;
         panelesInformacion.forEach(function(p){
+        	console.log("checking turn off for " + p.id);
             p.checkTurnOff();
+            console.log(p.onOffStatus);
             if (p.onOffStatus === 1) flagPanelsOn = true;
         });
 
-        if (!flagPanelsOn) {
+        /*if (!flagPanelsOn) {
             return;
-        }
+        }*/
 
         var listaServiciosJSON;
         var cambioEstado = 0;
@@ -281,12 +283,17 @@ var agentePaneles = function (params) {
                         panelesInformacion.forEach(function (p) {
                             if (p.onOffStatus === 1) {
                                 p.calculateServicesInSegments();
-                                p.enviaServicios(function(err,res){
-                                    if (err) {
-                                        debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
-                                    }
-                                });
+                            } else {
+                            	console.log("Making an empty message");
+                            	p.emptySegmentsForSendingTurnOffMessage();
                             }
+                            console.log("Sending");
+                            console.log(p.segments);
+                            p.enviaServicios(function(err,res){
+                                if (err) {
+                                    debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
+                                }
+                            });
                         });
                     }
                 } 
@@ -304,7 +311,17 @@ var agentePaneles = function (params) {
 
     function enviaServiciosParada(p) {
         p.checkTurnOff();
-        if (p.onOffStatus === 0) return;
+        if (p.onOffStatus === 0) {
+            p.emptySegmentsForSendingTurnOffMessage();
+            console.log("Sending");
+            console.log(p.segments);
+            p.enviaServicios(function(err,res){
+                if (err) {
+                    debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
+                }
+            });
+            return;
+        }
 
         var listaServiciosJSON;
         var cambioEstado = 0;
@@ -333,6 +350,8 @@ var agentePaneles = function (params) {
                         }
                     });
                     p.calculateServicesInSegments();
+                    console.log("Sending");
+                    console.log(p.segments);
                     p.enviaServicios(function(err,res){
                         if (err) {
                             debug.log(global.param.debugmode, "Error sending services to panel - " + p.ip + " - " + err.message);
