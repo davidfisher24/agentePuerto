@@ -2,7 +2,7 @@
    "paneles":[
       {
          "id":"1",
-         "idpanel":"385",
+         "idParada":"385",
          "panel":"VILLA INÉS (VUELTA)",
          "ip":"10.250.16.90",
          "puerto":"4001",
@@ -13,7 +13,7 @@
       },
       {
          "id":"2",
-         "idpanel":"133",
+         "idParada":"133",
          "panel":"AGUADULCE CAJA DE AHORROS (IDA)",
          "ip":"10.250.16.91",
          "puerto":"4001",
@@ -24,7 +24,7 @@
       },
       {
          "id":"3",
-         "idpanel":"219",
+         "idParada":"219",
          "panel":"AGUADULCE CAJA DE AHORROS (VUELTA)",
          "ip":"10.250.16.92",
          "puerto":"4001",
@@ -35,7 +35,7 @@
       },
       {
          "id":"4",
-         "idpanel":"68",
+         "idParada":"68",
          "panel":"PARRALES-PARADOR (IDA)",
          "ip":"10.250.16.93",
          "puerto":"4001",
@@ -46,7 +46,7 @@
       },
       {
          "id":"5",
-         "idpanel":"214",
+         "idParada":"214",
          "panel":"PARRALES-PARADOR (VUELTA)",
          "ip":"10.250.16.94",
          "puerto":"4001",
@@ -57,7 +57,7 @@
       },
       {
          "id":"6",
-         "idpanel":"71",
+         "idParada":"71",
          "panel":"CC GRAN PLAZA",
          "ip":"10.250.16.95",
          "puerto":"4001",
@@ -68,7 +68,7 @@
       },
       {
          "id":"7",
-         "idpanel":"209",
+         "idParada":"209",
          "panel":"CC GRAN PLAZA (VUELTA)",
          "ip":"10.250.16.96",
          "puerto":"4001",
@@ -79,7 +79,7 @@
       },
       {
          "id":"10",
-         "idpanel":"207",
+         "idParada":"207",
          "panel":"ROQUETAS PUEBLO (VUELTA)",
          "ip":"10.250.16.99",
          "puerto":"4001",
@@ -90,7 +90,7 @@
       },
       {
          "id":"11",
-         "idpanel":"193",
+         "idParada":"193",
          "panel":"HOTEL GOLF TRINIDAD",
          "ip":"10.250.16.100",
          "puerto":"4001",
@@ -101,7 +101,7 @@
       },
       {
          "id":"12",
-         "idpanel":"195",
+         "idParada":"195",
          "panel":"HOTEL SABINAL",
          "ip":"10.250.16.101",
          "puerto":"4001",
@@ -112,7 +112,7 @@
       },
       {
          "id":"13",
-         "idpanel":"101",
+         "idParada":"101",
          "panel":"APEADERO ADRA",
          "ip":"10.250.16.102",
          "puerto":"4001",
@@ -123,7 +123,7 @@
       },
       {
          "id":"8",
-         "idpanel":"72",
+         "idParada":"72",
          "panel":"APEADERO ROQUETAS",
          "ip":"10.250.16.97",
          "puerto":"4001",
@@ -134,7 +134,7 @@
       },
       {
          "id":"9",
-         "idpanel":"174",
+         "idParada":"174",
          "panel":"ROQUETAS PUEBLO (IDA)",
          "ip":"10.250.16.98",
          "puerto":"4001",
@@ -145,7 +145,7 @@
       },
       {
          "id":"14",
-         "idpanel":"78",
+         "idParada":"78",
          "panel":"APEADERO BERJA",
          "ip":"10.250.16.103",
          "puerto":"4001",

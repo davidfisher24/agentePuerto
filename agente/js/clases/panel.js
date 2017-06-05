@@ -13,7 +13,7 @@ fecha().format('MMMM Do YYYY, h:mm:ss a');
 var Panel = function(campos){
     // Static parameters passed to the constructor
     this.id=campos.id;
-    this.idpanel=campos.idpanel;
+    this.idParada=campos.idParada;
     this.ip=  campos.ip;
     this.puerto = campos.puerto;
     this.inactivo = campos.inactivo;
@@ -31,6 +31,7 @@ var Panel = function(campos){
     this.textColor = global.param.panelTypes[this.type].colorTexto;
     this.textSpeed = global.param.panelTypes[this.type].velocidadTexto;
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
+    this.tiempoDeInmediataz = global.param.panelTypes[this.type].tiempoDeInmediataz;
     // Dynamic parameters for the panel
     this.listaServicios =[];
     this.onOffStatus = 1; // 1 by default for testing (how do we turn on).
@@ -532,7 +533,7 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     var waitText = wait;
     var waitTime = parseInt(wait);
     if (waitTime > 99) waitText = "99";
-    if (waitTime <= global.param.tiempoDeInmediataz) {
+    if (waitTime <= this.tiempoDeInmediataz) {
         return [global.param.simboloDeInmediataz,109,yPosition,'blink',120,yPosition + ySpacing -1];
     } else {
         var waitSpace = (waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
@@ -551,7 +552,7 @@ Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,
     var action = null; 
     var startPosition = 181; 
 
-    if (wait <= global.param.tiempoDeInmediataz) {
+    if (wait <= this.tiempoDeInmediataz) {
         //timeText = global.param.simboloDeInmediataz;  No need to change text to symbol
         action = 'blink';
         ///startPosition = 199; // No need to change start poition of the element

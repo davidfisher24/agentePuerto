@@ -3,7 +3,7 @@ AgenteTraits = {
 	returnFakePanel:function() {
 		return {
 			"id"               : 14,
-			"idpanel"          : 78,
+			"idParada"         : 78,
 			"panel"            : "APEADERO BERJA",
 			"ip"               : "10.250.16.103",
 			"puerto"           : 4001,

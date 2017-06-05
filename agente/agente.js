@@ -25,7 +25,6 @@ global.param={
     tiempoReintentos : 1,  // Defaukt time between retrys to API connect
     tiempoEspera : 30,  // Default waiting time for a server response
     textos :"",  // Texts used or the panels (JSON config)
-    tiempoDeInmediataz: 1,  // Default "arriving now" flag time
     simboloDeInmediataz: ">>" // Default "arriving now" symbol
 };
 
@@ -71,7 +70,6 @@ var agentePaneles = function (params) {
         global.param.tiempoEspera = parametros.tiempoEspera * 1000;
         global.param.textos=settingJSON.textos;
         global.param.panelTypes=settingJSON.panelTypes;
-        global.param.tiempoDeInmediataz = parametros.tiempoDeInmediataz;
         global.param.simboloDeInmediataz = parametros.simboloDeInmediataz;
         recursoIncidencias= {
             hostname: settingJSON.incidencias.host,
@@ -118,7 +116,7 @@ var agentePaneles = function (params) {
         consultaInformacion();
         enviaIncidencias ();
         setTimeout(enviaServiciosDia,7000);  
-        setInterval(function(){enviaIncidencias ();}, global.param.refrescoI);
+        setInterval(function(){enviaIncidencias();}, global.param.refrescoI);
         setInterval(function(){enviaServiciosDia();}, global.param.refrescoS);
         setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
@@ -163,14 +161,15 @@ var agentePaneles = function (params) {
         });
 
         var incidenciasJSON;
+        var apiCallStartTime = new Date().getTime();
         getRecurso(recursoIncidencias, function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
+            	var apiCallEndTime = new Date().getTime();
                 incidenciasJSON = res;
-                
                 if (typeof incidenciasJSON == 'object'){
-                    global.param.refrescoI=incidenciasJSON.refresco *1000;
+                    global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
                     if (incidenciasJSON.serie != global.param.serieI) {
                         global.param.serieI=incidenciasJSON.serie;
 
@@ -229,12 +228,14 @@ var agentePaneles = function (params) {
 
         var listaServiciosJSON;
         var cambioEstado = 0;
+        var apiCallStartTime = new Date().getTime();
         getRecurso(recursoServicios,function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {
+            	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                global.param.refrescoS=listaServiciosJSON.refresco * 1000;
+                global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
 
                 panelesInformacion.forEach(function (el) {
                     debug.panelServicesLog(el.debug,'<!-- Logging services at '+(new Date()).toLocaleString()+' -->',el.id);  //Debugging
@@ -311,18 +312,20 @@ var agentePaneles = function (params) {
 
         var listaServiciosJSON;
         var cambioEstado = 0;
+        var apiCallStartTime = new Date().getTime();
         var recursoThisParada = {
             hostname: settingJSON.serviciosParada.host,
             port: settingJSON.serviciosParada.puerto,
-            path:  settingJSON.serviciosParada.ruta.replace('{id}',p.idpanel).replace('{numero}',p.lineas),
+            path:  settingJSON.serviciosParada.ruta.replace('{id}',p.idParada).replace('{numero}',p.lineas),
             method: settingJSON.serviciosParada.metodo,
         }
         getRecurso(recursoThisParada,function(err,res){
             if (typeof  err != 'undefined' && err !== null) {
                 debug.log(global.param.debugmode,'Error obtaining servicios-parada.do resoruce for panel '+p.id+' : ' + err.message);
             } else {
+            	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                p.refrescoP=listaServiciosJSON.refresco * 1000;
+                p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
                 if (p.flag ==1) cambioEstado =1;
                 if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
@@ -396,7 +399,7 @@ var agentePaneles = function (params) {
 
     function postEstadoAPI(result, item){
         var estadoString=  JSON.stringify(result);
-        var POSTParamsString = "?id="+item.idpanel+"&estado="+result.estado+"&texto="+result.texto;
+        var POSTParamsString = "?id="+item.id+"&estado="+result.estado+"&texto="+result.texto;
         var recursoPOST = {
             hostname: settingJSON.estados.host,
             port: settingJSON.estados.puerto,
