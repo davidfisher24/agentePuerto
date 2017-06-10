@@ -169,7 +169,7 @@ var agentePaneles = function (params) {
             	var apiCallEndTime = new Date().getTime();
                 incidenciasJSON = res;
                 if (typeof incidenciasJSON == 'object'){
-                    global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
+                    global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
                     if (incidenciasJSON.serie != global.param.serieI) {
                         global.param.serieI=incidenciasJSON.serie;
 
@@ -235,7 +235,7 @@ var agentePaneles = function (params) {
             } else {
             	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
+                global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
 
                 panelesInformacion.forEach(function (el) {
                     debug.panelServicesLog(el.debug,'<!-- Logging services at '+(new Date()).toLocaleString()+' -->',el.id);  //Debugging
@@ -302,6 +302,7 @@ var agentePaneles = function (params) {
         p.checkTurnOff();
         if (p.onOffStatus === 0) {
             p.emptySegmentsForSendingTurnOffMessage();
+            p.refrescoP = 60 * 1000;
             p.enviaServicios(function(err,res){
                 if (err) {
                     debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
@@ -325,7 +326,7 @@ var agentePaneles = function (params) {
             } else {
             	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
+                p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
                 if (p.flag ==1) cambioEstado =1;
                 if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
