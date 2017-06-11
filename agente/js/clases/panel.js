@@ -72,7 +72,7 @@ Panel.prototype.EstaConectado = function () {
 ***********************************************************************************************/
 
 Panel.prototype.consultaEstado = function(callback){
-    if (this.inactivo) {
+    if (this.inactivo == 1) {
         debug.panelLog(this.debug,"Consult panel status. Panel: " + this.ip + " - Panel Inactivo",this.id);
         var obj={"id": this.id.toString(),
             "estado": "2",
@@ -249,7 +249,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     });
     buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
@@ -385,10 +384,8 @@ Panel.prototype.checkTurnOff = function (){
     if ((now > start) && (now < end)) {
         if (this.onOffStatus === 0)  debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
         _this.onOffStatus = 1;
-        _this.inactivo = 0;
     } else {
         if (this.onOffStatus === 1) debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
-        _this.inactivo = 1;
         _this.onOffStatus = 0;
     }
 
