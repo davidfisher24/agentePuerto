@@ -529,7 +529,7 @@ Panel.prototype.calculateServiceNameInformacion = function(name,flagRetraso,flag
 Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     var waitText = wait;
     var waitTime = parseInt(wait);
-    if (waitTime > 99) waitText = "99";
+    if (waitTime > 99) waitText = "--";
     if (waitTime <= this.tiempoDeInmediataz) {
         return [global.param.simboloDeInmediataz,109,yPosition,'blink',120,yPosition + ySpacing -1];
     } else {
