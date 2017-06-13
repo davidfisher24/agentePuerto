@@ -22,7 +22,8 @@ var Servicio= function(atributos){
 
 Servicio.prototype.getLineaFromServiciosParadaResource = function (){
     var hour = this.hora;
-    var name = this.nombre.split(" - ").pop().trim();
+    //var name = this.nombre.split(" - ").pop().trim();
+    var name = this.nombre;
     var flagRetraso = 0;
 
     if (parseInt(this.retraso) == 0) {
