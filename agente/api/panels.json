@@ -8,8 +8,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"2",
@@ -19,8 +19,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"3",
@@ -30,8 +30,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"4",
@@ -41,8 +41,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"5",
@@ -52,8 +52,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"6",
@@ -63,8 +63,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"7",
@@ -74,8 +74,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"10",
@@ -85,8 +85,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"11",
@@ -96,8 +96,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"12",
@@ -107,8 +107,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"13",
@@ -118,8 +118,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"INFORMACION",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"8",
@@ -129,8 +129,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"INFORMACION",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"9",
@@ -140,8 +140,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       },
       {
          "id":"14",
@@ -151,8 +151,8 @@
          "puerto":"4001",
          "inactivo":"false",
          "type":"INFORMACION",
-         "horaEnciendo":"00:00",
-         "horaApago":"23:59"
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
       }
    ]
 }
