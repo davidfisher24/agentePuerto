@@ -242,7 +242,7 @@ var agentePaneles = function (params) {
                     if (el.flag ==1) cambioEstado =1;
                 });
 
-                if ((listaServiciosJSON.serie !== global.param.serieS) || (cambioEstado == 1)) {
+                //if ((listaServiciosJSON.serie !== global.param.serieS) || (cambioEstado == 1)) {
                     global.param.serieS = listaServiciosJSON.serie;
                     if (listaServiciosJSON.total !==0){
                         panelesInformacion.forEach(function (p) {
@@ -284,7 +284,7 @@ var agentePaneles = function (params) {
                             });
                         });
                     }
-                } 
+                //} 
             }
         });
     }
@@ -328,7 +328,7 @@ var agentePaneles = function (params) {
                 listaServiciosJSON=res;
                 p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
                 if (p.flag ==1) cambioEstado =1;
-                if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
+                //if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
                     p.listaServicios= [];
                     p.servicios='';
@@ -346,7 +346,7 @@ var agentePaneles = function (params) {
                             debug.log(global.param.debugmode, "Error sending services to panel - " + p.ip + " - " + err.message);
                         }
                     });
-                } 
+                //} 
             }
         });
     }
