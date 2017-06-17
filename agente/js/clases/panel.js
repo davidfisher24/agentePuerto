@@ -4,6 +4,7 @@
 var net= require('net'); 
 var debug = require('../utils');
 var Fabricante=require('./fabricante.js');
+var Servicio = require("./servicio.js");
 
 var fecha =require('moment');
 fecha().format('MMMM Do YYYY, h:mm:ss a');
@@ -32,7 +33,9 @@ var Panel = function(campos){
     this.textSpeed = global.param.panelTypes[this.type].velocidadTexto;
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     this.tiempoDeInmediataz = global.param.panelTypes[this.type].tiempoDeInmediataz;
+    this.tiempoRefrescarVizualizacion = global.param.panelTypes[this.type].tiempoRefrescarVizualizacion * 1000;
     // Dynamic parameters for the panel
+    this.rawServices = [];
     this.listaServicios =[];
     this.onOffStatus = 1; // 1 by default for testing (how do we turn on).
     this.servicios = '',
@@ -50,6 +53,8 @@ var Panel = function(campos){
     this.messageOrder = 160; // 160 - 175
     this.segments = []; // Segments to encode
     this.incidenciaSegments = [];
+
+    setTimeout(function() {this.calculateVizualization();}.bind(this), this.tiempoRefrescarVizualizacion);
 };
 
 
@@ -58,6 +63,58 @@ Panel.prototype.EstaConectado = function () {
   return Estado; 
 };
 
+
+Panel.prototype.calculateVizualization = function () {
+    var that = this;
+    // first we check on/off.
+    this.checkTurnOff();
+    // If we are turned off we send empty segments
+    if (this.onOffStatus === 0) {
+        console.log("Making vizulization for off");
+        that.segments = [];
+        that.enviaServicios(function(err,res){
+            if (err) {
+                debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
+            }
+        });
+    }
+    // If we are turned on, but we have an incidence we send that
+    else if (this.incidencia !== '') {
+        console.log("Making vizulization for incidencias");
+        that.calculateIncidenciaInSegments();
+        that.enviaIncidencia(function (err, result) {
+            if (err) {
+                debug.log(global.param.debugmode, "Error sending incidents to panel " + that.ip + " - " + err.message);
+            }
+        });
+    }
+    // If we are turned on and have no incidences, we send the callback
+    else {
+        console.log("Making vizulization for services");
+        if (that.type === "MARQUESINA") {
+            that.rawServices.forEach (function(serv,i){
+                var servicio = new agente.Servicio(serv);
+                that.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
+            });
+        }
+        else if (that.type === "INFORMACION") {
+            that.rawServices.forEach (function(serv,i){
+                var servicio = new agente.Servicio(serv);
+                that.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
+
+            });
+        }
+        that.calculateServicesInSegments();
+        that.enviaServicios(function(err,res){
+            if (err) {
+                debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
+            }
+        });
+    }
+
+    // Then we trigger the next callback
+    setTimeout(this.calculateVizualization.bind(this), this.tiempoRefrescarVizualizacion);
+};
 
 
 /***********************************************************************************************
@@ -369,9 +426,6 @@ Panel.prototype.checkTurnOff = function (){
 // PARSING OF THE CURRENT SERVICES INTO SEGMENTS TO SEND TO THE PANELS
 ***********************************************************************************************/
 
-Panel.prototype.emptySegmentsForSendingTurnOffMessage = function(){
-    this.segments = [];
-};
 
 Panel.prototype.calculateServicesInSegments = function (){
     var _this = this;
@@ -395,12 +449,14 @@ Panel.prototype.calculateServicesInSegments = function (){
     this.calculateScrollSyncronization(this.maxCharactersForName);
     var segments = [];
 
-    var yPosition = 1;
+    // Posición Y = +1 en todos los campos (o sea, posición línea 2, 11 y 20) en marquesina-change
+    var yPosition = this.type === "MARQUESINA" ? 2 : 1;
     var ySpacing = this.lineHeight; 
 
 
     services.forEach(function(obj){
-        segments.push([obj.service,1,yPosition,null]); 
+        // Posición x = +1 en marquesina-change
+        segments.push([obj.service,this.type === "MARQUESINA" ? 2 : 1,yPosition,null]); 
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
            segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
@@ -448,8 +504,9 @@ Panel.prototype.calculateServiceNameMarquesina = function(name,yPosition,ySpacin
     var yOffset = yPosition + ySpacing;
     if (yOffset > this.totalLines * this.lineHeight) yOffset = this.totalLines * this.lineHeight;
 
-    if (name.length > this.maxCharactersForName) return [name,31,yPosition,'scroll',103,yOffset];
-    else return [name,31,yPosition,null];
+    // marquesina-change 31 changed to 29, 103 changed to 105
+    if (name.length > this.maxCharactersForName) return [name,29,yPosition,'scroll',105,yOffset];
+    else return [name,29,yPosition,null];
 }
 
 /* INFORMATION NAME
@@ -490,10 +547,11 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
     var waitText = wait;
     var waitTime = parseInt(wait);
     if (waitTime > 99) waitText = "--";
+    // marquesina-change 109 changed to 110, 115 changed to 116
     if (waitTime <= this.tiempoDeInmediataz) {
-        return [global.param.simboloDeInmediataz,109,yPosition,'blink',120,yPosition + ySpacing -1];
+        return [global.param.simboloDeInmediataz,110,yPosition,'blink',120,yPosition + ySpacing -1];
     } else {
-        var waitSpace = (waitTime >= 10) ? 109 : 115; // One digit or two digit spacing
+        var waitSpace = (waitTime >= 10) ? 110 : 116; // One digit or two digit spacing
         return [waitText,waitSpace,yPosition,null];
     }
 }

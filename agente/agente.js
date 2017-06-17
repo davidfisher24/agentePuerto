@@ -246,8 +246,9 @@ var agentePaneles = function (params) {
                 global.param.failedApiCallsServiciosDia = global.param.failedApiCallsServiciosDia + 1;
                 if (global.param.failedApiCallsServiciosDia >= global.param.numeroIntentosSinRecibirDatos) {
                     panelesInformacion.forEach(function (p) {
-                        p.listaServicios= [];
-                        p.servicios='';
+                        //p.listaServicios= [];
+                        //p.servicios='';
+                        p.rawServices = [];
                         p.flag =0;
                     });
                 }
@@ -264,20 +265,21 @@ var agentePaneles = function (params) {
                     global.param.serieS = listaServiciosJSON.serie;
                     if (listaServiciosJSON.total !==0){
                         panelesInformacion.forEach(function (p) {
-                            p.listaServicios= [];
-                            p.servicios='';
+                            //p.listaServicios= [];
+                            //p.servicios='';
+                            p.rawServices = [];
                             p.flag =0;
                         });
 
                         listaServiciosJSON.informacion.forEach (function(serv){
                             serv.paneles.forEach (function (elem){
                                 panelesInformacion.filter(function(panel,ind){
-                                    var servicio = new agente.Servicio(serv);
+                                    //var servicio = new agente.Servicio(serv);
                                     if (panel.id == elem.id){
                                         if (elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
                                             if (serv.estado === "Normal" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
-                                                var serMes = serv.codigo +" "+ serv.destino +" "+ serv.salida +" "+ serv.retraso +" "+ serv.salida;  //Debugging
-                                                panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
+                                                panel.rawServices.push(serv);
+                                                //panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                             }
                                         }
                                     }
@@ -345,8 +347,9 @@ var agentePaneles = function (params) {
                 p.refrescoP = p.refrescoP - (apiCallEndTime - apiCallStartTime);
                 p.failedApiCallsServiciosParada = p.failedApiCallsServiciosParada + 1;
                 if (p.failedApiCallsServiciosParada >= global.param.numeroIntentosSinRecibirDatos) {
-                    p.listaServicios= [];
-                    p.servicios='';
+                    //p.listaServicios= [];
+                    //p.servicios='';
+                    p.rawServices = [];
                     p.flag =0;
                 }
                 debug.log(global.param.debugmode,'Error obtaining servicios-parada.do resoruce for panel '+p.id+' : ' + err.message);
@@ -358,13 +361,15 @@ var agentePaneles = function (params) {
                 if (p.flag ==1) cambioEstado =1;
                 if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
-                    p.listaServicios= [];
-                    p.servicios='';
+                    //p.listaServicios= [];
+                    //p.servicios='';
+                    p.rawServices = [];
                     p.flag =0;
                     listaServiciosJSON.informacion.forEach (function(serv,i){
-                        var servicio = new agente.Servicio(serv);
+                        //var servicio = new agente.Servicio(serv);
                         if (serv.estado === "Normal" || serv.estado === "Retrasado") {
-                            p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
+                            //p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
+                            p.rawServices.push(serv);
                         }
                     });
                     

@@ -21,7 +21,8 @@
             "colorTexto" : "01",
             "velocidadTexto" : "04",
             "alturaTexto" : "07",
-            "tiempoDeInmediataz" : 1
+            "tiempoDeInmediataz" : 1,
+            "tiempoRefrescarVizualizacion" : 30
         },
         "INFORMACION" : {
             "lineasTotal" : 5,
@@ -34,7 +35,8 @@
             "colorTexto" : "11",
             "velocidadTexto" : "04",
             "alturaTexto" : "07",
-            "tiempoDeInmediataz" : 2
+            "tiempoDeInmediataz" : 2,
+            "tiempoRefrescarVizualizacion" : 30
         }
     },
 
