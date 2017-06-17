@@ -50,19 +50,11 @@ var Panel = function(campos){
     this.messageOrder = 160; // 160 - 175
     this.segments = []; // Segments to encode
     this.incidenciaSegments = [];
-    // If we are debugging this panel, run the construct function.
-    this.debug = campos.debug;
-    if (this.debug === 1) this.createLogFiles();
 };
 
-Panel.prototype.createLogFiles = function (){
-    debug.createPanelLog(this.id);
-    debug.createPanelServicesLog(this.id);
-};
 
 Panel.prototype.EstaConectado = function () {
   var Estado = this.conectado || this.conectadoEnv; 
-  if (Estado) debug.panelLog(this.debug,"Connection already open. Postponing new connection",this.id);
   return Estado; 
 };
 
@@ -74,7 +66,6 @@ Panel.prototype.EstaConectado = function () {
 
 Panel.prototype.consultaEstado = function(callback){
     if (this.inactivo == 1) {
-        debug.panelLog(this.debug,"Consult panel status. Panel: " + this.ip + " - Panel Inactivo",this.id);
         var obj={"id": this.id.toString(),
             "estado": "2",
             "texto": "INACTIVO"};
@@ -100,7 +91,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
     var _that = this;
     
     panelSocket.on('connect', function () {
-        debug.panelLog(_that.ip,_that.proceso + ' - CONNECT status request - ' + _that.ip,_that.id);
         _that.conectado=true;
         var trama=panelConsulta.sendKeepAlive(_that.messageOrder.toString(16));
         _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
@@ -114,7 +104,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
             var dR=new Buffer(data.toString(),'hex');
             var datos=panelConsulta.trataConsulta(dR);
             if (typeof datos != 'undefined') {
-                debug.panelLog(_that.debug,_that.proceso + ' - DATA status request - ' + _that.ip + " - " + datos.toString(),_that.id);
                 
                 var screenText = "";
                 _that.segments.forEach(function(segTxt){
@@ -134,7 +123,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('close', function (had_error){
-        debug.panelLog(_that.debug,_that.proceso + ' - CLOSE status request - ' + _that.ip,_that.id);
         _that.conectado=false;
         if (had_error){
             if ((_that.intentosEstados<global.param.numReintentos) && (_that.intentosEstados!=0)) {
@@ -148,7 +136,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('error', function (e){
-        debug.panelLog(_that.debug,_that.proceso + ' - ERROR Status request - ' + _that.ip,_that.id);
         if (_that.conectado) {
             panelSocket.destroy(); 
         };
@@ -168,12 +155,10 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('end',function(){
-        debug.panelLog(_that.debug,_that.proceso + ' - END status request. Connection ended with ' + _that.ip,_that.id);
     });
 
 
     panelSocket.on('timeout', function(){
-        debug.panelLog(_that.debug,_that.proceso + ' - TIMED OUT status request - ' + _that.ip,_that.id);
         if (_that.conectado) {
             panelSocket.destroy();  
         }
@@ -194,7 +179,6 @@ Panel.prototype._conexionParaConsulta = function (callback){
 Panel.prototype.enviaIncidencia= function(callback){
 
     if (this.inactivo == 1){
-        debug.panelLog(this.debug,"Attempted to send incidences " + this.ip + " - Panel Inactivo",this.id);
         callback (null,null);
     } else {
         if (this.incidencia != ''){
@@ -212,7 +196,6 @@ Panel.prototype.enviaIncidencia= function(callback){
 Panel.prototype.enviaServicios= function(callback){
     var that = this;
     if (this.inactivo == 1){
-        debug.panelLog(this.debug,"Attempted to send services " + this.ip + " - Panel Inactivo",this.id);
         callback (null,null);
     } else {
         if (this.incidencia == ''){
@@ -254,19 +237,16 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
-        debug.panelLog(_that.debug,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
     });
 
 
     envioSocket.on('data', function (data) {
         panelEnvio.trataEnvio(data,function(mens){
-            debug.panelLog(_that.debug,_that.proceso + " - Recieved Response -" + _that.ip + " : " + mens,_that.id);
             if (mens === "06") {
                 buffers.splice(0,1);
                 if (buffers.length > 0) {
                     var buff = new Buffer(buffers[0], 'hex');
                     envioSocket.write(buff);
-                     debug.panelLog(_that.debug,_that.proceso + " - Sent string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 } else {
                     envioSocket.destroy();
                 } 
@@ -284,7 +264,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     _that.intentosEnvio++;
                     var buff = new Buffer(buffers[0], 'hex');
                     envioSocket.write(buff);
-                     debug.panelLog(_that.debug,_that.proceso + " - Tried to resend string -" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 } 
             }
             
@@ -292,7 +271,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     });
 
     envioSocket.on('close', function (had_error){
-        debug.panelLog(_that.debug,_that.proceso + ' - Send request CLOSE - ' + _that.ip,_that.id);
         _that.conectadoEnv =false;
         if (had_error){
             setTimeout(function(){
@@ -306,7 +284,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 
     envioSocket.on('error', function (e){
-        debug.panelLog(_that.debug,_that.proceso + ' - Send request ERROR - ' + _that.ip,_that.id);
         if (_that.conectadoEnv) {
             envioSocket.destroy();
         } else {
@@ -323,18 +300,15 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 _that.intentosEnvio++;
                 var buff = new Buffer(buffers[0], 'hex');
                 envioSocket.write(buff);
-                debug.panelLog(_that.debug,_that.proceso + " - Resent string - " + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 callback(e, null);
             }       
         }
     });
 
     envioSocket.on('end',function(){
-        debug.panelLog(_that.debug,_that.proceso + ' - Send request END. Ending connection with ' + _that.ip,_that.id);
     });
 
     envioSocket.on('timeout', function(e){
-        debug.panelLog(_that.debug,_that.proceso + ' - Send request TIMEOUT - ' + _that.ip,_that.id);
         if (_that.conectadoEnv) {
             envioSocket.destroy();
         } else {
@@ -351,7 +325,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 _that.intentosEnvio++;
                 var buff = new Buffer(buffers[0], 'hex');
                 envioSocket.write(buff);
-                debug.panelLog(_that.debug,_that.proceso + " - Resent string-" + buffers[0] + " to " + _that.ip + " - ",_that.id);
                 callback(e, null);
             } 
         }
@@ -383,10 +356,8 @@ Panel.prototype.checkTurnOff = function (){
     if (start > end) end += getMinutes('24:00');
 
     if ((now > start) && (now < end)) {
-        if (this.onOffStatus === 0)  debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
         _this.onOffStatus = 1;
     } else {
-        if (this.onOffStatus === 1) debug.panelLog(_this.debug, "Triggered turn OFF panel: " + _this.ip,_this.id);
         _this.onOffStatus = 0;
     }
 
@@ -411,12 +382,7 @@ Panel.prototype.calculateServicesInSegments = function (){
         return a.wait-b.wait;
     })
     
-    var currentDate = new Date();// Debugging
-    debug.panelServicesLog(this.debug,'-- List of services after sorting --',this.id); //Debugging
-    debug.panelServicesLog(this.debug,'-- Javascript time now is '+currentDate.getHours() +':'+currentDate.getMinutes()+' --',this.id); //Debugging
     this.listaServicios.forEach(function(s){
-        var serMes = s.service +" "+ s.name +" "+ s.time +" "+ s.wait +" "+ s.flagArrivingNow +" "+ s.flagRetraso;  //Debugging
-        debug.panelServicesLog(_this.debug,serMes,_this.id);  //Debugging
         if (services.length < _this.servicesLines) {
             if (s.wait >= 0) {
                 services.push(s);
@@ -425,13 +391,6 @@ Panel.prototype.calculateServicesInSegments = function (){
     });
     this.servicios = services;
 
-    // Debugging
-    debug.panelServicesLog(this.debug,'-- Final services sent to the panel --',this.id);
-    this.servicios.forEach(function(se){
-        var serMes = se.service +" "+ se.name +" "+ se.time +" "+ se.wait +" "+ se.flagArrivingNow +" "+ se.flagRetraso;
-        debug.panelServicesLog(_this.debug,serMes,_this.id);
-    });
-    // end debugging
 
     this.calculateScrollSyncronization(this.maxCharactersForName);
     var segments = [];
