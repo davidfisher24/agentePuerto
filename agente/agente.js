@@ -168,7 +168,11 @@ var agentePaneles = function (params) {
             if (typeof  err != 'undefined' && err !== null) {
                 global.param.refrescoI = global.param.refrescoI - (apiCallEndTime - apiCallStartTime);
                 global.param.failedApiCallsIncidencias = global.param.failedApiCallsIncidencias + 1;
-                //if (global.param.failedApiCallsIncidencias >= global.param.numeroIntentosSinRecibirDatos) doSomething();
+                if (global.param.failedApiCallsIncidencias >= global.param.numeroIntentosSinRecibirDatos) {
+                    panelesSistema.forEach(function (item) {
+                        item.incidencia = '';
+                    });
+                }
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
                 global.param.failedApiCallsIncidencias = 0;
