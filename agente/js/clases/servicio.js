@@ -22,7 +22,6 @@ var Servicio= function(atributos){
 
 Servicio.prototype.getLineaFromServiciosParadaResource = function (){
     var hour = this.hora;
-    //var name = this.nombre.split(" - ").pop().trim();
     var name = this.nombre;
     var flagRetraso = 0;
 
@@ -81,11 +80,19 @@ Servicio.prototype.getLineaFromServiciosDiaResource = function (){
 
 // Calculates the minutes wait from the present time
 
+
 Servicio.prototype.calculateWait = function(testTime){
+  return Math.round(((new Date(new Date().toISOString().slice(0,10) +" " + testTime + ":00").getTime() - new Date().getTime())/1000)/60);
+}
+
+
+Servicio.prototype.calculateWait_old = function(testTime){
     var that = this;
     testTime = testTime.split(":");
+    console.log(testTime);
     var currentDate = new Date();
     var nowTime = [currentDate.getHours(),currentDate.getMinutes()];
+    console.log(nowTime);
 
     if (parseInt(nowTime[0]) === parseInt(testTime[0])) {
         return parseInt(testTime[1]) - parseInt(nowTime[1]);
