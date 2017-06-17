@@ -56,8 +56,6 @@ var agentePaneles = function (params) {
 //----------------------------------------------------
 
     _that.cargaInicial =function (callback){
-        //var db = new JsonDB('./agente/api/config.json', true, false);
-        //var info = db.getData("/textos");
 
         settingJSON = require('./api/config.json'); 
         panelsJSON = require('./api/panels.json');
@@ -116,13 +114,10 @@ var agentePaneles = function (params) {
         consultaInformacion();
         enviaIncidencias ();
         setTimeout(enviaServiciosDia,7000);  
-        setInterval(function(){enviaIncidencias();}, global.param.refrescoI);
-        setInterval(function(){enviaServiciosDia();}, global.param.refrescoS);
         setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
         panelesMarquesina.forEach(function (p) {
             setTimeout(enviaServiciosParada,7000,p);
-            setInterval(function(){enviaServiciosParada(p);}, p.refrescoP);
         });
 
         debug.log(1,"Agente inciado");
@@ -156,20 +151,20 @@ var agentePaneles = function (params) {
 
 
     function enviaIncidencias(callback) {
-        panelesSistema.forEach(function(p){
+        /*panelesSistema.forEach(function(p){
             p.checkTurnOff();
-        });
-
+        });*/
         var incidenciasJSON;
         var apiCallStartTime = new Date().getTime();
         getRecurso(recursoIncidencias, function(err,res){
+            var apiCallEndTime = new Date().getTime();
             if (typeof  err != 'undefined' && err !== null) {
+                global.param.refrescoI = global.param.refrescoI - (apiCallEndTime - apiCallStartTime);
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
-            	var apiCallEndTime = new Date().getTime();
                 incidenciasJSON = res;
                 if (typeof incidenciasJSON == 'object'){
-                    global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
+                    global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
                     if (incidenciasJSON.serie != global.param.serieI) {
                         global.param.serieI=incidenciasJSON.serie;
 
@@ -193,7 +188,7 @@ var agentePaneles = function (params) {
                             });
 
 
-                            panelesSistema.forEach(function (item) {
+                            /*panelesSistema.forEach(function (item) {
                                 if (item.onOffStatus === 1) {
                                     item.calculateIncidenciaInSegments();
                                     item.enviaIncidencia(function (err, result) {
@@ -202,14 +197,16 @@ var agentePaneles = function (params) {
                                         }
                                     });
                                 }
-                            });
+                            });*/
                         }
                     }
                 }
                 else {
+                    global.param.refrescoI = global.param.refrescoI - (apiCallEndTime - apiCallStartTime);
                     debug.log(global.param.debugmode,'Error obtaining the incidencias.do resoruce');
                 }
             }
+            setTimeout(enviaIncidencias,global.param.refrescoI);
         });
     }
 
@@ -222,23 +219,23 @@ var agentePaneles = function (params) {
 
     function enviaServiciosDia() {
     	// Check the tunr off for each panel in the array
-        panelesInformacion.forEach(function(p){
+        /*panelesInformacion.forEach(function(p){
             p.checkTurnOff();
-        });
+        });*/
 
         var listaServiciosJSON;
         var cambioEstado = 0;
         var apiCallStartTime = new Date().getTime();
         getRecurso(recursoServicios,function(err,res){
+            var apiCallEndTime = new Date().getTime();
             if (typeof  err != 'undefined' && err !== null) {
+                global.param.refrescoS=global.param.refrescoS - (apiCallEndTime - apiCallStartTime);
                 debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {
-            	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
+                global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
 
                 panelesInformacion.forEach(function (el) {
-                    debug.panelServicesLog(el.debug,'<!-- Logging services at '+(new Date()).toLocaleString()+' -->',el.id);  //Debugging
                     if (el.flag ==1) cambioEstado =1;
                 });
 
@@ -259,7 +256,6 @@ var agentePaneles = function (params) {
                                         if (elem.tipo === "Salida" || elem.tipo === "Paso" || elem.tipo === "Mixto") {
                                             if (serv.estado === "Normal" || serv.estado === "Cancelado" || serv.estado === "Retrasado") {
                                                 var serMes = serv.codigo +" "+ serv.destino +" "+ serv.salida +" "+ serv.retraso +" "+ serv.salida;  //Debugging
-                                                debug.panelServicesLog(panel.debug,serMes,panel.id);  //Debugging
                                                 panel.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
                                             }
                                         }
@@ -268,8 +264,10 @@ var agentePaneles = function (params) {
                             });
                         });
 
+                        
+
                         // Send results to each panel
-                        panelesInformacion.forEach(function (p) {
+                        /*panelesInformacion.forEach(function (p) {
                         	// If we are on, calculate the services
                             if (p.onOffStatus === 1) {
                                 p.calculateServicesInSegments();
@@ -282,10 +280,11 @@ var agentePaneles = function (params) {
                                     debug.log(global.param.debugmode, "Error sending services to panel " + p.ip + " - " + err.message);
                                 }
                             });
-                        });
+                        });*/
                     }
                 } 
             }
+            setTimeout(enviaServiciosDia,global.param.refrescoS); 
         });
     }
 
@@ -299,7 +298,7 @@ var agentePaneles = function (params) {
 
     function enviaServiciosParada(p) {
     	// Check turn off. If we are off, send an empty array and leave the function
-        p.checkTurnOff();
+        /*p.checkTurnOff();
         if (p.onOffStatus === 0) {
             p.emptySegmentsForSendingTurnOffMessage();
             p.refrescoP = 60 * 1000;
@@ -309,8 +308,7 @@ var agentePaneles = function (params) {
                 }
             });
             return;
-        }
-
+        }*/
         var listaServiciosJSON;
         var cambioEstado = 0;
         var apiCallStartTime = new Date().getTime();
@@ -321,12 +319,15 @@ var agentePaneles = function (params) {
             method: settingJSON.serviciosParada.metodo,
         }
         getRecurso(recursoThisParada,function(err,res){
+            var apiCallEndTime = new Date().getTime();
             if (typeof  err != 'undefined' && err !== null) {
+                p.refrescoP = p.refrescoP - (apiCallEndTime - apiCallStartTime);
                 debug.log(global.param.debugmode,'Error obtaining servicios-parada.do resoruce for panel '+p.id+' : ' + err.message);
             } else {
-            	var apiCallEndTime = new Date().getTime();
                 listaServiciosJSON=res;
-                p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime) - 30000;
+                p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
+                
+                
                 if (p.flag ==1) cambioEstado =1;
                 if ((listaServiciosJSON.serie !==p.serieP) || (cambioEstado == 1)) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
@@ -339,15 +340,19 @@ var agentePaneles = function (params) {
                             p.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
                         }
                     });
+
+
+                    
                     // Calculate services in segments and 
-                    p.calculateServicesInSegments();
+                    /*p.calculateServicesInSegments();
                     p.enviaServicios(function(err,res){
                         if (err) {
                             debug.log(global.param.debugmode, "Error sending services to panel - " + p.ip + " - " + err.message);
                         }
-                    });
+                    });*/
                 } 
             }
+            setTimeout(enviaServiciosParada,p.refrescoP,p);
         });
     }
 
