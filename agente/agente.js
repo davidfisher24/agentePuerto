@@ -145,7 +145,6 @@ var agentePaneles = function (params) {
                     debug.log(global.param.debugmode,'Error conuslting estado.do resource : ' + err.message);
                 } else {
                     panelesSistema[i].estado=result;
-                    //_that.io.emit('consultaestado',item.estado);
                     postEstadoAPI(result,item); 
                 }
             });
