@@ -279,7 +279,6 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     var ran = Math.floor((Math.random() * 9999) + 1);
     this.proceso=ran;
-    this.conectadoEnv=false;
 
     var panelEnvio = new Fabricante(this.ip, this.textColor, this.textSpeed, this.textHeight);
     var envioSocket = net.connect({host: this.ip, port: this.puerto});
@@ -306,6 +305,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
     envioSocket.on('data', function (data) {
         panelEnvio.trataEnvio(data,function(mens){
+            console.log(mens);
             if (mens === "06") {
                 buffers.splice(0,1);
                 if (buffers.length > 0) {
@@ -313,6 +313,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     envioSocket.write(buff);
                 } else {
                     envioSocket.destroy();
+                    _that.conectadoEnv=true;
                 } 
             } else {
                 if (_that.intentosEnvio == global.param.numReintentos) {
@@ -350,6 +351,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     envioSocket.on('error', function (e){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
+            _that.conectadoEnv=false;
         } else {
             if (_that.intentosEnvio == global.param.numReintentos) {
                 var obj = {
@@ -375,6 +377,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     envioSocket.on('timeout', function(e){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
+            _that.conectadoEnv=false;
         } else {
             if (_that.intentosEnvio == global.param.numReintentos) {
                 var obj = {
