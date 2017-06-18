@@ -72,7 +72,7 @@ Panel.prototype.calculateVizualization = function () {
         that.enviaServicios(function(err,res){
             if (err) {
                 debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
-            }
+            } 
         });
     }
     
@@ -82,13 +82,12 @@ Panel.prototype.calculateVizualization = function () {
         that.enviaIncidencia(function (err, result) {
             if (err) {
                 debug.log(global.param.debugmode, "Error sending incidents to panel " + that.ip + " - " + err.message);
-            }
+            } 
         });
     }
 
     // OPTION 3 - No off status and no incidencias so show the segments
-    else {
-
+    else {  
         that.listaServicios = [];
         if (that.type === "MARQUESINA") {
             that.rawServices.forEach (function(serv,i){
@@ -104,12 +103,12 @@ Panel.prototype.calculateVizualization = function () {
             });
         }
 
-        that.calculateServicesInSegments();
         console.log(that.segments);
+        that.calculateServicesInSegments();
         that.enviaServicios(function(err,res){
             if (err) {
                 debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
-            }
+            } 
         });
     }
 
