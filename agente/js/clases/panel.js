@@ -309,7 +309,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 };
                 _that.estado=obj;
                 envioSocket.destroy();
-                that.conectadoEnv=false;
+                _that.conectadoEnv=false;
                 debug.log(global.param.debugmode, "Recieved a NACK-RX error message for panel " + _that.ip);
             }
             
@@ -384,31 +384,6 @@ Panel.prototype.checkTurnOff = function (){
     }
 };
 
-Panel.prototype.checkTurnOff = function (horaE,horaA){
-    var _this = this;
-    var onOffStatus;
-
-    function getMinutes(str) {
-        var time = str.split(':');
-        return time[0]*60+time[1]*1;
-    }
-    function getMinutesNow() {
-        var timeNow = new Date();
-        return timeNow.getHours()*60+timeNow.getMinutes();
-    }
-
-    var now = getMinutesNow();
-    var start = getMinutes(horaE);
-    var end = getMinutes(horaA);
-    if (start > end) end += getMinutes('24:00');
-
-    if ((now > start) && (now < end)) {
-        onOffStatus = 1;
-    } else {
-        onOffStatus = 0;
-    }
-    return onOffStatus;
-};
 
 
 /***********************************************************************************************

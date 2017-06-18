@@ -4,7 +4,7 @@
         "numeroReintentos"    : 0,
         "tiempoEntreReintento": 10,
         "tiempoRefresco"      : 85,
-        "tiempoEspera": 60,
+        "tiempoEspera": 20,  
         "numeroIntentosSinRecibirDatos": 15,
         "debugmode" : 1,
         "simboloDeInmediataz" : ">>"

@@ -1,6 +1,6 @@
 /**
  * Created by David Fisher
- * Protocol comms agent between CTAL Almeria API and Scezcin Panels, and Backbone Express Web Config Applications.
+ * Protocol comms agent between CTAL Almeria API and Scezcin Panels.
  * File to launch the nodejs service
  */
 
@@ -11,7 +11,6 @@ var express = require('express');               // Express
 var morgan  = require('morgan');                // Development log tool
 var bodyParser = require('body-parser');        // Parsing information from http requests
 
-var api = require('./api');						// Backbone web application
 var ioSocket = require('socket.io');			// Sockets for communication with panels
 
 //------------------------------------------------
@@ -20,7 +19,6 @@ var ioSocket = require('socket.io');			// Sockets for communication with panels
 
 var app= express();	
 
-app.use(express.static(__dirname + '/public')); // Static resources for backbone application
 app.use (morgan('dev')); // Development logs tool
 app.use(bodyParser.urlencoded({ extended: false }));  
 app.use(bodyParser.json());  
@@ -28,25 +26,6 @@ app.use(bodyParser.json());
 app.set('title','Agente de paneles del CTAL Almeria');  // Title
 app.set('puerto', process.env.PORT || 4000);  // Web port
 
-//---------------------
-// Backbone http routes
-//---------------------
-
-// GET Routes
-app.get('/', api.rutas.index);
-app.get('/general', api.rutas.getGeneral);
-app.get('/textos', api.rutas.getTextos);
-app.get('/recursos', api.rutas.getRecursos);
-app.get('/panelesTipos', api.rutas.getPanelesTipos);
-app.get('/paneles', api.rutas.getPaneles);
-app.get('/paneles/:id', api.rutas.getPanelPorId);
-app.get('/delete/:id', api.rutas.deletePanelPorId);
-// Update Routes
-app.post('/general',api.rutas.updateConfig);
-app.post('/textos',api.rutas.updateTextos);
-app.post('/paneles/:id',api.rutas.updatePanel); // Updates and adds new panels
-// Not yet working
-app.delete('/paneles/:id',api.rutas.deletePanel);
 
 //-----------------------------------------------------
 // Agente 
