@@ -1,7 +1,7 @@
 {
     "agente"    : 1,
     "parametros": {
-        "numeroReintentos"    : 3,
+        "numeroReintentos"    : 0,
         "tiempoEntreReintento": 10,
         "tiempoRefresco"      : 85,
         "tiempoEspera": 60,
