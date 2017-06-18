@@ -82,50 +82,16 @@ Servicio.prototype.getLineaFromServiciosDiaResource = function (){
 
 
 Servicio.prototype.calculateWait = function(testTime){
-  return Math.round(((new Date(new Date().toISOString().slice(0,10) +" " + testTime + ":00").getTime() - new Date().getTime())/1000)/60);
+    return Math.round(((new Date(new Date().toISOString().slice(0,10) +" " + testTime + ":00").getTime() - new Date().getTime())/1000)/60);
 }
 
-
-Servicio.prototype.calculateWait_old = function(testTime){
-    var that = this;
-    testTime = testTime.split(":");
-    console.log(testTime);
-    var currentDate = new Date();
-    var nowTime = [currentDate.getHours(),currentDate.getMinutes()];
-    console.log(nowTime);
-
-    if (parseInt(nowTime[0]) === parseInt(testTime[0])) {
-        return parseInt(testTime[1]) - parseInt(nowTime[1]);
-    } else {
-        var difference = that.calculateDifference(nowTime,testTime);
-        difference = difference.split(":");
-        return (parseInt(difference[0]) * 60) + parseInt(difference[1]);
-    }
-};
-
-// Calculates the difference between two times - still a bug here somewhere
-
-Servicio.prototype.calculateDifference = function(now,then){
-    var startDate = new Date(0, 0, 0, now[0], now[1], 0);
-    var endDate = new Date(0, 0, 0, then[0], then[1], 0);
-    var diff = endDate.getTime() - startDate.getTime();
-    var hours = Math.floor(diff / 1000 / 60 / 60);
-    diff -= hours * 1000 * 60 * 60;
-    var minutes = Math.floor(diff / 1000 / 60);
-
-    if (hours < 0)
-       hours = hours + 24;
-
-    return (hours <= 9 ? "0" : "") + hours + ":" + (minutes <= 9 ? "0" : "") + minutes;
-
-};
 
 // Helps with servicios-parada by calculating if the time is now and we have zero minutes to wait
 Servicio.prototype.checkBusesArrivingNow = function(llegada) {
     var currentDate = new Date();
     var nowTime = currentDate.getHours() + ":" + currentDate.getMinutes();
     return (llegada === nowTime) ? 1 : 0;
-}
+};
 
 
 module.exports=Servicio;

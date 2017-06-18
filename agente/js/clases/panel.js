@@ -34,24 +34,22 @@ var Panel = function(campos){
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     this.tiempoDeInmediataz = global.param.panelTypes[this.type].tiempoDeInmediataz;
     this.tiempoRefrescarVizualizacion = global.param.panelTypes[this.type].tiempoRefrescarVizualizacion * 1000;
-    // Dynamic parameters for the panel
+ 
     this.rawServices = [];
     this.listaServicios =[];
-    this.onOffStatus = 1; // 1 by default for testing (how do we turn on).
-    this.servicios = '',
+    this.onOffStatus = 1; 
     this.estado='',
     this.incidencia='',
-    this.flag =0,
     this.proceso=0
     this.conectado=false;
     this.conectadoEnv=false;
     this.intentosEstados = 0;
     this.intentosEnvio = 0;
-    this.refrescoP = 65 * 1000;  // Marquesina solo
+    this.refrescoP = 65 * 1000; 
     this.failedApiCallsServiciosParada = 0;
     this.serieP = -1;
-    this.messageOrder = 160; // 160 - 175
-    this.segments = []; // Segments to encode
+    this.messageOrder = 160; 
+    this.segments = []; 
     this.incidenciaSegments = [];
 
     setTimeout(function() {this.calculateVizualization();}.bind(this), this.tiempoRefrescarVizualizacion);
@@ -66,11 +64,10 @@ Panel.prototype.EstaConectado = function () {
 
 Panel.prototype.calculateVizualization = function () {
     var that = this;
-    // first we check on/off.
     this.checkTurnOff();
-    // If we are turned off we send empty segments
+
+    // OPTION 1 - Turned off. Send empty segments
     if (this.onOffStatus === 0) {
-        console.log("Making vizulization for off");
         that.segments = [];
         that.enviaServicios(function(err,res){
             if (err) {
@@ -78,9 +75,9 @@ Panel.prototype.calculateVizualization = function () {
             }
         });
     }
-    // If we are turned on, but we have an incidence we send that
+    
+    // OPTION 2 - Have an incidence so we show this
     else if (this.incidencia !== '') {
-        console.log("Making vizulization for incidencias");
         that.calculateIncidenciaInSegments();
         that.enviaIncidencia(function (err, result) {
             if (err) {
@@ -88,23 +85,27 @@ Panel.prototype.calculateVizualization = function () {
             }
         });
     }
-    // If we are turned on and have no incidences, we send the callback
+
+    // OPTION 3 - No off status and no incidencias so show the segments
     else {
-        console.log("Making vizulization for services");
+
+        that.listaServicios = [];
         if (that.type === "MARQUESINA") {
             that.rawServices.forEach (function(serv,i){
-                var servicio = new agente.Servicio(serv);
+                var servicio = new Servicio(serv);
                 that.listaServicios.push(servicio.getLineaFromServiciosParadaResource());
             });
         }
         else if (that.type === "INFORMACION") {
             that.rawServices.forEach (function(serv,i){
-                var servicio = new agente.Servicio(serv);
+                var servicio = new Servicio(serv);
                 that.listaServicios.push(servicio.getLineaFromServiciosDiaResource());
 
             });
         }
+
         that.calculateServicesInSegments();
+        console.log(that.segments);
         that.enviaServicios(function(err,res){
             if (err) {
                 debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
@@ -195,6 +196,7 @@ Panel.prototype._conexionParaConsulta = function (callback){
     panelSocket.on('error', function (e){
         if (_that.conectado) {
             panelSocket.destroy(); 
+             _that.conectado=false;
         };
 
         if (_that.intentosEstados == global.param.numReintentos) {
@@ -212,12 +214,17 @@ Panel.prototype._conexionParaConsulta = function (callback){
     });
 
     panelSocket.on('end',function(){
+        if (_that.conectado) {
+            panelSocket.destroy(); 
+             _that.conectado=false;
+        };
     });
 
 
     panelSocket.on('timeout', function(){
         if (_that.conectado) {
             panelSocket.destroy();  
+             _that.conectado=false;
         }
         setTimeout(function(){
             if (_that.intentosEstados < global.param.numReintentos){
@@ -274,6 +281,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var ran = Math.floor((Math.random() * 9999) + 1);
     this.proceso=ran;
     this.conectadoEnv=false;
+
     var panelEnvio = new Fabricante(this.ip, this.textColor, this.textSpeed, this.textHeight);
     var envioSocket = net.connect({host: this.ip, port: this.puerto});
     envioSocket.setTimeout(global.param.tiempoEspera);
@@ -430,6 +438,7 @@ Panel.prototype.checkTurnOff = function (){
 Panel.prototype.calculateServicesInSegments = function (){
     var _this = this;
     var services = [];
+    var segments = [];
 
 
     this.listaServicios.sort(function(a, b){
@@ -443,11 +452,10 @@ Panel.prototype.calculateServicesInSegments = function (){
             }
         }
     });
-    this.servicios = services;
 
-
-    this.calculateScrollSyncronization(this.maxCharactersForName);
-    var segments = [];
+    services = this.calculateScrollSyncronization(services,this.maxCharactersForName);
+    var that = this;
+    
 
     // Posición Y = +1 en todos los campos (o sea, posición línea 2, 11 y 20) en marquesina-change
     var yPosition = this.type === "MARQUESINA" ? 2 : 1;
@@ -456,7 +464,7 @@ Panel.prototype.calculateServicesInSegments = function (){
 
     services.forEach(function(obj){
         // Posición x = +1 en marquesina-change
-        segments.push([obj.service,this.type === "MARQUESINA" ? 2 : 1,yPosition,null]); 
+        segments.push([obj.service,that.type === "MARQUESINA" ? 2 : 1,yPosition,null]); 
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
            segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
@@ -593,20 +601,21 @@ Panel.prototype.addFlashingAsterix = function(yPosition,ySpacing){
 /* CALCULATE SCROLL SYNC
 */
 
-Panel.prototype.calculateScrollSyncronization = function(textSpace){
+Panel.prototype.calculateScrollSyncronization = function(services,textSpace){
     var flagScrollSync = 0;
     var maxStringLength = 0;
-    this.servicios.forEach(function(s){
+    services.forEach(function(s){
         if (s.name.length > textSpace) flagScrollSync++;
         if (s.name.length > maxStringLength) maxStringLength = s.name.length;
     });
     if (flagScrollSync > 1) {
         var space = " ";
-        this.servicios.forEach(function(s){
+        services.forEach(function(s){
         if (s.name.length > textSpace && s.name.length < maxStringLength) 
             s.name = s.name + space.repeat(maxStringLength - s.name.length);
         });
     } 
+    return services;
 }
 
 /* CALCULATE INCIDENCIAS IN SEGMENTS
