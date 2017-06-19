@@ -403,7 +403,7 @@ Panel.prototype.calculateServicesInSegments = function (){
     
     this.listaServicios.forEach(function(s){
         if (services.length < _this.servicesLines) {
-            if (s.wait >= 0) {
+            if (s.wait > 0) {
                 services.push(s);
             }
         }
