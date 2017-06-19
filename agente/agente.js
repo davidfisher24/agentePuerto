@@ -120,10 +120,10 @@ var agentePaneles = function (params) {
 //---------------------------------------------------*/
 
     _that.iniciaAgente = function (){
-        //consultaInformacion();
+        consultaInformacion();
         enviaIncidencias ();
         setTimeout(enviaServiciosDia,7000);  
-        //setInterval(function(){consultaInformacion();},global.param.refrescoE);
+        setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
         panelesMarquesina.forEach(function (p) {
             setTimeout(enviaServiciosParada,7000,p);
