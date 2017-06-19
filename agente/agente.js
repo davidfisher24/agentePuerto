@@ -164,14 +164,17 @@ var agentePaneles = function (params) {
                 global.param.refrescoI = global.param.refrescoI - (apiCallEndTime - apiCallStartTime);
                 global.param.failedApiCallsIncidencias = global.param.failedApiCallsIncidencias + 1;
                 if (global.param.failedApiCallsIncidencias >= global.param.numeroIntentosSinRecibirDatos) {
-                    panelesSistema.forEach(function (item) {
-                        item.incidencia = '';
-                    });
+                    panelesSistema.forEach(function (p) {
+	                    p.flagFailedApiIncidencias = 1;
+	                });
                 }
                 debug.log(global.param.debugmode,'Error consulting indcidencias.do resource : ' + err.message);
             } else {
                 
                 global.param.failedApiCallsIncidencias = 0;
+                panelesSistema.forEach(function (p) {
+                    p.flagFailedApiIncidencias = 0;
+                });
                 incidenciasJSON = res;
                 if (typeof incidenciasJSON == 'object'){
                     global.param.refrescoI=incidenciasJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
@@ -220,12 +223,15 @@ var agentePaneles = function (params) {
                 global.param.failedApiCallsServiciosDia = global.param.failedApiCallsServiciosDia + 1;
                 if (global.param.failedApiCallsServiciosDia >= global.param.numeroIntentosSinRecibirDatos) {
                     panelesInformacion.forEach(function (p) {
-                        p.rawServices = [];
+                        p.flagFailedApiData = 1;
                     });
                 }
                 debug.log(global.param.debugmode,'Error obtaining servicios-dia.do resource : ' + err.message);
             } else {
                 global.param.failedApiCallsServiciosDia = 0;
+                panelesInformacion.forEach(function (p) {
+                    p.flagFailedApiData = 0;
+                });
                 listaServiciosJSON=res;
                 global.param.refrescoS=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
 
@@ -277,12 +283,13 @@ var agentePaneles = function (params) {
                 p.refrescoP = p.refrescoP - (apiCallEndTime - apiCallStartTime);
                 p.failedApiCallsServiciosParada = p.failedApiCallsServiciosParada + 1;
                 if (p.failedApiCallsServiciosParada >= global.param.numeroIntentosSinRecibirDatos) {
-                    p.rawServices = [];
+                    p.flagFailedApiData = 1;
                 }
                 debug.log(global.param.debugmode,'Error obtaining servicios-parada.do resoruce for panel '+p.id+' : ' + err.message);
             } else {
                 
                 p.failedApiCallsServiciosParada = 0;
+                p.flagFailedApiData = 0;
                 listaServiciosJSON=res;
                 p.refrescoP=listaServiciosJSON.refresco * 1000 - (apiCallEndTime - apiCallStartTime);
                 

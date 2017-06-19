@@ -52,6 +52,9 @@ var Panel = function(campos){
     this.segments = []; 
     this.incidenciaSegments = [];
 
+    this.flagFailedApiServices = 0;
+    this.flagFailedApiIncidencias = 0;
+
     setTimeout(function() {this.calculateVizualization();}.bind(this), this.tiempoRefrescarVizualizacion);
 };
 
@@ -61,13 +64,19 @@ Panel.prototype.EstaConectado = function () {
   return Estado; 
 };
 
+Panel.prototype.APIFailureStatus = function(){
+    if (this.flagFailedApiServices === 1 && this.flagFailedApiIncidencias === 1) return true;
+    return false;
+};
+
 
 Panel.prototype.calculateVizualization = function () {
     var that = this;
     this.checkTurnOff();
 
-    // OPTION 1 - Turned off. Send empty segments
-    if (this.onOffStatus === 0) {
+    // OPTION 1 - Turned off or has a failure in API data. Send empty segments.
+    if (this.onOffStatus === 0 || this.APIFailureStatus()) {
+        debug.log(global.param.debugmode, "Panel " + that.ip + " is turned off or has not recieved API data");
         that.segments = [];
         that.enviaServicios(function(err,res){
             if (err) {
