@@ -75,7 +75,7 @@ Panel.prototype.calculateVizualization = function () {
     this.checkTurnOff();
 
     // OPTION 1 - Turned off or has a failure in API data. Send empty segments.
-    if (this.onOffStatus === 2 || this.APIFailureStatus()) {
+    if (this.onOffStatus === 0 || this.APIFailureStatus()) {
         debug.log(global.param.debugmode, "Panel " + that.ip + " is turned off or has not recieved API data");
         that.segments = [];
         that.enviaServicios(function(err,res){
