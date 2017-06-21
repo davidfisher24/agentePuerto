@@ -112,6 +112,7 @@ Panel.prototype.calculateVizualization = function () {
             });
         }
         
+
         that.calculateServicesInSegments();
         debug.log(global.param.debugmode, "Sending Message to panel " + that.ip + " " + that.segments);
 
@@ -133,7 +134,6 @@ Panel.prototype.calculateVizualization = function () {
 ***********************************************************************************************/
 
 Panel.prototype.enviaIncidencia= function(callback){
-
     if (this.inactivo == 1){
         callback (null,null);
     } else {
@@ -386,21 +386,21 @@ Panel.prototype.calculateServicesInSegments = function (){
     if (services.length <= this.flagLastServices && services.length > 1) {
         var text = global.param.textos.ultimos_servicios;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 1) {
         var text = global.param.textos.ultimo_servicio;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 0) {
         var text = global.param.textos.servicios_finalizados;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
