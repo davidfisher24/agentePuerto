@@ -127,21 +127,6 @@ Panel.prototype.calculateVizualization = function () {
 };
 
 
-/***********************************************************************************************
-// CONSULTATION OF ESTADOS
-***********************************************************************************************/
-
-Panel.prototype.consultaEstado = function(callback){
-    if (this.inactivo == 1) {
-        var obj={"id": this.id.toString(),
-            "estado": "2",
-            "texto": "INACTIVO"};
-        this.estado = obj;
-        callback(null,obj);
-    } else {
-        this._conexionParaConsulta(callback);
-    }
-};
 
 /***********************************************************************************************
 // ENVIAR INCINDENCIAS
@@ -177,99 +162,21 @@ Panel.prototype.enviaServicios= function(callback){
     }
 };
 
-/***********************************************************************************************
-// WEBSOCKETS CONNECTION FUNCTIONS
-***********************************************************************************************/
-
-Panel.prototype._conexionParaConsulta = function (callback){
-    if (this.EstaConectado()) return;
-
-    var ran = Math.floor((Math.random() * 9999) + 1);
-    this.proceso=ran;
-    var panelConsulta = new Fabricante(this.ip);
-
-    var panelSocket = net.connect({host: this.ip, port: this.puerto});
-    panelSocket.setEncoding('hex');
-    panelSocket.setTimeout(global.param.tiempoEspera);
-    var _that = this;
-    
-    panelSocket.on('connect', function () {
-        _that.conectado=true;
-        var trama=panelConsulta.sendKeepAlive(_that.messageOrder.toString(16));
-        _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
-        var buff = new Buffer(trama, 'hex');
-        panelSocket.write(buff);
-
-    });
-
-    panelSocket.on('data', function (data) {
-        if (data.length!==0) {
-            debug.log(global.param.debugmode, "Obtainted status for panel " + _that.ip + " - ");
-            var dR=new Buffer(data.toString(),'hex');
-            var datos=panelConsulta.trataConsulta(dR);
-            if (typeof datos != 'undefined') {
-                
-                var screenText = "";
-                _that.segments.forEach(function(segTxt){
-                    screenText += segTxt[0] + "#";
-                });
-                screenText = screenText.substring(0,screenText.length - 1);
-
-                var obj={id: (_that.id).toString(),
-                    estado: "0",
-                    texto: screenText,
-                };
-                _that.estado = obj;
-                panelSocket.end();
-                callback(null,obj);
-            }
-        } else {
-            envioSocket.destroy();
-            that.conectado=false;
-            debug.log(global.param.debugmode, "Failed to write keepalive for panel " + _that.ip);
-        }
-    });
-
-    panelSocket.on('close', function (had_error){
-        _that.conectado=false;
-        debug.log(global.param.debugmode, "Socket closed for panel " + _that.ip);
-    });
-
-    panelSocket.on('error', function (e){
-        debug.log(global.param.debugmode, "Error obtaining status for panel " + _that.ip + " - ");
-        if (_that.conectado) {
-            panelSocket.destroy(); 
-             _that.conectado=false;
-        };
-    });
-
-    panelSocket.on('end',function(){
-        if (_that.conectado) {
-            panelSocket.destroy(); 
-             _that.conectado=false;
-        };
-    });
-
-
-    panelSocket.on('timeout', function(e){
-        debug.log(global.param.debugmode, "Error obtaining status for panel " + _that.ip + " - ");
-        if (_that.conectado) {
-            panelSocket.destroy();  
-             _that.conectado=false;
-        }
-    });
-};
-
-
-
 
 /***********************************************************************************************
-// FUNCTION TO SEND INCIDENCES, INFORMATION, AND MESSAGES
+// WEBSOCKET - FUNCTION TO SEND INCIDENCES, INFORMATION, MESSAGES, AND KEEP-ALIVE
 ***********************************************************************************************/
 
 Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var _that = this;
     if (this.EstaConectado()) return;
+    if (this.inactivo == 1) {
+        var obj={"id": this.id.toString(),
+            "estado": "2",
+            "texto": "INACTIVO"};
+        this.estado = obj;
+        return;
+    }
 
     var ran = Math.floor((Math.random() * 9999) + 1);
     this.proceso=ran;
@@ -290,6 +197,8 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     });
     buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    buffers.push(panelEnvio.sendKeepAlive(_that.messageOrder.toString(16)));
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
 
     envioSocket.on('connect',function(){
         _that.conectadoEnv=true;
@@ -299,30 +208,48 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 
     envioSocket.on('data', function (data) {
-        panelEnvio.trataEnvio(data,function(mens){
-            if (mens === "06") {
-                buffers.splice(0,1);
-                if (buffers.length > 0) {
-                    var buff = new Buffer(buffers[0], 'hex');
-                    envioSocket.write(buff);
+        if (buffers.length > 0) {
+            panelEnvio.trataEnvio(data,function(mens){
+                if (mens === "06") {
+                    buffers.splice(0,1);
+                    if (buffers.length > 0) {
+                        var buff = new Buffer(buffers[0], 'hex');
+                        envioSocket.write(buff);
+                    } else {
+                        envioSocket.destroy();
+                        _that.conectadoEnv=false;
+                        debug.log(global.param.debugmode, "Wrote complete message for panel " + _that.ip);
+                    } 
                 } else {
+                    var obj = {
+                        "id"    : _that.id,
+                        "estado": "1",
+                        "texto" : "DESCONOCIDO"
+                    };
+                    _that.estado=obj;
                     envioSocket.destroy();
                     _that.conectadoEnv=false;
-                    debug.log(global.param.debugmode, "Wrote complete message for panel " + _that.ip);
-                } 
-            } else {
-                var obj = {
-                    "id"    : _that.id,
-                    "estado": "1",
-                    "texto" : "DESCONOCIDO"
+                    debug.log(global.param.debugmode, "Recieved a NACK-RX error message for panel " + _that.ip);
+                }
+                
+            });
+        } else if (buffers.length === 0) {
+            var datos=panelConsulta.trataConsulta(dR);
+            if (typeof datos != 'undefined') {
+                var screenText = "";
+                _that.segments.forEach(function(segTxt){
+                    screenText += segTxt[0] + "#";
+                });
+                screenText = screenText.substring(0,screenText.length - 1);
+
+                var obj={id: (_that.id).toString(),
+                    estado: "0",
+                    texto: screenText,
                 };
-                _that.estado=obj;
-                envioSocket.destroy();
-                _that.conectadoEnv=false;
-                debug.log(global.param.debugmode, "Recieved a NACK-RX error message for panel " + _that.ip);
+                _that.estado = obj;
+                panelSocket.end();
             }
-            
-        });
+        } 
     });
 
     envioSocket.on('close', function (had_error){
@@ -448,21 +375,21 @@ Panel.prototype.calculateServicesInSegments = function (){
     if (services.length <= this.flagLastServices && services.length > 1) {
         var text = global.param.textos.ultimos_servicios;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 1) {
         var text = global.param.textos.ultimo_servicio;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 0) {
         var text = global.param.textos.servicios_finalizados;
         if (text.length > this.maxCharactersTotal) 
-            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,lastLineStart + _this.lineHeight]);
+            segments.push([text,1,lastLineStart,'scroll',_this.lineLength,Math.max(lastLineStart + _this.lineHeight, _this.lineHeight * _this.lineLength)]);
         else 
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }

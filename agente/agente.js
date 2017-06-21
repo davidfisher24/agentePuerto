@@ -123,7 +123,7 @@ var agentePaneles = function (params) {
         //consultaInformacion();
         enviaIncidencias ();
         setTimeout(enviaServiciosDia,7000);  
-        //setInterval(function(){consultaInformacion();},global.param.refrescoE);
+        setInterval(function(){consultaInformacion();},global.param.refrescoE);
 
         panelesMarquesina.forEach(function (p) {
             setTimeout(enviaServiciosParada,7000,p);
@@ -139,15 +139,8 @@ var agentePaneles = function (params) {
 //---------------------------------------------------*/
 
     function consultaInformacion(){
-        panelesSistema.forEach (function (item,i){
-            item.consultaEstado(function (err,result){
-                if (typeof  err != 'undefined' && err!= null){
-                    debug.log(global.param.debugmode,'Error conuslting estado.do resource : ' + err.message);
-                } else {
-                    panelesSistema[i].estado=result;
-                    postEstadoAPI(result,item); 
-                }
-            });
+        panelesSistema.forEach (function (item){
+        	postEstadoAPI(item); 
         });
     }
 
@@ -296,11 +289,13 @@ var agentePaneles = function (params) {
                 if ((listaServiciosJSON.serie !== p.serieP)) {
                     p.rawServices = [];
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
-                    listaServiciosJSON.informacion.forEach (function(serv,i){
-                        if (serv.estado === "Normal" || serv.estado === "Retrasado") {
-                            p.rawServices.push(serv);
-                        }
-                    });
+                    if (listaServiciosJSON.total !==0){
+                    	listaServiciosJSON.informacion.forEach (function(serv,i){
+	                        if (serv.estado === "Normal" || serv.estado === "Retrasado") {
+	                            p.rawServices.push(serv);
+	                        }
+	                    });
+                    }
                 } 
             }
             setTimeout(enviaServiciosParada,p.refrescoP,p);
@@ -355,8 +350,10 @@ var agentePaneles = function (params) {
 // FUNCTION - Api POST request
 //---------------------------------------------------*/
 
-    function postEstadoAPI(result, item){
-        var estadoString=  JSON.stringify(result);
+    function postEstadoAPI(item){
+    	console.log("Sending POST");
+    	var result = item.estado;
+    	var estadoString=  JSON.stringify(result);
         var POSTParamsString = "?id="+item.id+"&estado="+result.estado+"&texto="+result.texto;
         var recursoPOST = {
             hostname: settingJSON.estados.host,
@@ -364,6 +361,7 @@ var agentePaneles = function (params) {
             path:  settingJSON.estados.ruta + POSTParamsString,
             method: settingJSON.estados.metodo,
         }
+        console.log(POSTParamsString);
 
         var req = http.request(recursoEstados, function(res) {
             res.setEncoding('utf8');
