@@ -351,7 +351,6 @@ var agentePaneles = function (params) {
 //---------------------------------------------------*/
 
     function postEstadoAPI(item){
-    	console.log("Sending POST");
     	var result = item.estado;
     	var estadoString=  JSON.stringify(result);
         var POSTParamsString = "?id="+item.id+"&estado="+result.estado+"&texto="+result.texto;
@@ -361,7 +360,6 @@ var agentePaneles = function (params) {
             path:  settingJSON.estados.ruta + POSTParamsString,
             method: settingJSON.estados.metodo,
         }
-        console.log(POSTParamsString);
 
         var req = http.request(recursoEstados, function(res) {
             res.setEncoding('utf8');

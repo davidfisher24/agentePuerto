@@ -200,16 +200,18 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     buffers.push(panelEnvio.sendKeepAlive(_that.messageOrder.toString(16)));
     _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
 
+
     envioSocket.on('connect',function(){
+        console.log(buffers);
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
     });
 
-
     envioSocket.on('data', function (data) {
         if (buffers.length > 0) {
             panelEnvio.trataEnvio(data,function(mens){
+                console.log(mens);
                 if (mens === "06") {
                     buffers.splice(0,1);
                     if (buffers.length > 0) {
@@ -235,6 +237,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
             });
         } else if (buffers.length === 0) {
             var datos=panelConsulta.trataConsulta(dR);
+            console.log(datos);
             if (typeof datos != 'undefined') {
                 var screenText = "";
                 _that.segments.forEach(function(segTxt){
