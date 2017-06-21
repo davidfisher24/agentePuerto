@@ -1,6 +1,83 @@
 {
    "paneles":[
       {
+         "id":"1",
+         "idParada":"385",
+         "panel":"VILLA INÉS (VUELTA)",
+         "ip":"10.250.16.90",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"2",
+         "idParada":"133",
+         "panel":"AGUADULCE CAJA DE AHORROS (IDA)",
+         "ip":"10.250.16.91",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"3",
+         "idParada":"219",
+         "panel":"AGUADULCE CAJA DE AHORROS (VUELTA)",
+         "ip":"10.250.16.92",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"4",
+         "idParada":"68",
+         "panel":"PARRALES-PARADOR (IDA)",
+         "ip":"10.250.16.93",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"5",
+         "idParada":"214",
+         "panel":"PARRALES-PARADOR (VUELTA)",
+         "ip":"10.250.16.94",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"6",
+         "idParada":"71",
+         "panel":"CC GRAN PLAZA",
+         "ip":"10.250.16.95",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
+         "id":"7",
+         "idParada":"209",
+         "panel":"CC GRAN PLAZA (VUELTA)",
+         "ip":"10.250.16.96",
+         "puerto":"4001",
+         "inactivo":"false",
+         "type":"MARQUESINA",
+         "horaEnciendo":"07:00",
+         "horaApago":"00:00"
+      },
+      {
          "id":"10",
          "idParada":"207",
          "panel":"ROQUETAS PUEBLO (VUELTA)",

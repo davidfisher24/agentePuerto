@@ -202,18 +202,14 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
 
 
     envioSocket.on('connect',function(){
-        console.log(buffers);
         _that.conectadoEnv=true;
         var buff = new Buffer(buffers[0], 'hex');
         envioSocket.write(buff);
     });
 
     envioSocket.on('data', function (data) {
-        console.log(buffers.length);
-        console.log(buffers[0]);
-        if (buffers.length > 0) {
+        if (buffers.length > 1) {
             panelEnvio.trataEnvio(data,function(mens){
-                console.log(mens);
                 if (mens === "06") {
                     buffers.splice(0,1);
                     if (buffers.length > 0) {
@@ -237,9 +233,8 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 }
                 
             });
-        } else if (buffers.length === 0) {
-            var datos=panelConsulta.trataConsulta(dR);
-            console.log(datos);
+        } else {
+            var datos=panelEnvio.trataConsulta(data);
             if (typeof datos != 'undefined') {
                 var screenText = "";
                 _that.segments.forEach(function(segTxt){
@@ -247,13 +242,17 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 });
                 screenText = screenText.substring(0,screenText.length - 1);
 
+                
+            } else {
                 var obj={id: (_that.id).toString(),
                     estado: "0",
                     texto: screenText,
                 };
-                _that.estado = obj;
-                panelSocket.end();
             }
+            _that.estado = obj;
+            envioSocket.destroy();
+            _that.conectadoEnv=false;
+            debug.log(global.param.debugmode, "Wrote complete message for panel " + _that.ip);
         } 
     });
 

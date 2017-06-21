@@ -76,18 +76,19 @@ Fabricante.prototype.trataConsulta= function (datos) {
 	var bits = decodedText.match(/.{2}/g);
 
 	var status;
-	if (bits[9] === "00" && bits[10] === "00" && bits[11] === "00" && bits[12] === "00") {
+	if (bits[4] === "21") status = "NORMAL";
+	else status = "DESCONOCIDO";
+	/*if (bits[9] === "00" && bits[10] === "00" && bits[11] === "00" && bits[12] === "00") {
 		status = "NORMAL";
-		//status = "ACTIVO";
 	} else {
 		status = "DESCONOCIDO";
-		/*status = [];
+		status = [];
 		if (bits[9] !== "00") status.push("Alamra de batería.");
 		if (bits[10] !== "00" && parseInt(bits[10] % 2 === 0)) status.push("Algún LED Mal");
 		if (bits[10] !== "00" && parseInt(bits[10] % 2 !== 0)) status.push("Ningún LED Mal");
 		if (bits[11] !== "00") status.push("Alarma de puerta abierta.");
-		if (bits[12] !== "00") status.push("Alarma de vibración");*/
-	}
+		if (bits[12] !== "00") status.push("Alarma de vibración");
+	}*/
 
     return status;
 };
