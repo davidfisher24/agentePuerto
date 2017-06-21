@@ -209,6 +209,8 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     });
 
     envioSocket.on('data', function (data) {
+        console.log(buffers.length);
+        console.log(buffers[0]);
         if (buffers.length > 0) {
             panelEnvio.trataEnvio(data,function(mens){
                 console.log(mens);
