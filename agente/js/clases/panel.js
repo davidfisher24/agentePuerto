@@ -75,7 +75,7 @@ Panel.prototype.calculateVizualization = function () {
     this.checkTurnOff();
 
     // OPTION 1 - Turned off or has a failure in API data. Send empty segments.
-    if (this.onOffStatus === 0 || this.APIFailureStatus()) {
+    if (this.onOffStatus === 2 || this.APIFailureStatus()) {
         debug.log(global.param.debugmode, "Panel " + that.ip + " is turned off or has not recieved API data");
         that.segments = [];
         that.enviaServicios(function(err,res){
@@ -222,7 +222,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     } 
                 } else {
                     var obj = {
-                        "id"    : _that.id,
+                        "id"    : (_that.id).toString(),
                         "estado": "1",
                         "texto" : "DESCONOCIDO"
                     };
@@ -241,13 +241,20 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     screenText += segTxt[0] + "#";
                 });
                 screenText = screenText.substring(0,screenText.length - 1);
-
-                
-            } else {
-                var obj={id: (_that.id).toString(),
+                var obj={
+                    id: (_that.id).toString(),
                     estado: "0",
                     texto: screenText,
                 };
+                _that.estado = obj;
+                
+            } else {
+                var obj = {
+                    "id"    : (_that.id).toString(),
+                    "estado": "1",
+                    "texto" : "DESCONOCIDO"
+                };
+                _that.estado = obj;
             }
             _that.estado = obj;
             envioSocket.destroy();
