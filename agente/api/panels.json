@@ -1,10 +1,10 @@
 {
    "paneles":[
       {
-         "id":"9",
-         "idParada":"174",
-         "panel":"ROQUETAS PUEBLO (IDA)",
-         "ip":"10.250.16.98",
+         "id":"10",
+         "idParada":"207",
+         "panel":"ROQUETAS PUEBLO (VUELTA)",
+         "ip":"10.250.16.99",
          "puerto":"4001",
          "inactivo":"false",
          "type":"MARQUESINA",
