@@ -240,6 +240,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                 _that.segments.forEach(function(segTxt){
                     screenText += segTxt[0] + "#";
                 });
+                if (screenText === "") screenText = "SINTEXTO#";
                 screenText = screenText.substring(0,screenText.length - 1);
                 var obj={
                     id: (_that.id).toString(),
