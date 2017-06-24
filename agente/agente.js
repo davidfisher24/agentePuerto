@@ -289,13 +289,16 @@ var agentePaneles = function (params) {
                 if ((listaServiciosJSON.serie !== p.serieP)) {
                     p.rawServices = [];
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
-                    if (listaServiciosJSON.total !==0){
+                    // Update for servicios parade 0 to flag off, and bug when informacion is missing 
+                    if (listaServiciosJSON.total === 0) p.autoTriggerTurnOff();
+                    if (listaServiciosJSON.total !==0 && listaServiciosJSON.informacion){
                     	listaServiciosJSON.informacion.forEach (function(serv,i){
 	                        if (serv.estado === "Normal" || serv.estado === "Retrasado") {
 	                            p.rawServices.push(serv);
 	                        }
 	                    });
                     }
+                    //
                 } 
             }
             setTimeout(enviaServiciosParada,p.refrescoP,p);

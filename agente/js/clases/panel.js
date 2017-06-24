@@ -332,6 +332,10 @@ Panel.prototype.checkTurnOff = function (){
     }
 };
 
+Panel.prototype.autoTriggerTurnOff = function () {
+    this.onOffStatus = 0;  
+};
+
 
 
 /***********************************************************************************************
