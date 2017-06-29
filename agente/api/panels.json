@@ -3,7 +3,7 @@
       {
          "id":"1",
          "idParada":"385",
-         "panel":"VILLA INÉS (VUELTA)",
+         "panel":"VILLA INÃ‰S (VUELTA)",
          "ip":"10.250.16.90",
          "puerto":"4001",
          "inactivo":"false",
@@ -12,7 +12,7 @@
          "horaApago":"00:00"
       },
       {
-         "id":"2",
+         "id":"3",
          "idParada":"133",
          "panel":"AGUADULCE CAJA DE AHORROS (IDA)",
          "ip":"10.250.16.91",
@@ -23,9 +23,9 @@
          "horaApago":"00:00"
       },
       {
-         "id":"3",
+         "id":"2",
          "idParada":"219",
-         "panel":"AGUADULCE CAJA DE AHORROS (VUELTA)",
+         "panel":"AGUADULCE CAJA DE AHORROS (VUELTA-2 CARAS)",
          "ip":"10.250.16.92",
          "puerto":"4001",
          "inactivo":"false",
