@@ -3,7 +3,7 @@
       {
          "id":"1",
          "idParada":"385",
-         "panel":"VILLA INÃ‰S (VUELTA)",
+         "panel":"VILLA INÉS (VUELTA)",
          "ip":"10.250.16.90",
          "puerto":"4001",
          "inactivo":"false",
@@ -112,8 +112,8 @@
       },
       {
          "id":"13",
-         "idParada":"101",
-         "panel":"APEADERO ADRA",
+         "idParada":"78",
+         "panel":"APEADERO BERJA",
          "ip":"10.250.16.102",
          "puerto":"4001",
          "inactivo":"false",
@@ -145,8 +145,8 @@
       },
       {
          "id":"14",
-         "idParada":"78",
-         "panel":"APEADERO BERJA",
+         "idParada":"101",
+         "panel":"APEADERO ADRA",
          "ip":"10.250.16.103",
          "puerto":"4001",
          "inactivo":"false",
