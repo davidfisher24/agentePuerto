@@ -111,7 +111,7 @@
          "horaApago":"00:00"
       },
       {
-         "id":"13",
+         "id":"14",
          "idParada":"78",
          "panel":"APEADERO BERJA",
          "ip":"10.250.16.102",
@@ -144,7 +144,7 @@
          "horaApago":"00:00"
       },
       {
-         "id":"14",
+         "id":"13",
          "idParada":"101",
          "panel":"APEADERO ADRA",
          "ip":"10.250.16.103",

@@ -1,7 +1,7 @@
 'use strict';
 
 
-var net= require('net'); 
+var net= require('net');
 var debug = require('../utils');
 var Fabricante=require('./fabricante.js');
 var Servicio = require("./servicio.js");
@@ -34,10 +34,10 @@ var Panel = function(campos){
     this.textHeight = global.param.panelTypes[this.type].alturaTexto;
     this.tiempoDeInmediataz = global.param.panelTypes[this.type].tiempoDeInmediataz;
     this.tiempoRefrescarVizualizacion = global.param.panelTypes[this.type].tiempoRefrescarVizualizacion * 1000;
- 
+
     this.rawServices = [];
     this.listaServicios =[];
-    this.onOffStatus = 1; 
+    this.onOffStatus = 1;
     this.estado='',
     this.incidencia='',
     this.proceso=0
@@ -45,11 +45,11 @@ var Panel = function(campos){
     this.conectadoEnv=false;
     this.intentosEstados = 0;
     this.intentosEnvio = 0;
-    this.refrescoP = 65 * 1000; 
+    this.refrescoP = 65 * 1000;
     this.failedApiCallsServiciosParada = 0;
     this.serieP = -1;
-    this.messageOrder = 160; 
-    this.segments = []; 
+    this.messageOrder = 160;
+    this.segments = [];
     this.incidenciaSegments = [];
 
     this.flagFailedApiServices = 0;
@@ -60,8 +60,8 @@ var Panel = function(campos){
 
 
 Panel.prototype.EstaConectado = function () {
-  var Estado = this.conectado || this.conectadoEnv; 
-  return Estado; 
+  var Estado = this.conectado || this.conectadoEnv;
+  return Estado;
 };
 
 Panel.prototype.APIFailureStatus = function(){
@@ -81,22 +81,23 @@ Panel.prototype.calculateVizualization = function () {
         that.enviaServicios(function(err,res){
             if (err) {
                 debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
-            } 
+            }
         });
     }
-    
+
     // OPTION 2 - Have an incidence so we show this
     else if (this.incidencia !== '') {
         that.calculateIncidenciaInSegments();
+        debug.log(global.param.debugmode,"Sending INCIDENCIA to Panel " + that.ip + " " + that.incidenciaSegments);
         that.enviaIncidencia(function (err, result) {
             if (err) {
                 debug.log(global.param.debugmode, "Error sending incidents to panel " + that.ip + " - " + err.message);
-            } 
+            }
         });
     }
 
     // OPTION 3 - No off status and no incidencias so show the segments
-    else {  
+    else {
         that.listaServicios = [];
         if (that.type === "MARQUESINA") {
             that.rawServices.forEach (function(serv,i){
@@ -111,7 +112,7 @@ Panel.prototype.calculateVizualization = function () {
 
             });
         }
-        
+
 
         that.calculateServicesInSegments();
         debug.log(global.param.debugmode, "Sending Message to panel " + that.ip + " " + that.segments);
@@ -119,7 +120,7 @@ Panel.prototype.calculateVizualization = function () {
         that.enviaServicios(function(err,res){
             if (err) {
                 debug.log(global.param.debugmode, "Error sending services to panel " + that.ip + " - " + err.message);
-            } 
+            }
         });
     }
 
@@ -189,16 +190,16 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
     var endRight = _that.lineLength;
     var endBottom = _that.lineHeight * _that.totalLines;
     buffers.push(panelEnvio.sendDeleteMessage(_that.messageOrder.toString(16),1,1,endRight,endBottom));
-    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1;
     mensajes.forEach(function(m,i){
         if (m[3] === null ) buffers.push(panelEnvio.sendFixedTextMessage(_that.messageOrder.toString(16),m[0],m[1],m[2]));
         else buffers.push(panelEnvio.sendTextMessageWithEffect(_that.messageOrder.toString(16),m[0],m[1],m[2],m[3],m[4],m[5]));
-         _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+         _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1;
     });
     buffers.push(panelEnvio.sendSyncCommand(_that.messageOrder.toString(16)));
-    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1;
     buffers.push(panelEnvio.sendKeepAlive(_that.messageOrder.toString(16)));
-    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1; 
+    _that.messageOrder = _that.messageOrder === 175 ? 160 : _that.messageOrder + 1;
 
 
     envioSocket.on('connect',function(){
@@ -219,7 +220,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                         envioSocket.destroy();
                         _that.conectadoEnv=false;
                         debug.log(global.param.debugmode, "Wrote complete message for panel " + _that.ip);
-                    } 
+                    }
                 } else {
                     var obj = {
                         "id"    : (_that.id).toString(),
@@ -231,7 +232,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     _that.conectadoEnv=false;
                     debug.log(global.param.debugmode, "Recieved a NACK-RX error message for panel " + _that.ip);
                 }
-                
+
             });
         } else {
             var datos=panelEnvio.trataConsulta(data);
@@ -248,7 +249,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
                     texto: screenText,
                 };
                 _that.estado = obj;
-                
+
             } else {
                 var obj = {
                     "id"    : (_that.id).toString(),
@@ -261,7 +262,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
             envioSocket.destroy();
             _that.conectadoEnv=false;
             debug.log(global.param.debugmode, "Wrote complete message for panel " + _that.ip);
-        } 
+        }
     });
 
     envioSocket.on('close', function (had_error){
@@ -289,7 +290,7 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
             _that.conectadoEnv=false;
-        } 
+        }
     });
 
     envioSocket.on('timeout', function(e){
@@ -297,14 +298,14 @@ Panel.prototype._conexionParaEnvio=function (mensajes,callback){
         if (_that.conectadoEnv) {
             envioSocket.destroy();
             _that.conectadoEnv=false;
-        } 
+        }
     });
 
 };
 
 /***********************************************************************************************
 // FUNCTION TO CHECK IF THE PANEL IS ON/OFF FROM THE TURN ON AND TURN OFF HOURS
-* if a panel is changing from off => on, it automatically sends an empty message array to 
+* if a panel is changing from off => on, it automatically sends an empty message array to
 trigger a delete-sync message to blank the panel
 ***********************************************************************************************/
 
@@ -333,7 +334,7 @@ Panel.prototype.checkTurnOff = function (){
 };
 
 Panel.prototype.autoTriggerTurnOff = function () {
-    this.onOffStatus = 0;  
+    this.onOffStatus = 0;
 };
 
 
@@ -352,7 +353,7 @@ Panel.prototype.calculateServicesInSegments = function (){
     this.listaServicios.sort(function(a, b){
         return a.wait-b.wait;
     })
-    
+
     this.listaServicios.forEach(function(s){
         if (services.length < _this.servicesLines) {
             if (s.wait > 0) {
@@ -363,19 +364,19 @@ Panel.prototype.calculateServicesInSegments = function (){
 
     services = this.calculateScrollSyncronization(services,this.maxCharactersForName);
     var that = this;
-    
+
 
     // Posición Y = +1 en todos los campos (o sea, posición línea 2, 11 y 20) en marquesina-change
     var yPosition = this.type === "MARQUESINA" ? 2 : 1;
-    var ySpacing = this.lineHeight; 
+    var ySpacing = this.lineHeight;
 
 
     services.forEach(function(obj){
         // Posición x = +1 en marquesina-change
-        segments.push([obj.service,that.type === "MARQUESINA" ? 2 : 1,yPosition,null]); 
+        segments.push([obj.service,that.type === "MARQUESINA" ? 2 : 1,yPosition,null]);
         if (_this.type === "MARQUESINA") {
            segments.push(_this.calculateServiceNameMarquesina(obj.name,yPosition,ySpacing));
-           segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing)); 
+           segments.push(_this.calculateWaitTimeMarquesina(obj.wait,yPosition,ySpacing));
         } else if (_this.type === "INFORMACION") {
             segments.push(_this.calculateServiceNameInformacion(obj.name,obj.flagRetraso,obj.flagCancelado,yPosition,ySpacing));
             if (obj.flagRetraso > 0) segments.push(_this.addFlashingAsterix(yPosition,ySpacing));
@@ -390,23 +391,23 @@ Panel.prototype.calculateServicesInSegments = function (){
     var lastLineStart = this.lineHeight * (this.totalLines - 1) + 1;
     if (services.length <= this.flagLastServices && services.length > 1) {
         var text = global.param.textos.ultimos_servicios;
-        if (text.length > this.maxCharactersTotal) 
+        if (text.length > this.maxCharactersTotal)
             segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
-        else 
+        else
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 1) {
         var text = global.param.textos.ultimo_servicio;
-        if (text.length > this.maxCharactersTotal) 
+        if (text.length > this.maxCharactersTotal)
             segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
-        else 
+        else
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     if (services.length === 0) {
         var text = global.param.textos.servicios_finalizados;
-        if (text.length > this.maxCharactersTotal) 
+        if (text.length > this.maxCharactersTotal)
             segments.push([text,1,lastLineStart,'scroll',_this.lineLength,(lastLineStart - 1) + _this.lineHeight]);
-        else 
+        else
             segments.push([text,(_this.lineLength - (text.length * 6)) /2 + 1,lastLineStart,null]);
     }
     this.segments = segments;
@@ -479,9 +480,9 @@ Panel.prototype.calculateWaitTimeMarquesina = function(wait,yPosition,ySpacing){
 */
 
 Panel.prototype.calculateDepartTimeInformacion = function(time,wait,flagRetraso,flagCancelado,yPosition,ySpacing){
-    var timeText = time; 
-    var action = null; 
-    var startPosition = 181; 
+    var timeText = time;
+    var action = null;
+    var startPosition = 181;
 
     if (wait <= this.tiempoDeInmediataz) {
         //timeText = global.param.simboloDeInmediataz;  No need to change text to symbol
@@ -519,10 +520,10 @@ Panel.prototype.calculateScrollSyncronization = function(services,textSpace){
     if (flagScrollSync > 1) {
         var space = " ";
         services.forEach(function(s){
-        if (s.name.length > textSpace && s.name.length < maxStringLength) 
+        if (s.name.length > textSpace && s.name.length < maxStringLength)
             s.name = s.name + space.repeat(maxStringLength - s.name.length);
         });
-    } 
+    }
     return services;
 }
 
@@ -557,6 +558,6 @@ Panel.prototype.calculateIncidenciaInSegments = function() {
 
 }
 
-    
+
 
 module.exports = Panel;
