@@ -291,8 +291,8 @@ var agentePaneles = function (params) {
                     p.listaServiciosJSONPanel = listaServiciosJSON.serie;
                     // Update for servicios parade 0 to flag off, and bug when informacion is missing 
                     if (listaServiciosJSON.total === 0) p.autoTriggerTurnOff();
-                    if (listaServiciosJSON.total !==0 && listaServiciosJSON.informacion){
-                        if (listaServiciosJSON.informacion && (typeof(listaServiciosJSON.informacion) === 'array' || typeof(listaServiciosJSON.informacion) === 'object')) {
+                    if (listaServiciosJSON.total !==0 && listaServiciosJSON.informacion !== undefined){
+                        if (typeof(listaServiciosJSON.informacion) === 'array' || typeof(listaServiciosJSON.informacion) === 'object') {
                             listaServiciosJSON.informacion.forEach (function(serv,i){
                                 if (serv.estado === "Normal" || serv.estado === "Retrasado") {
                                     p.rawServices.push(serv);
